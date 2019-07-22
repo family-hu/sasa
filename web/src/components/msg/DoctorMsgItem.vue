@@ -10,6 +10,7 @@
       <div class="type" v-if="msgType == '2'" @click="goOrderDetail">查看详情</div>
       <div class="type" v-if="msgType == '3'" @click="goReportDetail(docMsgList)">立即报到</div>
       <div class="type" v-if="msgType == '4'" @click="goOrgHome">查看详情</div>
+      <div class="type" v-if="msgType == '4'" @click="goChat(docMsgList)">继续咨询</div>
     </div>
   </div>
 </template>
@@ -59,7 +60,7 @@ export default {
         this.docMsgList.busiType == "文章发布" ||
         this.docMsgList.busiType == "小组文章"
       ) {
-        return "1"; //查看文章
+        // return "1"; //查看文章
       } else if (
         this.docMsgList.busiType == "预约服务" ||
         this.docMsgList.busiType == "预约消息" ||
@@ -70,6 +71,8 @@ export default {
         return "3"; //立即报到
       } else if (this.docMsgList.busiType == "关注医院") {
         return "4"; //查看详情
+      }else if (this.docMsgList.busiType == "群聊消息"){
+        return "5";
       }
     }
   },
@@ -87,6 +90,16 @@ export default {
   },
 
   methods: {
+    //进入群聊
+    goChat(item) {
+      this.$router.push({
+        path: "chat",
+        query: {
+          docId: item.userId.value,
+          groupId: item.busiId.value //当前为群ID
+        }
+      });
+    },
     goOrgHome() {
       //机构主页
       this.$router.push({
