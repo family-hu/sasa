@@ -3,7 +3,7 @@
 
         <!-- <div  class="package_item"> -->
           <div class="item_box">
-            <h3>{{categoryList.name}}</h3>
+            <!-- <h3>{{categoryList.name}}</h3> -->
             <ul class="item_list">
               <li v-for="(item,index) in categoryList.productList" :key="index">
                 <div class="title_box">
