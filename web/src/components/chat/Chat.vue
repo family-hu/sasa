@@ -64,7 +64,7 @@
       <div :style="showCustomPopup ? 'padding-bottom:210px' : docDownLine == false ? 'padding-bottom:140px' : 'padding-bottom:100px' ">
         <div id="messageList" class="npcTalklist" :style="timeSecKill ? ' padding-top: 40px' : ''">
           <!-- 医生详情悬浮-->
-          <div class="docDetail_box" v-if="helperId">
+          <div class="docDetail_box" v-if="groupId">
             <div class="box_item">
               <img :src="doctorCardImg" alt="">
               <div style="width:100%">
@@ -77,7 +77,7 @@
               </div>
             </div>
           </div>
-          <div v-if="helperId" class="assistant_tip"><span>由医生助理为您提供服务</span></div>
+          <div v-if="groupId" class="assistant_tip"><span>由医生助理为您提供服务</span></div>
           <div v-if="isDoctorChat && isTalk == true" class="assistant_tip"><span>为了医师的准确判断，请按照您的真实情况回答</span></div>
           <!-- <div v-if="isDoctorChat && isTalk == false" class="assistant_tip"><span>医生审核已通过，可以开始沟通了</span></div> -->
           <div class="npcTalkItem clearFix border-left" v-if="isDoctorChat">
@@ -101,8 +101,8 @@
 
         <div v-if="showFaceBox" class='shade_face' @click="hideFace"></div>
         <div v-if="showCustomPopup" class="shade" @click="showCustom"></div>
-        <div class="footer_box" v-if="(isDoctorChat && isTalk == true) || helperId">
-          <div v-if="helperId" class="user_think" @click="hideFace">
+        <div class="footer_box" v-if="(isDoctorChat && isTalk == true) || groupId">
+          <div v-if="groupId" class="user_think" @click="hideFace">
             我想 <button @click="goServerList">查看服务记录</button><button @click="goServiceList">服务推荐</button><button @click="goDocDetail">向医生问诊</button>
           </div>
           <div class="footerTalk">
@@ -144,12 +144,12 @@
                 <img src="/static/img/camare@2x.png" alt="">
                 <p>相机</p>
               </div>
-              <div v-if="helperId" class="list" @click="goChatRecord">
+              <div v-if="groupId" class="list" @click="goChatRecord">
                 <input type="button"  class="file_input">
                 <img src="/static/img/record@2x.png" alt="">
                 <p>聊天记录</p>
               </div>
-              <div v-if="helperId" class="list" @click="evaluation">
+              <div v-if="groupId" class="list" @click="evaluation">
                 <input type="button"  class="file_input">
                 <img src="/static/img/rank@2x.png" alt="">
                 <p>客服评价</p>
@@ -206,13 +206,12 @@ export default {
       selToID: this.$route.query.docId,
       friendHeadUrl: this.$route.query.friendHeadUrl,
       gender: this.$route.query.gender,
-      helperId: this.$route.query.helperId, //助理ID
+      groupId: this.$route.query.groupId, //群ID
       isDoctorChat: this.$route.query.isDoctorChat, //标记与医生问诊
       isTalk: null, //是否可以会话
       talkPrice: "", //咨询价格
       snapId: "",
       orgId: "",
-      groupId: "", //群ID
       doctorDetail: [],
       imMsgList: [],
       locationList: [],
@@ -667,6 +666,9 @@ export default {
           if (doctorList && doctorList.length > 0) {
             vm.doctorDetail = doctorList[0];
             vm.orgId = doctorList[0].orgId.value;
+            vm.drName = doctorList[0].userName;
+            vm.friendHeadUrl = doctorList[0].photoUrl;
+            vm.gender = doctorList[0].gender;
             let list = doctorList[0].servList;
             for (let i = 0; i < list.length; i++) {
               if (list[i].type.value == "2000104") {
@@ -804,7 +806,7 @@ export default {
 
       msg.set({
         msg: "[自定义消息]",
-        to: that.helperId && that.groupId ? that.groupId : that.selToID, //接收消息对象
+        to: that.groupId ? that.groupId : that.selToID, //接收消息对象
         ext: {
           IMicon: that.loginData.userObj.photoUrl,
           IMname: that.loginData.userObj.userName
@@ -834,7 +836,7 @@ export default {
           that.scrollToBottom();
         } //消息发送成功回调
       });
-      if (this.helperId) {
+      if (this.groupId) {
         //如果是群
         msg.setGroup("groupchat");
       }
@@ -854,7 +856,7 @@ export default {
       var msg = new WebIM.message("txt", id); // 创建文本消息
       msg.set({
         msg: val, // 消息内容
-        to: this.helperId && this.groupId ? this.groupId : userName, // 接收消息对象（用户id）群或者医生
+        to: this.groupId ? this.groupId : userName, // 接收消息对象（用户id）群或者医生
         from: this.loginData.userObj.userId.value,
         roomType: false, // 群聊类型，true时为聊天室，false时为群组
         ext: {
@@ -879,7 +881,7 @@ export default {
           console.log("Send private text error  -- 发送失败");
         }
       });
-      if (this.helperId && this.groupId) {
+      if (this.groupId) {
         // 群消息
         msg.setGroup("groupchat");
       } else {
@@ -892,7 +894,7 @@ export default {
     // 私聊或群发送图片消息
     sendPrivateImg(type) {
       let that = this;
-      let userName = that.helperId ? this.groupId : that.selToID;
+      let userName = that.groupId ? this.groupId : that.selToID;
       var id = that.conn.getUniqueId();
       var msg = new WebIM.message("img", id);
       if (type == "1") {
@@ -966,25 +968,6 @@ export default {
           document.documentElement.scrollTop || document.body.scrollTop || 0;
         window.scrollTo(0, Math.max(scrollHeight - 1, 0));
       }, 100);
-    },
-    //医患开启助手群聊
-    imHelperOpen() {
-      let request = {
-        docId: this.selToID,
-        userId: this.loginData.userObj.userId.value,
-        helperId: this.helperId
-      };
-      this.$store
-        .dispatch("imHelperOpen", request)
-        .then(data => {
-          if (data.groupId) {
-            this.groupId = data.groupId.value; //群组ID
-            this.getStorage();
-          }
-        })
-        .catch(error => {
-          this.$toast(error.message);
-        });
     },
     //环信登录
     imLogin() {
@@ -1244,8 +1227,7 @@ export default {
     this.imLogin();
 
     //获取群ID
-    if (this.helperId && !this.isDoctorChat) { //助理群聊
-      this.imHelperOpen();
+    if (this.groupId && !this.isDoctorChat) { //助理群聊
       //获取title
       document.title = this.drName + "医生的助理";
     } else {
@@ -1253,11 +1235,12 @@ export default {
       document.title = this.drName + "医生";
       //获取会话状态
       this.requestImStatus();
-      //获取本地缓存
-      this.getStorage();
+
     }
     //获取医生详情
     this.expertDetail();
+    //获取本地缓存
+    this.getStorage();
 
     //获取环信聊天记录
     // this.getImchatdata();

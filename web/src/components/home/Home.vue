@@ -174,6 +174,9 @@ export default {
     },
     //banner 跳转
     targetUrl(item) {
+      if(item.url == '' || item.url == undefined || item.url == null){
+        return false
+      }
       window.location.href = item.url;
     },
     //特色科室

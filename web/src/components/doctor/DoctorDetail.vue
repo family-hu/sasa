@@ -210,6 +210,7 @@ export default {
       groupList: [],
       drId: this.$route.query.userId,
       helperId: '',
+      groupId: '',
       total: 0,
       avgScore: "100",
       current: 0,
@@ -599,6 +600,9 @@ export default {
       };
       this.$store.dispatch("imhelper", request).then(data => {
         this.helperId = data.helperId.value;//助理ID
+        if(this.helperId != '' && this.helperId != null && this.helperId != undefined){
+          this.imHelperOpen();
+        }
         if(data.status == '0'){
           this.toChatStatus = true
         }else{
@@ -607,6 +611,24 @@ export default {
       }).catch(e => {
         this.$toast(e.message);
       })
+    },
+    //医患开启助手群聊
+    imHelperOpen() {
+      let request = {
+        docId: this.drId,
+        userId: this.loginData.userObj.userId.value,
+        helperId: this.helperId
+      };
+      this.$store
+        .dispatch("imHelperOpen", request)
+        .then(data => {
+          if (data.groupId) {
+            this.groupId = data.groupId.value; //群组ID
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        });
     },
     //问诊
     toChat() {
@@ -629,7 +651,7 @@ export default {
           drName: this.doctorName,
           friendHeadUrl: this.doctorDetail.photoUrl,
           gender: this.doctorDetail.gender.value,
-          helperId: this.helperId
+          groupId: this.groupId
         }
       });
     },

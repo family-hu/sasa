@@ -41,7 +41,7 @@
         </div>
       </div>
       <!-- 服务结束 -->
-      <div class="server_end" v-if="elementType == 'CMD' && message.ext.userAction == '200' && message.ext.desc == '本次咨询结束'">
+      <div class="server_end" v-if="groupId && elementType == 'CMD' && message.ext.userAction == '200' && message.ext.desc == '本次咨询结束'">
         <!-- <div class="tip_box" v-if="!isDoctorChat">请对我的服务作出评价吧，<span @click="evaluationShow">立即评价</span></div> -->
         <div class="end_btn"><span>本次咨询结束</span></div>
         <div class="end_time">结束时间：{{nowTime}}</div>

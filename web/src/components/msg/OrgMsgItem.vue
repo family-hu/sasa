@@ -72,13 +72,13 @@ export default {
       if(this.orgMsgList.modeId.value == '8107100'){ //系统消息
         img = imgMap.systemMsg
       }else if(this.orgMsgList.modeId.value == '8107101'){ //医院消息
-        if(headImg.length == 1){
+        if(headImg != '' && headImg.length == 1){
           img = headImg
         }else{
           img = imgMap.systemMsg
         }
       }else if(this.orgMsgList.modeId.value == '8107102'){ //医生消息
-        if(headImg.length == 1){
+        if(headImg != '' && headImg.length == 1){
           img = headImg
         }else{
           img = imgMap.familyDoc
