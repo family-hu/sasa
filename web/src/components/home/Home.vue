@@ -9,12 +9,12 @@
       <div style="height: 164px;">
         <mt-swipe :auto="5000" v-if='adList.length < 3'>
           <mt-swipe-item  v-for="ad in adList" :key="ad.advId.value">
-              <img :src="ad.imgUrl" height="164px" width="100%" alt="">
+              <img :src="ad.imgUrl" @click="targetUrl(ad)" height="164px" width="100%" alt="">
             </mt-swipe-item>
         </mt-swipe>
         <el-carousel v-else :interval="4000" type="card" height="164px" indicator-position="outside" autoplay>
           <el-carousel-item  v-for="ad in adList" :key="ad.advId.value" width="100%" height="164px">
-            <img :src="ad.imgUrl" alt="" width="100%" height="164px">
+            <img :src="ad.imgUrl" @click="targetUrl(ad)" alt="" width="100%" height="164px">
           </el-carousel-item>
         </el-carousel>
       </div>
@@ -171,6 +171,10 @@ export default {
     // 推广中心
     goPromotion() {
       window.location.href = 'http://gzh.1010psy.com/promotionCenter?initUserId=' + this.loginData.userObj.userId.value + '&orgId=' + this.orgId
+    },
+    //banner 跳转
+    targetUrl(item) {
+      window.location.href = item.url;
     },
     //特色科室
     featuresDepart(item) {
