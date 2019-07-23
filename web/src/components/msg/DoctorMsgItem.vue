@@ -160,7 +160,8 @@ export default {
           path: "orderDetail",
           query: {
             orgId: this.orgId,
-            orderId: item.busiId.value
+            orderId: item.busiId.value,
+            userId: this.loginData.userObj.userId.value,
           }
         });
 

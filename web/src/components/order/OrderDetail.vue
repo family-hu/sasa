@@ -67,6 +67,7 @@
       return {
         orderDetail: {},
         orderId: this.$route.query.orderId,
+        userId: this.$route.query.userId
       }
     },
 
@@ -101,25 +102,27 @@
         return '';
       },
       statusName() {
-        let status = this.orderDetail.status.value;
-        let isEnd = this.orderDetail.isEnd.value;
-        let cancelStatus = this.orderDetail.cancelStatus.value;
-        if(status == types.ORDER_COMPLETE_UNCOMMENT || status == types.ORDER_COMPLETE_COMMENT) {
+        if(this.orderDetail){
+          let status = this.orderDetail.status.value;
+          let isEnd = this.orderDetail.isEnd.value;
+          let cancelStatus = this.orderDetail.cancelStatus.value;
+          if(status == types.ORDER_COMPLETE_UNCOMMENT || status == types.ORDER_COMPLETE_COMMENT) {
+            return "已完成";
+          }
+          if(isEnd == "0") {
+            if (status == types.ORDER_UNPAID) return "未付款";
+            if (status == types.ORDER_UNCONFIRM) return "待确认";
+            if (status == types.ORDER_ADVICING) return "咨询中";
+          } else {
+            if(cancelStatus != "0") {
+              return "已完成(撤销)";
+            }
+            if (status == types.ORDER_UNPAID) return "已完成(未付款)";
+            if (status == types.ORDER_UNCONFIRM) return "已完成(未受理)";
+            if (status == types.ORDER_ADVICING) return "已完成";
+          }
           return "已完成";
         }
-        if(isEnd == "0") {
-          if (status == types.ORDER_UNPAID) return "未付款";
-          if (status == types.ORDER_UNCONFIRM) return "待确认";
-          if (status == types.ORDER_ADVICING) return "咨询中";
-        } else {
-          if(cancelStatus != "0") {
-            return "已完成(撤销)";
-          }
-          if (status == types.ORDER_UNPAID) return "已完成(未付款)";
-          if (status == types.ORDER_UNCONFIRM) return "已完成(未受理)";
-          if (status == types.ORDER_ADVICING) return "已完成";
-        }
-        return "已完成";
       }
     },
 
@@ -139,7 +142,10 @@
       // }
       let vm = this;
       if(this.orderId) {
-        let request = {servId: this.orderId};
+        let request = {
+          servId: this.orderId, //订单ID
+          customerId: this.userId //当前用户ID
+        };
         this.$store.dispatch("orderList", request).then((orderList) => {
           if(orderList){
             for (let i = 0; i < orderList.length; i++) {

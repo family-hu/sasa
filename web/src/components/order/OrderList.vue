@@ -41,7 +41,13 @@ export default {
     toDetail(orderDetail) {
       let json = JSON.stringify(orderDetail);
       sessionStorage.setItem("orderDetail", json);
-      this.$router.push("/orderDetail");
+      this.$router.push({
+        path: "orderDetail",
+        query:{
+          orderId: orderDetail.goodsSnapObj.snapId,
+          userId: this.loginData.userObj.userId.value
+        }
+      });
     },
 
     loadMore() {
