@@ -167,7 +167,7 @@ export default {
 .el-rate__item .el-rate__icon {
   font-size: 20px;
 }
-</style>s
+</style>
 <style scoped>
 .dialog_box {
   width: 100%;
