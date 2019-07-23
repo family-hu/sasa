@@ -41,7 +41,7 @@
       <div class="cell0">
         <div style="padding-top: 12px;line-height: 15px;margin-bottom:5px">
           <span class="textbb">订单编号:</span>
-          <span class="textgg">{{ orderDetail.servId.value }}</span>
+          <span class="textgg">{{ serverId }}</span>
         </div>
         <div style="padding-top: 4px;line-height: 15px;margin-bottom:5px">
           <span class="textbb">下单时间:</span>
@@ -65,7 +65,7 @@
   export default {
     data() {
       return {
-        orderDetail: {},
+        orderDetail: [],
         orderId: this.$route.query.orderId,
         userId: this.$route.query.userId
       }
@@ -82,9 +82,17 @@
         }
         return '';
       },
-
+      serverId(){
+        if(this.orderDetail.servId){
+          return this.orderDetail.servId.value
+        }
+        return ''
+      },
       orderStatus() {
-        return parseInt(this.orderDetail.status.value);
+        if(this.orderDetail.status){
+          return parseInt(this.orderDetail.status.value)
+        }
+        return ''
       },
 
       serviceTimes() {
@@ -103,9 +111,18 @@
       },
       statusName() {
         if(this.orderDetail){
-          let status = this.orderDetail.status.value;
-          let isEnd = this.orderDetail.isEnd.value;
-          let cancelStatus = this.orderDetail.cancelStatus.value;
+          let status = null,
+              isEnd = null,
+              cancelStatus = null;
+          if(this.orderDetail.status){
+            status = this.orderDetail.status.value;
+          }
+          if(this.orderDetail.isEnd){
+            isEnd = this.orderDetail.isEnd.value;
+          }
+          if(this.orderDetail.cancelStatus){
+            cancelStatus = this.orderDetail.cancelStatus.value;
+          }
           if(status == types.ORDER_COMPLETE_UNCOMMENT || status == types.ORDER_COMPLETE_COMMENT) {
             return "已完成";
           }
@@ -127,6 +144,24 @@
     },
 
     created() {
+      if(this.orderId) {
+        sessionStorage.removeItem("orderDetail");
+        let request = {
+          servId: this.orderId, //订单ID
+          customerId: this.userId //当前用户ID
+        };
+        this.$store.dispatch("orderList", request).then((orderList) => {
+          if(orderList){
+            for (let i = 0; i < orderList.length; i++) {
+              this.orderDetail.push(orderList[i]);
+            }
+          }
+
+        }).catch(error => {
+          this.$toast(error.message);
+        });
+      }
+
       let json = sessionStorage.getItem("orderDetail");
       if(json) {
         this.orderDetail = JSON.parse(json);
@@ -140,23 +175,7 @@
       //     this.$toast(error.message);
       //   });
       // }
-      let vm = this;
-      if(this.orderId) {
-        let request = {
-          servId: this.orderId, //订单ID
-          customerId: this.userId //当前用户ID
-        };
-        this.$store.dispatch("orderList", request).then((orderList) => {
-          if(orderList){
-            for (let i = 0; i < orderList.length; i++) {
-              vm.orderDetail.push(orderList[i]);
-            }
-          }
 
-        }).catch(error => {
-          this.$toast(error.message);
-        });
-      }
     }
   }
 </script>
