@@ -42,6 +42,7 @@ export default {
   data() {
     return{
       helperId: '',
+      groupId: ''
     }
   },
   props: ["orderItem"],
@@ -199,7 +200,7 @@ export default {
           drName: this.orderItem.acceptUserObj.userName,
           friendHeadUrl: this.orderItem.acceptUserObj.photoUrl,
           gender: this.orderItem.acceptUserObj.gender.value,
-          helperId: this.helperId
+          groupId: this.groupId
         }
       });
     },
@@ -211,13 +212,32 @@ export default {
       this.$store.dispatch("imhelper", request).then(data => {
         this.helperId = data.helperId.value;//助理ID
         if(this.helperId){
-          this.toChatHelper();
+          this.imHelperOpen();
         }else{
           this.$toast('网络繁忙，稍后重试');
         }
       }).catch(e => {
         this.$toast(e.message);
       })
+    },
+    //医患开启助手群聊
+    imHelperOpen() {
+      let request = {
+        docId: this.orderItem.goodsSnapObj.acceptUserObj.userId.value,
+        userId: this.loginData.userObj.userId.value,
+        helperId: this.helperId
+      };
+      this.$store
+        .dispatch("imHelperOpen", request)
+        .then(data => {
+          if (data.groupId) {
+            this.groupId = data.groupId.value; //群组ID
+            this.toChatHelper();
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        });
     },
     //取消订单
     cancelOrder() {
