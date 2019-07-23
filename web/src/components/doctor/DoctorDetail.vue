@@ -600,9 +600,6 @@ export default {
       };
       this.$store.dispatch("imhelper", request).then(data => {
         this.helperId = data.helperId.value;//助理ID
-        if(this.helperId != '' && this.helperId != null && this.helperId != undefined){
-          this.imHelperOpen();
-        }
         if(data.status == '0'){
           this.toChatStatus = true
         }else{
@@ -624,6 +621,16 @@ export default {
         .then(data => {
           if (data.groupId) {
             this.groupId = data.groupId.value; //群组ID
+            this.$router.push({
+              path: "chat",
+              query: {
+                docId: this.drId,
+                drName: this.doctorName,
+                friendHeadUrl: this.doctorDetail.photoUrl,
+                gender: this.doctorDetail.gender.value,
+                groupId: this.groupId
+              }
+            });
           }
         })
         .catch(error => {
@@ -644,16 +651,7 @@ export default {
     },
     //问诊-医生助理
     toChatHelper() {
-      this.$router.push({
-        path: "chat",
-        query: {
-          docId: this.drId,
-          drName: this.doctorName,
-          friendHeadUrl: this.doctorDetail.photoUrl,
-          gender: this.doctorDetail.gender.value,
-          groupId: this.groupId
-        }
-      });
+      this.imHelperOpen();
     },
     //定制服务-服务包
     scanAll() {
