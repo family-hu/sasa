@@ -136,7 +136,7 @@ export default {
   }
   .text_box{
     margin-left: 10px;
-    max-width: 230px;
+    max-width: 210px;
   }
   .namecs{
     font-size:17px;
