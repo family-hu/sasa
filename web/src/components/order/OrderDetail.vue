@@ -137,6 +137,20 @@
       //     this.$toast(error.message);
       //   });
       // }
+      let vm = this;
+      if(this.orderId) {
+        let request = {servId: this.orderId};
+        this.$store.dispatch("orderList", request).then((orderList) => {
+          if(orderList){
+            for (let i = 0; i < orderList.length; i++) {
+              vm.orderDetail.push(orderList[i]);
+            }
+          }
+
+        }).catch(error => {
+          this.$toast(error.message);
+        });
+      }
     }
   }
 </script>
