@@ -2,7 +2,7 @@
   <div>
     <div v-if="docMsgList.length > 0">
       <div class="box" :class="isDocMsg == 'true' ? 'padding' : ''">
-        <doctor-msg-item v-for="(message,index) in docMsgList" :key="index" :index="index" :docMsgList="message" :orgId="orgId"></doctor-msg-item>
+        <doctor-msg-item v-for="(message,index) in docMsgList" :key="index" :index="index" :docMsgList="message" :orgId="orgId" :targetId="targetId"></doctor-msg-item>
       </div>
       <div v-if="isDocMsg == 'true'" class="bottom_box">
         <span @click="goDocDetail">医生主页</span>

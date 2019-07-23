@@ -7,10 +7,12 @@
       </div>
       <div class="centet_text">{{docMsgList.content}}</div>
       <div class="type" v-if="msgType == '1'">查看文章</div>
-      <div class="type" v-if="msgType == '2'" @click="goOrderDetail">查看详情</div>
+      <div class="type" v-if="msgType == '2'" @click="goOrderDetail(docMsgList)">查看详情</div>
       <div class="type" v-if="msgType == '3'" @click="goReportDetail(docMsgList)">立即报到</div>
       <div class="type" v-if="msgType == '4'" @click="goOrgHome">查看详情</div>
-      <div class="type" v-if="msgType == '4'" @click="goChat(docMsgList)">继续咨询</div>
+      <div class="type" v-if="msgType == '5'" @click="goChat(docMsgList)">继续咨询</div>
+      <div class="type" v-if="msgType == '6'" @click="goChat(docMsgList)">开始问诊</div>
+      <div class="type" v-if="msgType == '7'" @click="goChatRecord(docMsgList)">查看问诊记录</div>
     </div>
   </div>
 </template>
@@ -26,7 +28,8 @@ export default {
   },
   props: {
     docMsgList: {},
-    orgId: ""
+    orgId: "",
+    targetId:''
   },
 
   computed: {
@@ -64,8 +67,14 @@ export default {
       } else if (
         this.docMsgList.busiType == "预约服务" ||
         this.docMsgList.busiType == "预约消息" ||
-        this.docMsgList.busiType == "预约"
+        this.docMsgList.busiType == "预约" ||
+        this.docMsgList.busiType == "在线咨询"
       ) {
+        if(this.docMsgList.title == "温馨提示:您预约的问诊开始了"){
+          return "6"; //开始问诊
+        }else if(this.docMsgList.title == "温馨提示:您预约的问诊已结束"){
+          return "7"; //查看问诊记录
+        }
         return "2"; //查看详情
       } else if (this.docMsgList.busiType == "关注医生") {
         return "3"; //立即报到
@@ -90,13 +99,34 @@ export default {
   },
 
   methods: {
-    //进入群聊
+    //进入问诊
     goChat(item) {
+      if(this.msgType == '6'){ //医生问诊
+        this.$router.push({
+          path: "chat",
+          query: {
+            docId: this.targetId,
+            isDoctorChat: '1'
+          }
+        });
+      }else{
+        this.$router.push({
+          path: "chat",
+          query: {
+            docId: this.targetId,
+            groupId: item.busiId.value //当前为群ID
+          }
+        });
+      }
+
+    },
+    //聊天记录
+    goChatRecord(item) {
       this.$router.push({
-        path: "chat",
+        path: "recordList",
         query: {
-          docId: item.userId.value,
-          groupId: item.busiId.value //当前为群ID
+          docId: this.targetId,
+          userId: this.loginData.userObj.userId.value,
         }
       });
     },
@@ -105,7 +135,8 @@ export default {
       this.$router.push({
         path: "home",
         query: {
-          orgId: this.orgId
+          orgId: this.orgId,
+          selected: 'home'
         }
       });
     },
@@ -122,14 +153,27 @@ export default {
         }
       });
     },
-    goOrderDetail() {
+    goOrderDetail(item) {
       //跳转订单详情
-      this.$router.push({
-        path: "appointOrderList",
-        query: {
-          orgId: this.orgId
-        }
-      });
+      if(item.busiType == "在线咨询"){
+        this.$router.push({
+          path: "orderDetail",
+          query: {
+            orgId: this.orgId,
+            orderId: item.busiId.value
+          }
+        });
+
+      }else{
+        this.$router.push({
+          path: "appointOrderDetail",
+          query: {
+            orgId: this.orgId,
+            orderId: item.busiId.value
+          }
+        });
+      }
+
     },
     goReportDetail(item) {
       //跳转报到页
@@ -172,11 +216,11 @@ export default {
   font-size: 14px;
   color: rgba(4, 11, 28, 0.5);
   margin-top: 10px;
-  display: -webkit-box;
+  /* display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; */
 }
 .type {
   margin-top: 10px;

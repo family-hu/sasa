@@ -342,20 +342,19 @@ export default {
   },
   methods: {
     //监听页面离开状态
-    changeListennr(){
+    changeListennr() {
       // 监听 visibility change hidden事件
       // 页面变为不可见时触发
-      if (document.visibilityState == 'hidden') {
+      if (document.visibilityState == "hidden") {
         this.requestImStatus("endTime"); //销毁定时器
       }
 
       // 页面变为可见时触发
-      if (document.visibilityState == 'visible') {
+      if (document.visibilityState == "visible") {
         // window.location.reload(); //刷新页面
-        if(this.isDoctorChat == '1'){
+        if (this.isDoctorChat == "1") {
           this.requestImStatus();
         }
-
       }
     },
     //改变状态
@@ -363,7 +362,7 @@ export default {
       this.isTalk = data;
     },
     //倒计时
-    setTimer(end,now) {
+    setTimer(end, now) {
       var totalSecond = end - now;
 
       clearInterval(this.setTime);
@@ -465,12 +464,11 @@ export default {
               // let hstr = h.toString();
               // hstr.toString() <= 99
 
-              if(i > 0){
-                this.setTimer(endTime,timestamp);
+              if (i > 0) {
+                this.setTimer(endTime, timestamp);
                 this.timeSecKill = true;
               }
             }
-
           }
         })
         .catch(error => {
@@ -614,7 +612,6 @@ export default {
       }
 
       this.listenerConn();
-
     },
     //聊天记录
     goChatRecord() {
@@ -669,6 +666,15 @@ export default {
             vm.drName = doctorList[0].userName;
             vm.friendHeadUrl = doctorList[0].photoUrl;
             vm.gender = doctorList[0].gender;
+
+            if(this.groupId && !this.isDoctorChat){
+            //助理群聊
+              document.title = this.drName + "医生的助理";
+            } else {
+              document.title = this.drName + "医生";
+
+            }
+
             let list = doctorList[0].servList;
             for (let i = 0; i < list.length; i++) {
               if (list[i].type.value == "2000104") {
@@ -998,7 +1004,6 @@ export default {
         isAutoLogin: true
       });
 
-
       // WebIM.flashUpload = UploadShim({
       //   fileInputId: 'image'
       // }, this.conn).flashUpload;
@@ -1020,7 +1025,7 @@ export default {
       //登录环信
       this.conn.open(options);
     },
-     //聊天监听并建立连接
+    //聊天监听并建立连接
     listenerConn() {
       //接受信息，赋值给信息list
       let getImMsg = this.imMsgList;
@@ -1127,7 +1132,6 @@ export default {
               toBottom();
             }
           }
-
         },
         onEmojiMessage: function(message) {
           if (message.type == "groupchat" && isDoctorChat) {
@@ -1159,7 +1163,6 @@ export default {
               toBottom();
             }
           }
-
         },
         onPictureMessage: function(message) {
           if (message.type == "groupchat" && isDoctorChat) {
@@ -1183,7 +1186,6 @@ export default {
               toBottom();
             }
           }
-
         },
         onVideoMessage: function(message) {
           if (message.type == "groupchat" && isDoctorChat) {
@@ -1210,12 +1212,12 @@ export default {
           WebIM.utils.download.call(this.conn, option);
         } //收到视频消息
       });
-    },
+    }
   },
 
   created() {
     // 监听 visibility change 事件
-    document.addEventListener('visibilitychange', this.changeListennr);
+    document.addEventListener("visibilitychange", this.changeListennr);
 
     console.log(this.isDoctorChat, "==this.isDoctorChat");
 
@@ -1226,19 +1228,13 @@ export default {
     //环信登录
     this.imLogin();
 
-    //获取群ID
-    if (this.groupId && !this.isDoctorChat) { //助理群聊
-      //获取title
-      document.title = this.drName + "医生的助理";
-    } else {
-      //获取title
-      document.title = this.drName + "医生";
-      //获取会话状态
-      this.requestImStatus();
-
-    }
     //获取医生详情
     this.expertDetail();
+    //获取群ID
+    if (!this.groupId && this.isDoctorChat) {
+      //获取会话状态
+      this.requestImStatus();
+    }
     //获取本地缓存
     this.getStorage();
 
