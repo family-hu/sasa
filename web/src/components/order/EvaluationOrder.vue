@@ -205,7 +205,7 @@ export default {
   background: #fff;
   margin-left: 12px;
   margin-bottom: 15px;
-  width: 106px;
+  width: 90px;
   box-sizing: border-box;
   text-align: center;
   font-size: 13px;
