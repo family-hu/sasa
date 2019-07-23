@@ -54,7 +54,7 @@
   }
   .text_box{
     margin-left: 10px;
-    max-width: 220px;
+    max-width: 210px;
   }
   .namecs{
     font-size:17px;
