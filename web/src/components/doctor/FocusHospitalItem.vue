@@ -53,7 +53,8 @@
     align-items: center;
   }
   .text_box{
-    margin: 0 10px;
+    margin-left: 10px;
+    max-width: 220px;
   }
   .namecs{
     font-size:17px;
