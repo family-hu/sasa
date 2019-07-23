@@ -1341,6 +1341,30 @@ export default {
 };
 </script>
 <style scoped>
+.list {
+  float: left;
+  text-align: center;
+  margin-left: 27px;
+  margin-top: 15px;
+  position: relative;
+}
+.list img {
+  width: 59px;
+  height: 59px;
+}
+.list p {
+  color: rgba(4, 11, 28, 0.75);
+  font-size: 12px;
+}
+.list .file_input {
+  width: 55px;
+  height: 55px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 300;
+  opacity: 0;
+}
 .emotion-box {
   margin: 0 auto;
   width: 100%;
@@ -1415,30 +1439,6 @@ export default {
 }
 </style>
 <style>
-.list {
-  float: left;
-  text-align: center;
-  margin-left: 27px;
-  margin-top: 15px;
-  position: relative;
-}
-.list img {
-  width: 59px;
-  height: 59px;
-}
-.list p {
-  color: rgba(4, 11, 28, 0.75);
-  font-size: 12px;
-}
-.list .file_input {
-  width: 55px;
-  height: 55px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 300;
-  opacity: 0;
-}
 .docDetail_box {
   background: #fff;
   margin: 0 16px;
