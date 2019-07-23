@@ -195,9 +195,7 @@ export default {
 .evaluation_tag{
   margin-top: 25px;
   margin-left: -15px;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
+  overflow: hidden
 }
 .evaluation_tag span{
   float: left;
@@ -205,7 +203,7 @@ export default {
   border-radius: 14px;
   padding: 5px 10px;
   background: #fff;
-  margin-left: 12px;
+  margin-left: 25px;
   margin-bottom: 15px;
   min-width: 90px;
   box-sizing: border-box;
