@@ -10,7 +10,7 @@
             <span class="titlecs">{{ hospitalDetail.address }}</span>
           </div>
         </div>
-        <img @click.stop="toMsg" class="msg_img" :src="msgImg" alt="">
+        <div class="msg_img" @click.stop="toMsg"><img :src="msgImg" alt=""></div>
       </div>
       <hr class="full-line">
     </div>
@@ -73,6 +73,12 @@
     border-radius: 50%;
   }
   .msg_img{
+    width: 40px;
+    height: 40px;
+    line-height: 60px;
+    text-align: right;
+  }
+  .msg_img img{
     width: 22px;
     height: 20px;
   }
