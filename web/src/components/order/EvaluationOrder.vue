@@ -194,7 +194,7 @@ export default {
 }
 .evaluation_tag{
   margin-top: 25px;
-  margin-left: -15px;
+  margin-left: -5px;
   overflow: hidden
 }
 .evaluation_tag span{
@@ -205,7 +205,7 @@ export default {
   background: #fff;
   margin-left: 25px;
   margin-bottom: 15px;
-  min-width: 90px;
+  min-width: 80px;
   box-sizing: border-box;
   text-align: center;
   font-size: 13px;
