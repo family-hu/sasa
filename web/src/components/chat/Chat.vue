@@ -87,6 +87,7 @@
             <div class="npcTalk fl" >
               <div class="npcTalkCon">您好，我是<span>{{doctorDetail.userName}}</span>医生，您是要咨询什么情况？</div>
             </div>
+            <message-item v-for="(message,index) in imMsgList" :key="index" :index="index" :message="message" :friendHeadUrl="friendHeadUrl" :gender="gender" :groupId="groupId" v-on:fun="change"></message-item>
           </div>
           <div class="npcTalkItem clearFix border-left" v-else>
             <div class="npcTalkImg fl">
