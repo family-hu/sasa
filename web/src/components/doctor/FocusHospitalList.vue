@@ -31,12 +31,12 @@ export default {
   },
   methods: {
     toHospital(hospital) {
+      sessionStorage.setItem('selected','home');
       this.$router.push({
         path: "home",
         query: {
           orgId: hospital.orgId.value,
           focusEnter: true,
-          selected: 'home',
           orgNames: hospital.orgNames
         }
       });

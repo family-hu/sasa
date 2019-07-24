@@ -134,12 +134,12 @@ export default {
       });
     },
     goOrgHome() {
+      sessionStorage.setItem('selected','home');
       //机构主页
       this.$router.push({
         path: "home",
         query: {
           orgId: this.orgId,
-          selected: 'home'
         }
       });
     },
@@ -187,9 +187,11 @@ export default {
           docId: item.busiId.value
         }
       });
-    }
+    },
+
+
   }
-};
+}
 </script>
 
 <style scoped>

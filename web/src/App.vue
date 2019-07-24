@@ -10,13 +10,17 @@
 <script>
   import { mapGetters } from 'vuex'
   export default {
+    data() {
+      return {
+
+      }
+    },
     computed: {
       ...mapGetters(['cacheName',"loginData"])
     },
 
     watch: {
       $route(to, from) {
-        console.log(this.$route.path,'==path');
         //调用分享
         if(this.$route.path === '/doctorDetail' || this.$route.path === '/main' || this.$route.path === '/healthServiceDetail' || this.$route.path === '/healthServiceDetail' || this.$route.path === '/topicDetail' || this.$route.path === '/home' || this.$route.path === '/featuresDepartment' || this.$route.path === '/serviceDetail' || this.$route.path === '/groupDetail') {
           return false

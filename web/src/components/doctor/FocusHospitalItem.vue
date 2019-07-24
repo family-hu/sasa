@@ -30,10 +30,10 @@
         },
         methods: {
           toMsg() {
+            sessionStorage.setItem('selected','msg');
             this.$router.push({
               path: "home",
               query: {
-                selected: 'msg',
                 orgId: this.hospitalDetail.orgId.value,
                 orgNames: this.hospitalDetail.orgNames
               }
