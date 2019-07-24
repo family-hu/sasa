@@ -13,6 +13,7 @@
       <div class="type" v-if="msgType == '5'" @click="goChat(docMsgList)">继续咨询</div>
       <div class="type" v-if="msgType == '6'" @click="goChat(docMsgList)">开始问诊</div>
       <div class="type" v-if="msgType == '7'" @click="goChatRecord(docMsgList)">查看问诊记录</div>
+      <div class="type" v-if="msgType == '8'" @click="goChat(docMsgList)">查看详情</div>
     </div>
   </div>
 </template>
@@ -82,6 +83,8 @@ export default {
         return "4"; //查看详情
       }else if (this.docMsgList.busiType == "群聊消息"){
         return "5";
+      }else if (this.docMsgList.busiType == "单聊消息"){
+        return "8";
       }
     }
   },
@@ -101,7 +104,7 @@ export default {
   methods: {
     //进入问诊
     goChat(item) {
-      if(this.msgType == '6'){ //医生问诊
+      if(this.msgType == '6' || this.msgType == '8'){ //医生问诊
         this.$router.push({
           path: "chat",
           query: {

@@ -4,14 +4,14 @@
       <div class="box" :class="isDocMsg == 'true' ? 'padding' : ''">
         <doctor-msg-item v-for="(message,index) in docMsgList" :key="index" :index="index" :docMsgList="message" :orgId="orgId" :targetId="targetId"></doctor-msg-item>
       </div>
-      <div class="bottom_box">
+      <div v-if="isDocMsg == 'true'" class="bottom_box">
         <span @click="goDocDetail">医生主页</span>
         <span @click="goChatRecord">咨询记录</span>
         <span @click="goMoreServer">更多服务</span>
       </div>
       <div @click="toChat" class="flex_btn" v-if="isTalk && isDocMsg == 'true'">问诊中</div>
     </div>
-    <div class="empty" >
+    <div class="empty" v-if="docMsgList.length == 0">
       <img :src="consultationEmpty" width="144px" height="136px">
       <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无消息记录</div>
     </div>
@@ -157,12 +157,13 @@ export default {
 }
 .bottom_box {
   position: fixed;
-  bottom: 0;
+  bottom: 0px;
   height: 50px;
   line-height: 50px;
   background: #fff;
   display: flex;
   width: 100%;
+  z-index: 1000;
 }
 .bottom_box span {
   flex: 1;

@@ -36,6 +36,7 @@ export default {
         query: {
           orgId: hospital.orgId.value,
           focusEnter: true,
+          selected: 'home',
           orgNames: hospital.orgNames
         }
       });
