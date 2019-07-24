@@ -157,20 +157,23 @@ export default {
 }
 .bottom_box {
   position: fixed;
-  bottom: 0;
+  bottom: 0px;
   height: 50px;
   line-height: 50px;
   background: #fff;
   display: flex;
   width: 100%;
+  z-index: 1000;
 }
 .bottom_box span {
   flex: 1;
+  display: block;
   text-align: center;
   color: #040b1c;
   font-size: 13px;
   font-weight: 500;
   position: relative;
+  z-index: 1000;
 }
 .bottom_box span:not(:last-child)::after{
   content: '';
@@ -180,6 +183,7 @@ export default {
   height: 15px;
   top: 17.5px;
   background:rgba(4,11,28,.1);
+  z-index: 999;
 }
 .padding {
   padding-bottom: 100px;
@@ -201,6 +205,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
   text-align: center;
+  z-index: 1001;
 }
 </style>
 

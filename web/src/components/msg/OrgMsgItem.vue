@@ -117,8 +117,7 @@ export default {
     }
   },
   created(){
-    //暂无 -消息列表显示该记录
-    // this.requestImStatus();
+    this.requestImStatus();
   }
 };
 </script>

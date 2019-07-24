@@ -41,10 +41,10 @@
         </div>
       </div>
       <!-- 服务结束 -->
-      <div class="server_end" v-if="groupId && elementType == 'CMD' && message.ext.userAction == '200' && message.ext.desc == '本次咨询结束'">
+      <div class="server_end" v-if="isDoctorChat && elementType == 'CMD' && message.ext.userAction == '200' && message.ext.desc == '本次咨询结束'">
         <!-- <div class="tip_box" v-if="!isDoctorChat">请对我的服务作出评价吧，<span @click="evaluationShow">立即评价</span></div> -->
         <div class="end_btn"><span>本次咨询结束</span></div>
-        <div class="end_time">结束时间：{{nowTime}}</div>
+        <div class="end_time">结束时间：{{message.ext.time}}</div>
       </div>
 
       <div v-if="message.ext.userActionMy != '99' && message.ext.userAction != '200'" class="npcTalkItem clearFix" :class="[!isSelf ? 'border-left' : 'border-right']">  <!-- v-if="!tipType && !customType(105)" 不是提示消息，不是服务包-->
