@@ -30,15 +30,15 @@
     </div>
 
     <mt-tabbar v-model="selected" fixed>
-        <mt-tab-item id="home" @click.native="changeTitle()">
+        <mt-tab-item id="home" @click.native="changeTitle">
           <img slot="icon" :src="homeImg">
           首页
         </mt-tab-item>
-        <mt-tab-item id="shopping" @click.native="changeTitle()">
+        <mt-tab-item id="shopping" @click.native="changeTitle">
           <img slot="icon" :src="shoppingImg">
           商城
         </mt-tab-item>
-        <mt-tab-item id="group" @click.native="changeTitle()">
+        <mt-tab-item id="group" @click.native="changeTitle">
           <img slot="icon" :src="groupImg">
           小组
         </mt-tab-item>
@@ -82,7 +82,8 @@
         name: 'Main',
         data() {
           return {
-            selected: this.$route.query.selected ? this.$route.query.selected : "home",
+            selected: "home", //默认首页
+            isSelected: this.$route.query.selected, //路由参数
             orgId: this.$route.query.orgId, //this.$route.query.orgId
             focusEnter: true,//this.$route.query.focusEnter,
             orgNames: null,
@@ -156,7 +157,7 @@
             }
         },
         changeTitle() {
-          window.localStorage.setItem('selected',this.selected);
+          sessionStorage.setItem('selected',this.selected);
           let title = '';
           if(this.selected == 'home') {
             if(this.orgNames) {
@@ -198,10 +199,18 @@
       },
       created() {
         this.requestOrgInfo();
-        let selected = window.localStorage.getItem('selected');
-        if( selected != '' && selected != null && selected != undefined){
-          this.selected = selected;
+
+        if(this.isSelected != '' && this.isSelected != null && this.isSelected != undefined){
+          this.selected = this.isSelected; //路由参数
+        }else{
+          let selected = sessionStorage.getItem('selected');
+          if( selected != '' && selected != null && selected != undefined){
+            this.selected = selected;
+          }else{
+            this.selected = 'home'
+          }
         }
+
       },
 
       activated() {
