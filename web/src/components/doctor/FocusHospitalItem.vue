@@ -73,7 +73,7 @@
     border-radius: 50%;
   }
   .msg_img{
-    width: 40px;
+    width: 44px;
     height: 40px;
     line-height: 60px;
     text-align: right;
