@@ -145,6 +145,24 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title;
   }
 
+  //判断该页面有timestamp
+  if (to.query) {
+    //路由切换时，如果没有就添加，有就跳过执行，添加固定参数
+    if (!to.query.timestamp) {
+      //准备一个跳转的query对象
+      let query = to.query
+      query.timestamp = Date.parse(new Date())
+      next({
+        path: to.path,
+        query: query
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
+
   // const user = sessionStorage.getItem("user");
   const user = localStorage.getItem("user");
   let userInfo = {};
