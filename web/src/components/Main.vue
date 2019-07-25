@@ -223,8 +223,8 @@ export default {
 
 <style scoped>
 .page-tabbar {
-  overflow: hidden;
-  height: 100vh;
+  /* overflow: hidden; */
+  height: auto;
 }
 .page-wrap {
   overflow: auto;
