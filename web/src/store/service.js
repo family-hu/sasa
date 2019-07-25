@@ -74,6 +74,12 @@ const actions = {
       return value.data;
     }).catch(err);
   },
+  //聊天记录添加
+  imAddChatDate: ({ commit }, request) => {
+    return axios.post("imAddChatDate.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   // 医生评价
   commitBusiEva: ({ commit }, request) => {
     return axios.post("busiEva.mo", request, config).then(value => {

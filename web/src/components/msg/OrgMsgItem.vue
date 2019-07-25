@@ -10,7 +10,7 @@
             <img v-else class="img" :src="msgImg">
           </div>
           <div class="text_box">
-            <div class="namecs">{{orgMsgList.modeDesc}}<span class="tagChat" v-if="isTalk">问诊中</span></div>
+            <div class="namecs">{{orgMsgList.name}}<span class="tagChat" v-if="isTalk">问诊中</span></div>
             <div class="titlecs">{{orgMsgList.content}}</div>
           </div>
         </div>
