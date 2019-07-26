@@ -816,6 +816,7 @@ stopRecord: function(event) {
     getImchatdata(type) {
       let request = {
         chatuser: type,
+        isGroup: this.groupId ? 1 : 0,
         pageSize: 10,
         pageNum: this.page
       };
