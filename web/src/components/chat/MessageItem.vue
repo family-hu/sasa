@@ -74,9 +74,14 @@
             </div>
           </div>
            <!--  音频  -->
-          <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'">
+          <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'"  @click="audioPlay(index)">
             <i> </i>"{{message.chatBody.length}}
-            <audio :src="message.chatBody.url"  preload="none"></audio> <!-- controls="controls" 显示播放按钮 -->
+            <audio v-if="isSelf"  preload="none" :src="message.chatBody.file.url" :id="'audioPlay' + index">
+              <source :src="message.chatBody.file.url">
+            </audio> <!-- controls="controls" 显示播放按钮 -->
+            <audio v-else  :id="'audioPlay' + index" preload="none" :src="message.chatBody.objectURL">
+              <source :src="message.chatBody.objectURL">
+            </audio>
           </div>
 
           <!--  自定义消息  资讯  -->
@@ -453,7 +458,7 @@ export default {
         }
       } else {
         //如果别人发的消息
-        if (this.message.chatId == this.docId) {
+        if (this.message.chatId.value == this.docId) {
           console.log("==this.docId");
           if (this.friendHeadUrl) {
             img = this.friendHeadUrl;
@@ -520,6 +525,16 @@ export default {
   },
 
   methods: {
+    //播放语音
+    audioPlay(index) {
+      let audio = document.getElementById('audioPlay' +index);
+      if(audio.paused){
+        audio.play();
+        return false
+      }else{
+        audio.pause();
+      }
+    },
     //立即评价
     evaluationShow() {
       this.$parent.evaluation();
