@@ -25,7 +25,7 @@
         <filtrate-item :filtrateList="filtrateList"></filtrate-item>
         <!-- 体检套餐list -->
         <div class="cell_box">
-          <ul v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+          <ul v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading"  infinite-scroll-immediate-check="false">
             <health-service-item v-for="(item , index) in serviceList" :key="index" :healthServiceItem="item" :orgId="orgId" :orgNames="orgNames"></health-service-item>
           </ul>
           <div class="empty" v-else>
@@ -87,7 +87,9 @@ export default {
   methods: {
     //分页
     loadMore() {
+      console.log('this.loaded');
       if (!this.loaded) {
+        console.log(this.loaded,'===this.loaded');
         this.page++;
         this.getPackagesList(this.sortType,this.arr);
       }
@@ -117,7 +119,7 @@ export default {
       this.loading = true;
       const request = {
         pageParam:{
-          pageSize: 10,
+          pageSize: 30,
           pageNum: this.page,
         },
         packages:{
@@ -139,6 +141,7 @@ export default {
               this.serviceList.push(data.data.list[i]);
             }
             this.loaded = (this.serviceList.length >= data.data.total.value);
+            console.log(this.loaded,'===this.loaded');
             this.loading = false;
           }
         })
