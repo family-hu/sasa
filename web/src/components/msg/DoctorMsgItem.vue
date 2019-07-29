@@ -30,7 +30,9 @@ export default {
   props: {
     docMsgList: {},
     orgId: "",
-    targetId:''
+    targetId:'',
+    friendHeadUrl: '',
+    gender: '',
   },
 
   computed: {
@@ -130,6 +132,8 @@ export default {
         query: {
           docId: this.targetId,
           userId: this.loginData.userObj.userId.value,
+          friendHeadUrl: this.friendHeadUrl, //医生头像
+          gender: this.gender,
         }
       });
     },

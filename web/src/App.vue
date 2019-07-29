@@ -162,6 +162,67 @@
   .mint-tabbar.is-fixed{
     z-index: 9999;
   }
+/*加载中 icon.....  */
+.loading{
+  width: 100%;
+  margin: 0 auto;
+  /* position: absolute;
+  left: 50%;
+  top:50%;
+  z-index: 200;
+  margin-left: -150px;
+  margin-top: -60px; */
+  /* background: #000;
+  opacity: .5; */
+}
+
+.spinner {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.spinner > div {
+  width: 10px;
+  height: 10px;
+  /* background-color: #67CF22; */
+  /* background-color: #21A3FF; */
+  background-color: #ccc;
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+  animation: bouncedelay 1.4s infinite ease-in-out;
+  /* Prevent first frame from flickering when animation starts */
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0.0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes bouncedelay {
+  0%, 80%, 100% {
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 40% {
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
+
+  /* 默认样式 */
   button,input,select,textarea{vertical-align:baseline;*vertical-align:middle;-webkit-appearance:none; border-radius: 0;}
   button,input{line-height:normal;*overflow:visible;}
   button,input[type="button"],input[type="reset"],input[type="submit"]{cursor:pointer;-webkit-appearance:none;overflow:visible;width:auto;*width:1;}

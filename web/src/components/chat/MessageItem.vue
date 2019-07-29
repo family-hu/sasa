@@ -1,15 +1,15 @@
 <template>
     <div>
       <!-- 医生详情名片 -->
-      <div class="docDetail_box" @click="goDocDetail" v-if="elementType == 'CMD' && message.ext.userAction == '101' && isSelf" style="margin-top:20px">
+      <div class="docDetail_box" @click="goDocDetail" v-if="elementType == 'CMD' && message.chatBody.userActionMy == '99' && isSelf" style="margin-top:20px">
         <div class="box_item">
           <img :src="docImg" alt="">
           <div style="width:100%">
             <div class="flex-b">
-               <div><span class="doc_name">{{message.ext.cardObj.nameCn}}</span><span class="doc_title">{{message.ext.cardObj.titlesName}}</span></div>
+               <div><span class="doc_name">{{message.chatBody.cardObj.nameCn}}</span><span class="doc_title">{{message.chatBody.cardObj.titlesName}}</span></div>
             </div>
-            <div><span class="doc_hos">{{message.ext.cardObj.orgNames}}</span><span class="doc_hos">{{message.ext.cardObj.departmentName}}</span></div>
-            <div class="doc_desp">{{message.ext.cardObj.despSkill}}</div>
+            <div><span class="doc_hos">{{message.chatBody.cardObj.orgNames}}</span><span class="doc_hos">{{message.chatBody.cardObj.departmentName}}</span></div>
+            <div class="doc_desp">{{message.chatBody.cardObj.despSkill}}</div>
           </div>
         </div>
       </div>
@@ -41,13 +41,13 @@
         </div>
       </div>
       <!-- 服务结束 -->
-      <div class="server_end" v-if="isDoctorChat && elementType == 'CMD' && message.ext.userAction == '200' && message.ext.desc == '本次咨询结束'">
+      <div class="server_end" v-if="elementType == 'CMD' && message.chatBody.userAction == '200' && message.chatBody.desc == '本次咨询结束'">
         <!-- <div class="tip_box" v-if="!isDoctorChat">请对我的服务作出评价吧，<span @click="evaluationShow">立即评价</span></div> -->
         <div class="end_btn"><span>本次咨询结束</span></div>
-        <div class="end_time">结束时间：{{message.ext.time}}</div>
+        <div class="end_time">结束时间：{{message.chatBody.time}}</div>
       </div>
 
-      <div v-if="message.ext.userActionMy != '99' && message.ext.userAction != '200'" class="npcTalkItem clearFix" :class="[!isSelf ? 'border-left' : 'border-right']">  <!-- v-if="!tipType && !customType(105)" 不是提示消息，不是服务包-->
+      <div class="npcTalkItem clearFix" v-if="message.chatBody.userActionMy != '99' && message.chatBody.desc != '本次咨询开始'" :class="[!isSelf ? 'border-left' : 'border-right']">  <!-- v-if="!tipType && !customType(105)" 不是提示消息，不是服务包-->
 
         <div class="npcTalkImg" :class="[!isSelf ? 'fl' : 'fr']">
           <img :src="headImg" alt='头像' width='50px' height='50px'>
@@ -56,8 +56,8 @@
         <div class="npcTalk" :class="[!isSelf ? 'fl' : 'fr']">
           <!-- 文字 -->
           <div class="npcTalkCon" v-if="elementType == 'TEXT' ">
-            <div v-if="isSelf" >{{message.body.msg}}</div>
-            <div v-else>{{message.data}}</div>
+            <div v-if="isSelf">{{message.chatBody}}</div>
+            <div v-else>{{message.chatBody}}</div>
           </div>
            <!-- 表情-->
           <div class="npcTalkCon" v-if="elementType == 'FACE' " >
@@ -67,29 +67,29 @@
            <!--  图片  -->
           <div class="npcTalkCon img_box" v-if="elementType == 'IMAGE'">
             <div v-if="isSelf" :id="'imgs'+ index">
-              <img :src="message.file.url" @click="toBigPic(index)"/>
+              <img :src="message.chatBody" @click="toBigPic(index)"/>
             </div>
             <div v-else :id="'imgs'+ index">
-              <img :src="message.url" @click="toBigPic(index)"/>
+              <img :src="message.chatBody" @click="toBigPic(index)"/>
             </div>
           </div>
            <!--  音频  -->
           <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'">
-            <i> </i>"{{message.length}}
-            <audio :src="message.url"  preload="none"></audio> <!-- controls="controls" 显示播放按钮 -->
+            <i> </i>"{{message.chatBody.length}}
+            <audio :src="message.chatBody.url"  preload="none"></audio> <!-- controls="controls" 显示播放按钮 -->
           </div>
 
           <!--  自定义消息  资讯  -->
-          <div class="npcTalkCon" style="width: 200px;" v-if="elementType == 'CMD' && message.ext.userAction == '100'" @click="articleDetail">
-            <div class="title new_title">{{ message.ext.articleObj.title }}</div>
-            <div class="content maxLine"> {{ message.ext.articleObj.htmlContent }}</div>
+          <div class="npcTalkCon" style="width: 200px;" v-if="elementType == 'CMD' && message.chatBody.userAction == '100'" @click="articleDetail">
+            <div class="title new_title">{{ message.chatBody.articleObj.title }}</div>
+            <div class="content maxLine"> {{ message.chatBody.articleObj.htmlContent }}</div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 14px;color: #666666;">资讯</div>
           </div>
           <!--  自定义消息  名片 -->
-          <div class="npcTalkCon" style="width: 200px;" @click="docDetail" v-if="elementType == 'CMD' && message.ext.userAction == '101' && !isSelf">
-            <div class="title">{{ message.ext.cardObj.nameCn}} <span class="content">{{ message.ext.cardObj.titlesName}}</span></div>
-            <div class="content"> {{ message.ext.cardObj.orgNames }} &nbsp;&nbsp; {{ message.ext.cardObj.departmentName }}</div>
+          <div class="npcTalkCon" style="width: 200px;" @click="docDetail" v-if="elementType == 'CMD' && message.chatBody.userAction == '101' && !isSelf">
+            <div class="title">{{ message.chatBody.cardObj.nameCn}} <span class="content">{{ message.chatBody.cardObj.titlesName}}</span></div>
+            <div class="content"> {{ message.chatBody.cardObj.orgNames }} &nbsp;&nbsp; {{ message.chatBody.cardObj.departmentName }}</div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 14px;color: #666666;">医生</div>
           </div>
@@ -100,72 +100,72 @@
             <div style="font-size: 14px;color: #666666;">机构</div>
           </div> -->
            <!--  自定义消息  健康计划  -->
-          <div class="npcTalkCon" @click="planDetail" style="width: 200px;" v-if="elementType == 'CMD' && message.ext.userAction == '103'">
-            <div class="title">{{ message.ext.planObj.title }}</div>
+          <div class="npcTalkCon" @click="planDetail" style="width: 200px;" v-if="elementType == 'CMD' && message.chatBody.userAction == '103'">
+            <div class="title">{{ message.chatBody.planObj.title }}</div>
             <div class="flex-b" style="margin-top:5px">
-               <div class="content maxLine" style="margin-top:0;width:178px">{{ message.ext.planObj.htmlContent }}</div>
-               <img style="margin-left:10px;width:50px;height:50px" :src="message.ext.planObj.imgUrl" alt="">
+               <div class="content maxLine" style="margin-top:0;width:178px">{{ message.chatBody.planObj.htmlContent }}</div>
+               <img style="margin-left:10px;width:50px;height:50px" :src="message.chatBody.planObj.imgUrl" alt="">
             </div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 12px;color: #666666;">健康计划</div>
           </div>
           <!--  自定义消息  随访计划  -->
-          <div class="npcTalkCon" style="width: 200px;" @click="visitDetail" v-if="elementType == 'CMD' && message.ext.userAction == '104'">
-            <div class="title">{{ message.ext.visitObj.visitName }}</div>
-            <div class="content maxLine">{{ message.ext.visitObj.content }}</div>
+          <div class="npcTalkCon" style="width: 200px;" @click="visitDetail" v-if="elementType == 'CMD' && message.chatBody.userAction == '104'">
+            <div class="title">{{ message.chatBody.visitObj.visitName }}</div>
+            <div class="content maxLine">{{ message.chatBody.visitObj.content }}</div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 14px;color: #666666;">随访计划</div>
           </div>
           <!--  自定义消息  服务包  -->
-          <div class="npcTalkCon" style="min-width: 200px;padding:10px 20px"  @click="serverBag" v-if="elementType == 'CMD' && message.ext.userAction == '105'">
+          <div class="npcTalkCon" style="min-width: 200px;padding:10px 20px"  @click="serverBag" v-if="elementType == 'CMD' && message.chatBody.userAction == '105'">
             <div class="flex-b">
-              <div class="title">{{ message.ext.servInfoObj.acceptName }}</div>
-              <div class="tag" v-if="message.ext.servInfoObj.servType == '2009101'">个人</div>
-              <div class="tag" v-if="message.ext.servInfoObj.servType == '2009102'">团队</div>
-              <div class="tag" v-if="message.ext.servInfoObj.servType == '2009103'">机构</div>
-              <div class="tag" v-if="message.ext.servInfoObj.servType == '2009104'">科室</div>
+              <div class="title">{{ message.chatBody.servInfoObj.acceptName }}</div>
+              <div class="tag" v-if="message.chatBody.servInfoObj.servType == '2009101'">个人</div>
+              <div class="tag" v-if="message.chatBody.servInfoObj.servType == '2009102'">团队</div>
+              <div class="tag" v-if="message.chatBody.servInfoObj.servType == '2009103'">机构</div>
+              <div class="tag" v-if="message.chatBody.servInfoObj.servType == '2009104'">科室</div>
             </div>
             <hr class="full-line" style="margin: 10px 0" />
             <div class="flex-b">
               <div style="display:flex;align-items: center;">
                 <img class="serverBag" src="../../../static/img/serverBag.png" alt="">
                 <div class="desp">
-                  <div class="desp_title">{{ message.ext.servInfoObj.servName }}</div>
-                  <div class="content_bag maxLine">{{ message.ext.servInfoObj.desp }}</div>
+                  <div class="desp_title">{{ message.chatBody.servInfoObj.servName }}</div>
+                  <div class="content_bag maxLine">{{ message.chatBody.servInfoObj.desp }}</div>
                   <div style="margin-top:3px;width:150px;margin-left:-3px">
                     <p v-for="(item,index) in tags " :key="index" class="desp_tag" :class="tagColor(index)">{{item}}</p>
                   </div>
                 </div>
               </div>
-              <div class="price">¥{{message.ext.servInfoObj.price}}</div>
+              <div class="price">¥{{message.chatBody.servInfoObj.price}}</div>
             </div>
           </div>
           <!--  自定义消息  小组分享  -->
-          <div class="npcTalkCon" @click="groupDetail" style="width: 200px;" v-if="elementType == 'CMD' && message.ext.userAction == '106'">
+          <div class="npcTalkCon" @click="groupDetail" style="width: 200px;" v-if="elementType == 'CMD' && message.chatBody.userAction == '106'">
             <div class="title">有一篇好的帖子分享给你！</div>
             <div class="flex-b" style="margin-top:5px">
-               <div class="content maxLine" style="margin-top:0;width:178px">{{ message.ext.groupObj.conDesc }}</div>
-               <img v-if="message.ext.groupObj.imgList[0]" style="margin-left:10px;width:50px;height:50px" :src="message.ext.groupObj.imgList[0]" alt="">
+               <div class="content maxLine" style="margin-top:0;width:178px">{{ message.chatBody.groupObj.conDesc }}</div>
+               <img v-if="message.chatBody.groupObj.imgList[0]" style="margin-left:10px;width:50px;height:50px" :src="message.chatBody.groupObj.imgList[0]" alt="">
             </div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 12px;color: #666666;">小组</div>
           </div>
           <!--  自定义消息  推广分享  -->
-          <div class="npcTalkCon" @click="promoteCenter" style="width: 200px;" v-if="elementType == 'CMD' && message.ext.userAction == '107'">
-            <div class="title">{{message.ext.title}}</div>
+          <div class="npcTalkCon" @click="promoteCenter" style="width: 200px;" v-if="elementType == 'CMD' && message.chatBody.userAction == '107'">
+            <div class="title">{{message.chatBody.title}}</div>
             <div class="flex-b" style="margin-top:5px">
-               <div class="content maxLine" style="margin-top:0;width:180px">{{ message.ext.desp }}</div>
-               <!-- <img style="margin-left:10px;width:50px;height:50px" :src="message.ext.shareURL" alt=""> -->
+               <div class="content maxLine" style="margin-top:0;width:180px">{{ message.chatBody.desp }}</div>
+               <!-- <img style="margin-left:10px;width:50px;height:50px" :src="message.chatBody.shareURL" alt=""> -->
             </div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 12px;color: #666666;">推广中心</div>
           </div>
            <!--  自定义消息  医疗服务  -->
-          <div class="npcTalkCon" @click="shopDetail" style="width: 200px;" v-if="elementType == 'CMD' && message.ext.userAction == '108'">
-            <div class="title">{{message.ext.title}}</div>
+          <div class="npcTalkCon" @click="shopDetail" style="width: 200px;" v-if="elementType == 'CMD' && message.chatBody.userAction == '108'">
+            <div class="title">{{message.chatBody.title}}</div>
             <div class="flex-b" style="margin-top:5px">
-               <div class="content maxLine" style="margin-top:0;width:178px">{{ message.ext.desp }}</div>
-               <img style="margin-left:10px;width:50px;height:50px" :src="message.ext.imagePath" alt="">
+               <div class="content maxLine" style="margin-top:0;width:178px">{{ message.chatBody.desp }}</div>
+               <img style="margin-left:10px;width:50px;height:50px" :src="message.chatBody.imagePath" alt="">
             </div>
             <hr class="full-line" style="margin: 10px 0" />
             <div style="font-size: 12px;color: #666666;">医疗服务</div>
@@ -213,54 +213,100 @@ export default {
     friendHeadUrl: "",
     gender: "",
     index: "",
-    groupId: ''
+    groupId: ""
   },
 
   components: {
     // serviceItem: ServiceItem
   },
-  mounted() {
-
-  },
+  mounted() {},
   computed: {
     ...mapGetters(["loginData"]),
     //当前时间
     nowTime() {
-      Date.prototype.Format = function (fmt) {
-          var o = {
-              "M+": this.getMonth() + 1, //月份
-              "d+": this.getDate(), //日
-              "H+": this.getHours(), //小时
-              "m+": this.getMinutes(), //分
-              "s+": this.getSeconds(), //秒
-              "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-              "S": this.getMilliseconds() //毫秒
-          };
-          if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-          for (var k in o)
-          if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-          return fmt;
-      }
-      return new Date().Format("yyyy-MM-dd HH:mm:ss")
-      console.log(new Date().Format("yyyy-MM-dd HH:mm:ss"),'==timer');
+      Date.prototype.Format = function(fmt) {
+        var o = {
+          "M+": this.getMonth() + 1, //月份
+          "d+": this.getDate(), //日
+          "H+": this.getHours(), //小时
+          "m+": this.getMinutes(), //分
+          "s+": this.getSeconds(), //秒
+          "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+          S: this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt))
+          fmt = fmt.replace(
+            RegExp.$1,
+            (this.getFullYear() + "").substr(4 - RegExp.$1.length)
+          );
+        for (var k in o)
+          if (new RegExp("(" + k + ")").test(fmt))
+            fmt = fmt.replace(
+              RegExp.$1,
+              RegExp.$1.length == 1
+                ? o[k]
+                : ("00" + o[k]).substr(("" + o[k]).length)
+            );
+        return fmt;
+      };
+      return new Date().Format("yyyy-MM-dd HH:mm:ss");
+      console.log(new Date().Format("yyyy-MM-dd HH:mm:ss"), "==timer");
     },
     //本地表情解析
     eleText() {
-      var strarr = ['[):]', '[:D]', '[;)]', '[:-o]', '[:p]', '[(H)]', '[:@]', '[:s]', '[:$]', '[:(]', "[:'(]", '[:|]', '[(a)]', '[8o|]', '[8-|]', '[+o(]', '[|-)]', '[|-)]', '[*-)]', '[:-#]', '[:-*]', '[^o)]', '[8-)]', '[(|)]', '[(u)]', '[(S)]', '[(*)]', '[(#)]', '[(R)]', '[({)]', '[(})]', '[(k)]', '[(F)]', '[(W)]', '[(D)]']
-      var str = this.message.body.msg;
-      for(var i = 0; i < strarr.length; i++){
-        while(str.indexOf(strarr[i]) >= 0){
-            str = str.replace(strarr[i],`<img src="http://webim.easemob.com/demo/images/faces/ee_${i}.png">`);
+      var strarr = [
+        "[):]",
+        "[:D]",
+        "[;)]",
+        "[:-o]",
+        "[:p]",
+        "[(H)]",
+        "[:@]",
+        "[:s]",
+        "[:$]",
+        "[:(]",
+        "[:'(]",
+        "[:|]",
+        "[(a)]",
+        "[8o|]",
+        "[8-|]",
+        "[+o(]",
+        "[|-)]",
+        "[|-)]",
+        "[*-)]",
+        "[:-#]",
+        "[:-*]",
+        "[^o)]",
+        "[8-)]",
+        "[(|)]",
+        "[(u)]",
+        "[(S)]",
+        "[(*)]",
+        "[(#)]",
+        "[(R)]",
+        "[({)]",
+        "[(})]",
+        "[(k)]",
+        "[(F)]",
+        "[(W)]",
+        "[(D)]"
+      ];
+      var str = this.message.chatBody;
+      for (var i = 0; i < strarr.length; i++) {
+        while (str.indexOf(strarr[i]) >= 0) {
+          str = str.replace(
+            strarr[i],
+            `<img src="http://webim.easemob.com/demo/images/faces/ee_${i+1}.png">`
+          );
         }
       }
       console.log(str);
-      return str
-
+      return str;
     },
     //解析表情
     eleHtml() {
       console.log("文字、表情文本解析");
-      var data = this.message.data;
+      var data = this.message.chatBody;
       let Emoji = [];
       for (var i = 0; i < data.length; i++) {
         Emoji.push(data[i]);
@@ -321,8 +367,8 @@ export default {
     // },
     //标签分隔
     tags() {
-      if (this.message.ext.servInfoObj.tags) {
-        let tags = this.message.ext.servInfoObj.tags.split(",");
+      if (this.message.chatBody.servInfoObj.tags) {
+        let tags = this.message.chatBody.servInfoObj.tags.split(",");
         if (tags && tags.length > 3) {
           tags = tags.splice(0, 3);
         }
@@ -333,49 +379,42 @@ export default {
     //判断消息类型
     elementType() {
       let type;
-      let reg = /\.(png|jpg|gif|bmp)$/;
-      let filename= /\.(amr)$/;
-      if (
-        this.message.data == "[自定义消息]" ||
-        this.message.msg == "[自定义消息]"
-      ) {
-        type = "CMD";
-      } else if (
-        this.message.filename == "image" ||
-        this.message.type == "img" ||
-        reg.test(this.message.filename)
-      ) {
-        type = "IMAGE";
-      } else if (this.message.filename == "audio" || filename.test(this.message.filename)) {
-        type = "SOUND";
-      } else if (typeof this.message.data != "string" && this.message.data  || this.type == 'emoji') {
-        type = "FACE";
-      } else {
-        type = "TEXT";
+      let chatType = typeof this.message.chatType == 'string' ? this.message.chatType : this.message.chatType.value;
+      console.log(chatType,'==chatType')
+      switch (chatType) {
+        case "0":
+          type = "TEXT";
+          break;
+        case "1":
+          type = "CMD";
+          break;
+        case "5":
+          type = "IMAGE";
+          break;
+        case "3":
+          type = "FACE";
+          break;
+        case "4":
+          type = "SOUND";
+          break;
+        default:
+          break;
       }
-      return type;
+      return type
     },
     //判断是发送的消息还是接受的消息
     isSelf() {
-      if(this.groupId){ //群
-        if(this.message.to == this.groupId && this.message.from && this.message.from != this.groupId && this.message.from != this.loginData.userObj.userId.value){
-          return false;
-        }else{
-          return true;
-        }
+      let chatId = typeof this.message.chatId == 'string' ? this.message.chatId : this.message.chatId.value;
+      if (chatId == this.loginData.userObj.userId.value) {
+        return true
       }else{
-        if (this.message.to == this.loginData.userObj.userId.value || !this.message.to) {
-          return false;
-        } else {
-          return true;
-        }
+        return false
       }
-
     },
     //服务包图片
     servImgUrl() {
-      // if(this.message.ext.servInfoObj.servImgUrl){
-      //   return this.message.ext.servInfoObj.servImgUrl;
+      // if(this.message.chatBody.servInfoObj.servImgUrl){
+      //   return this.message.chatBody.servInfoObj.servImgUrl;
       // }else{
       //   return '/static/img/serverBag.png';
       // }
@@ -395,9 +434,9 @@ export default {
     //   }
     // },
     // 医生名片图像
-    docImg(){
-      if(this.message.ext.cardObj.photoUrl != ''){
-        return this.message.ext.cardObj.photoUrl
+    docImg() {
+      if (this.message.chatBody.cardObj.photoUrl != "") {
+        return this.message.chatBody.cardObj.photoUrl;
       }
       return imgMap.docMale;
     },
@@ -414,22 +453,21 @@ export default {
         }
       } else {
         //如果别人发的消息
-          if(this.message.from == this.docId){
-            console.log('==this.docId');
-            if (this.friendHeadUrl) {
-              img = this.friendHeadUrl;
+        let chatId = typeof this.message.chatId == 'string' ? this.message.chatId : this.message.chatId.value;
+        if (chatId == this.docId) {
+          console.log("==this.docId");
+          if (this.friendHeadUrl) {
+            img = this.friendHeadUrl;
+          } else {
+            if (this.gender && this.gender == "0") {
+              img = imgMap.docFeMale;
             } else {
-              if (this.gender && this.gender == "0") {
-                img = imgMap.docFeMale;
-              } else {
-                img = imgMap.docMale;
-              }
+              img = imgMap.docMale;
             }
-          }else{
-            img = imgMap.assistantHeadImg;
           }
-
-
+        } else {
+          img = imgMap.assistantHeadImg;
+        }
       }
       return img;
     }
@@ -492,7 +530,7 @@ export default {
       this.$router.push({
         path: "doctorDetail",
         query: {
-          userId: this.$route.query.docId
+          userId: this.docId
         }
       });
     },
@@ -539,23 +577,23 @@ export default {
       this.$router.push({
         path: "topicDetail",
         query: {
-          groupid: this.message.ext.groupObj.groupId,
-          con_id: this.message.ext.groupObj.conId
+          groupid: this.message.chatBody.groupObj.groupId,
+          con_id: this.message.chatBody.groupObj.conId
         }
       });
     },
     //推广
     promoteCenter() {
-      window.location.href = this.message.ext.shareURL;
+      window.location.href = this.message.chatBody.shareURL;
     },
     //医疗服务
     shopDetail() {
-      window.location.href = this.message.ext.shareURL;
+      window.location.href = this.message.chatBody.shareURL;
     },
     //资讯详情
     articleDetail() {
       window.location.href =
-        types.NEWS_DETAIL + this.message.ext.articleObj.newsId;
+        types.NEWS_DETAIL + this.message.chatBody.articleObj.newsId;
     },
     //随访计划详情
     visitDetail() {
@@ -576,7 +614,7 @@ export default {
     serverBag() {
       this.$router.push({
         path: "serviceDetail",
-        query: { servId: this.message.ext.servInfoObj.servId }
+        query: { servId: this.message.chatBody.servInfoObj.servId }
       });
     },
     // customType(type) {
@@ -593,7 +631,7 @@ export default {
 
     //个人名片-跳转医生详情
     docDetail() {
-      let data = this.message.ext;
+      let data = this.message.chatBody;
       this.$router.push({
         path: "doctorDetail",
         query: {
@@ -613,14 +651,14 @@ export default {
     // },
 
     // newsDetail() {
-    //   let data = this.message.ext;
+    //   let data = this.message.chatBody;
     //   window.location.href = types.NEWS_DETAIL + data.articleObj.newsId;
     // }
   },
   created() {
     //自定义消息，安卓数据转对象
     if (this.message.ext) {
-      let ext = typeof this.message.ext;
+      let ext = typeof this.message.chatBody;
       let servInfoObj = typeof this.message.ext.servInfoObj;
       let cardObj = typeof this.message.ext.cardObj;
       let planObj = typeof this.message.ext.planObj;
@@ -628,7 +666,7 @@ export default {
       let articleObj = typeof this.message.ext.articleObj;
       let groupObj = typeof this.message.ext.groupObj;
       if (ext == "string") {
-        this.message.ext = JSON.parse(this.message.ext);
+        this.message.ext = JSON.parse(this.message.chatBody);
       } else if (servInfoObj == "string") {
         this.message.ext.servInfoObj = JSON.parse(this.message.ext.servInfoObj);
       } else if (cardObj == "string") {
@@ -641,21 +679,24 @@ export default {
         this.message.ext.articleObj = JSON.parse(this.message.ext.articleObj);
       } else if (groupObj == "string") {
         this.message.ext.groupObj = JSON.parse(this.message.ext.groupObj);
-      } else if(this.message.ext.userAction == '200' && this.message.ext.desc == '本次咨询结束'){ //结束会话
-        this.$emit('fun',false);
-        this.$parent.requestImStatus('endTime'); //医生结束聊天
+      } else if (
+        this.message.ext.userAction == "200" &&
+        this.message.ext.desc == "本次咨询结束"
+      ) {
+        //结束会话
+        this.$emit("fun", false);
+        this.$parent.requestImStatus("endTime"); //医生结束聊天
       }
     }
     //微信端发送表情
-    if(this.message.body){
+    if (this.message.body) {
       let str = this.message.body.msg;
-      let regex = /\[|\]|【|】/g
+      let regex = /\[|\]|【|】/g;
       let emoji = regex.test(str);
-      if(emoji == true){
-        this.type = 'emoji';
+      if (emoji == true) {
+        this.type = "emoji";
       }
     }
-
 
     console.log("elementType==", this.elementType);
     console.log("isSelf==", this.isSelf);

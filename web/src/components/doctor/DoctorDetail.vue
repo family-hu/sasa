@@ -50,7 +50,7 @@
       <div class="server_box">
         <div class="headerText">服务内容</div>
         <ul>
-          <li @click="showDetail" v-if="isTalk">
+          <li @click="showDetail" v-if="isChatTalk">
             <img src="/static/img/pic@2x.png" alt="">
             <div class="item_right">
               <div class="flex-b">
@@ -157,8 +157,9 @@
           <p>关注</p>
         </div>
       </div>
-      <a v-if="isTalk" href="javascript:void(0);" class="btn1" @click="showDetail" >向{{doctorDetail.userName}}医生问诊</a>
-      <a v-else href="javascript:void(0);" class="btn1 btn2">向{{doctorDetail.userName}}医生问诊</a>
+      <a v-if="isTalk" href="javascript:void(0);" class="btn1" @click="toChat">向{{doctorDetail.userName}}医生咨询中</a>
+      <a v-if="isChatTalk && !isTalk" href="javascript:void(0);" class="btn1" @click="showDetail">向{{doctorDetail.userName}}医生问诊</a>
+      <a v-if="!isChatTalk && !isTalk" href="javascript:void(0);"  class="btn1 btn2">向{{doctorDetail.userName}}医生问诊</a>
     </div>
     <!-- 图文问诊，底部弹出框 -->
     <div class="shade" v-if="show || codeShade" @click="other_hide"></div>
@@ -226,7 +227,8 @@ export default {
       listLen:'0',
       toChatStatus: false,
       talkList: [],
-      isTalk: false,
+      isTalk: false, //是否咨询中
+      isChatTalk: false, //图文问诊
       isSubscribe: false,
       isVoice: false,
       isVideo: false,
@@ -593,6 +595,24 @@ export default {
         this.myUtils.wxLogin();
       }
     },
+    //获取会话状态
+    requestImStatus() {
+      let request = {
+        docId: this.drId,
+        userId: this.loginData.userObj.userId.value
+      };
+      let vm = this;
+      this.$store
+        .dispatch("imStatus", request)
+        .then(data => {
+          if (data.rtnCode == "1") {
+            this.isTalk = data.isTalk;
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        });
+    },
     //咨询医助
     getImhelper() {
       let request = {
@@ -643,6 +663,7 @@ export default {
         path: "chat",
         query: {
           docId: this.drId,
+          isDoctorChat: '1',
           drName: this.doctorName,
           friendHeadUrl: this.doctorDetail.photoUrl,
           gender: this.doctorDetail.gender.value
@@ -712,7 +733,7 @@ export default {
                 switch (type) {
                   case "2000104":
                     //图文咨询
-                    this.isTalk = true;
+                    this.isChatTalk = true;
                     this.talkList = serviceStatus[i];
                     break;
                   case "2000109":
@@ -797,6 +818,7 @@ export default {
   },
 
   created() {
+    this.requestImStatus();
     this.getEvaList();
     this.expertDetail();
     this.requestServiceList();
