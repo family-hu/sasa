@@ -24,7 +24,7 @@
     },
 
     computed: {
-      ...mapGetters(['isUserApp', 'phoneFragment', 'loginData', 'loginUrl', 'appCode']),
+      ...mapGetters(['isUserApp', 'phoneFragment', 'loginData', 'loginUrl', 'appCode','appId']),
       appIconUser() {
         return imgMap.appIconUser;
       }
@@ -106,7 +106,7 @@
   }
 </style>
 
-<!--
+<!-->
 <template>
   <div style="background-color: white; width: 100%; height: 100%">
     <mt-header :title="isUserApp | setTitle" style="background-color: white; color: black">

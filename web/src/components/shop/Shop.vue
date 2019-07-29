@@ -117,7 +117,7 @@ export default {
       this.loading = true;
       const request = {
         pageParam:{
-          pageSize: 10,
+          pageSize: 30,
           pageNum: this.page,
         },
         packages:{

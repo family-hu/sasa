@@ -105,8 +105,10 @@
           <div v-if="groupId" class="user_think" @click="hideFace">
             我想 <button @click="goServerList">查看服务记录</button><button @click="goServiceList">服务推荐</button><button @click="goDocDetail">向医生问诊</button>
           </div>
-
+          <!-- <button v-if="!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)" id="recrd_btn_mobile" class="record-button" @touchstart="startRecord" @touchend="stopRecord"></button> -->
+          <!-- <button  id="recrd_btn_pc" class="record-button"  @mousedown="startRecord" @mouseup="stopRecord"> 微信录音</button> -->
           <div class="footerTalk">
+
               <!-- contenteditable="true" -->
               <img class="face" @click="showFace" src="/static/img/im_face.png" alt="">
               <div class="face_box" v-if="showFaceBox">
@@ -120,7 +122,7 @@
               </div>
               <!-- <img class="voice" src="/static/img/im_voice.png" alt="" @click="sendAudio"> -->
               <div class="center" v-if="audioInput">
-                <input type="button" class="send_msg_text send_audio"  id="audio" value="按住  说话" @click="sendPrivateAudio">
+                <input type="button" class="send_msg_text send_audio"  id="audio" value="按住  说话" @click="sendAudio">
               </div>
 
               <div class="center" v-else>
@@ -187,7 +189,6 @@
 <script>
 import Header from "../Header.vue";
 import { mapGetters } from "vuex";
-import html2canvas from 'html2canvas';
 import imgMap from "../../../static/js/imgmap.js";
 import MessageItem from "./MessageItem.vue";
 import websdk from "../../../node_modules/easemob-websdk";
@@ -347,6 +348,117 @@ export default {
     window.removeEventListener("visibilitychange", this.changeListennr);
   },
   methods: {
+    // 利用 _this.oRecordInfo.useWxRecord 来决定是否为假按钮 值可根据情况修改
+touchmoveDefault: function (e) {
+  e.preventDefault();
+},
+startRecord: function (event) {
+  console.log('startRecord')
+  var _this = this
+  if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+    // 移动端 取消浏览器长按事件 （否则在录音时会有弹出框）
+    document.oncontextmenu = _this.touchmoveDefault
+    //禁止滑动事件 防止在长按时 下拉窗口不能触发stopRecord
+    document.body.addEventListener('touchmove', _this.touchmoveDefault, {passive: false})
+  }
+  if(localStorage.rainAllowRecord !== 'true' && _this.oRecordInfo.useWxRecord !== 2 && _this.oRecordInfo.useWxRecord !== 3){
+    //  首次进入 弹出是否授权框
+    wx.startRecord({
+      success: function(){
+        //  授权录音
+        localStorage.rainAllowRecord = 'true'
+        _this.oRecordInfo.useWxRecord = 3
+        _this.oRecordInfo.bShowRecording = false  //  控制正在录音gif显示
+        wx.stopRecord()
+        return
+      },
+      cancel: function () {
+        // 用户拒绝授权录音
+        _this.oRecordInfo.bShowRecording = false
+        _this.oRecordInfo.useWxRecord = 0
+        if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+          document.body.removeEventListener('touchmove', _this.touchmoveDefault)
+         }
+        return
+      }
+    })
+    if (_this.oRecordInfo.useWxRecord === 1) {
+      //  使用假录音功能
+      _this.oRecordInfo.useWxRecord = 2
+    }
+  }
+  _this.oRecordInfo.bShowRecording = true
+  _this.oRecordInfo.timer = new Date()
+  //  防止因为js 加载时间过长导致调用录音接口失败问题 实现假按钮效果
+  if ((_this.oRecordInfo.useWxRecord === 1 || _this.oRecordInfo.useWxRecord === 3) && localStorage.rainAllowRecord === 'true') {
+    _this.oRecordInfo.recordTimer = setTimeout(function () {
+    wx.startRecord({
+      success: function(){
+        console.log('wx.startRecord success')
+        localStorage.rainAllowRecord = 'true'
+      },
+      cancel: function () {
+        _this.oRecordInfo.bShowRecording = false
+      }
+    })
+   }, 300)
+  }
+},
+stopRecord: function(event) {
+  var _this = this
+  console.log('stopRecord')
+  //  回复滑动事件
+  if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+    document.body.removeEventListener('touchmove', _this.touchmoveDefault)
+  }
+  _this.oRecordInfo.bShowRecording = false
+  var t = new Date()
+  if (t - _this.oRecordInfo.timer < 300) {
+    //  少于300毫秒 不执行startRecord
+    clearTimeout(_this.oRecordInfo.recordTimer)
+  } else if (t - _this.oRecordInfo.timer < 2000) {
+    if (_this.toastInstance) {
+      _this.toastInstance.close()
+    }
+    _this.toastInstance = this.$toast({
+      message: '时间太短啦 重新试一次吧',
+      position: 'bottom',
+      duration: 1000
+    })
+    if (_this.oRecordInfo.useWxRecord !== 2) {
+      setTimeout(function() {
+        wx.stopRecord({
+          success: function(res) {
+            console.log('updataRecord success')
+          },
+          fail: function(res) {
+            console.log(JSON.stringify(res))
+          }
+        })
+      }, 500)
+    }
+  } else {
+    wx.stopRecord({
+      success: function(res) {
+        console.log('updataRecord success')
+      },
+      fail: function(res) {
+        console.log(JSON.stringify(res))
+      }
+    })
+    if (_this.oRecordInfo.timer) {
+      _this.show_upload_next_button = true
+    }
+  }
+  _this.oRecordInfo.timer = null
+},
+
+
+
+
+
+
+
     //监听页面离开状态
     changeListennr(){
       // 监听 visibility change hidden事件
@@ -386,20 +498,20 @@ export default {
         chatType: type,
       }
       this.imMsgList.push(list); //渲染
-      if(!data.from){
-        this.getImAddChatDate(msgData,type); //当前用户保存
-      }
+      // if(!data.from){
+        this.getImAddChatDate(data,msgData,type); //当前用户保存
+      // }
       this.scrollToBottom();
     },
     //存储聊天记录
-    getImAddChatDate(msg,chatType) {
+    getImAddChatDate(msg,msgData,chatType) {
       let request = {
         chatType: chatType,
-        targetType: this.groupId ? this.groupId : this.loginData.userObj.userId.value,//消息类型
-        fromuser: this.loginData.userObj.userId.value,//来自当前用户
-        touser: this.groupId ? this.groupId : this.selToID, //发送止群组ID或者医生
+        targetType: this.groupId ? this.groupId : msg.from ? msg.from : this.loginData.userObj.userId.value,//消息类型
+        fromuser: msg.from ? msg.from : this.loginData.userObj.userId.value,//来自当前用户
+        touser: this.groupId ? this.groupId : msg.to ? msg.to : this.selToID, //发送止群组ID或者医生
         timestamp: Date.parse(new Date()), //当前时间时间戳-毫秒
-        chatbody: typeof msg == 'string' ? msg : JSON.stringify(msg)//消息体
+        chatbody: typeof msgData == 'string' ? msgData : JSON.stringify(msgData)//消息体
       };
       this.$store
         .dispatch("imAddChatDate", request)
@@ -714,11 +826,12 @@ export default {
           if (data && data.data != "") {
             for (let i = 0; i < data.data.length; i++) {
               let json = data.data[i];
-              if(json.chatType == 1){
+              if(json.chatType == 1 || json.chatType == 4){
                 json.chatBody = JSON.parse(json.chatBody);
               }
               this.imMsgList.unshift(json);
               this.scrollToBottom();
+              console.log(this.imMsgList,'聊天记录');
             }
           }
         })
@@ -807,13 +920,17 @@ export default {
           },
           success: function() {
             // 消息发送成功
-            console.log("Success");
+            console.log("Success",msg.body);
+            that.msgFormat(JSON.stringify(msg.body),'4');
           },
           flashUpload: WebIM.flashUpload
         };
         msg.set(option);
+        if (this.groupId) {
+          //如果是群
+          msg.setGroup("groupchat");
+        }
         this.conn.send(msg.body);
-        this.imMsgList.push(msg.body);
       }
     },
     //发送医生详情名片
@@ -1016,26 +1133,28 @@ export default {
           }
           console.log("收到音频消息", message);
 
-          that.msgFormat(JSON.stringify(message),'4');
-          that.scrollToBottom();
+          var options = { url: message.url};
+          options.onFileDownloadComplete = function ( response ) {
+            console.log('下载成功');
+            //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
+            var objectURL = WebIM.utils.parseDownloadResponse.call(imConn, response);
+            message.objectURL = objectURL;
+            that.msgFormat(JSON.stringify(message),'4');
+            that.scrollToBottom();
+          };
 
-          // var options = { url: message.url };
+          options.onFileDownloadError = function () {
+            //音频下载失败
+            console.log('音频下载失败');
+          };
 
-          // options.onFileDownloadComplete = function ( response ) {
-          //   //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
-          //   var objectURL = WebIM.utils.parseDownloadResponse.call(this.conn, response);
-          // };
+          //通知服务器将音频转为mp3
+          options.headers = {
+            'Accept': 'audio/mp3',
+          };
 
-          // options.onFileDownloadError = function () {
-          //   //音频下载失败
-          // };
+          WebIM.utils.download.call(imConn, options);
 
-          // //通知服务器将音频转为mp3
-          // options.headers = {
-          //   'Accept': 'audio/mp3'
-          // };
-
-          // WebIM.utils.download.call(this.conn, options);
         }, //收到音频消息
         onLocationMessage: function(message) {
           console.log("收到位置消息");
@@ -1236,6 +1355,12 @@ export default {
           file: file,
           to: that.groupId ? that.groupId : that.selToID, // 接收消息对象
           roomType: false,
+          ext: {
+            IMicon: that.loginData.userObj.photoUrl,
+            IMname: that.loginData.userObj.userName
+              ? that.loginData.userObj.userName
+              : that.loginData.userObj.nickName
+          },
           // chatType: 'singleChat',
           onFileUploadError: function() { // 消息上传失败
               console.log('onFileUploadError');
@@ -1244,8 +1369,8 @@ export default {
               console.log('onFileUploadComplete');
           },
               success: function() { // 消息发送成功
-              console.log('Success');
-              that.imMsgList.push(msg.body.file);
+              console.log("Success",msg.body);
+              that.msgFormat(JSON.stringify(msg.body),'4');
           },
           flashUpload: WebIM.flashUpload
       };
@@ -1643,6 +1768,7 @@ export default {
   margin-left: 0.3rem;
   background: url("/static/img/lyy.png") no-repeat center -1px;
   background-size: 100% 100%;
+  margin-top:3px;
 }
 .border-left .npcTalkImg img {
   margin-right: 20px;
@@ -1713,9 +1839,8 @@ export default {
   height: 20px;
 } */
 .audioPlay audio {
-  position: absolute;
-  /* opacity: 0; */
-  border: 1px solid red;
+    position: absolute;
+    /* opacity: 0; */
 }
 .serveritme {
   font-size: 14px;
