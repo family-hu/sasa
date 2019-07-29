@@ -106,7 +106,7 @@
             我想 <button @click="goServerList">查看服务记录</button><button @click="goServiceList">服务推荐</button><button @click="goDocDetail">向医生问诊</button>
           </div>
           <!-- <button v-if="!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)" id="recrd_btn_mobile" class="record-button" @touchstart="startRecord" @touchend="stopRecord"></button> -->
-<button  id="recrd_btn_pc" class="record-button"  @mousedown="startRecord" @mouseup="stopRecord"> 微信录音</button>
+          <!-- <button  id="recrd_btn_pc" class="record-button"  @mousedown="startRecord" @mouseup="stopRecord"> 微信录音</button> -->
           <div class="footerTalk">
 
               <!-- contenteditable="true" -->
@@ -121,7 +121,7 @@
 
               </div>
               <!-- <img class="voice" src="/static/img/im_voice.png" alt="" @click="sendAudio"> -->
-              <div class="center" v-if="!audioInput">
+              <div class="center" v-if="audioInput">
                 <input type="button" class="send_msg_text send_audio"  id="audio" value="按住  说话" @click="sendAudio">
               </div>
 
