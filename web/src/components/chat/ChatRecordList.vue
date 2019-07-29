@@ -379,8 +379,8 @@ export default {
   right: -20px;
 }
 .npcTalk .audioPlay {
-  width: 50px;
-  height: 20px;
+  min-width: 50px;
+  /* height: 20px; */
 }
 .audioPlay audio {
   position: absolute;

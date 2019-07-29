@@ -44,8 +44,7 @@ export default {
         const local = encodeURIComponent(
            window.location.href
         );
-        console.log(local);
-        const appId = 'wx923325685a35b7d4';
+        const appId = context.$store.getters.appId;
         window.location.href =
           "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" +
           appId +
