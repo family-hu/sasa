@@ -453,7 +453,8 @@ export default {
         }
       } else {
         //如果别人发的消息
-        if (this.message.chatId == this.docId) {
+        let chatId = typeof this.message.chatId == 'string' ? this.message.chatId : this.message.chatId.value;
+        if (chatId == this.docId) {
           console.log("==this.docId");
           if (this.friendHeadUrl) {
             img = this.friendHeadUrl;
@@ -529,7 +530,7 @@ export default {
       this.$router.push({
         path: "doctorDetail",
         query: {
-          userId: this.$route.query.docId
+          userId: this.docId
         }
       });
     },

@@ -3,7 +3,14 @@
         <div v-if="chatRecordList.length > 0" class="chat_list_box">
 
           <div class="no_record" v-if="loaded">没有更多记录了</div>
-          <div class="pull_list" v-if="loading && !loaded">加载中...</div>
+          <!-- <div class="pull_list" v-if="loading && !loaded">加载中...</div> -->
+          <div class='loading' v-if="loading && !loaded">
+            <div class="spinner">
+              <div class="bounce1"> </div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+          </div>
           <div class="pull_list" v-if="!loaded && !loading">下拉查看更多历史消息</div>
           <message-item v-for="(message,index) in chatRecordList" :key="index" :index="index" :message="message" :groupId="groupId" :friendHeadUrl="friendHeadUrl" :gender="gender"></message-item>
         </div>
@@ -80,6 +87,7 @@ export default {
       this.loading = true;
       let request = {
         chatuser: type,
+        isGroup: this.groupId ? 1 : 0,
         pageSize: 10,
         pageNum: this.page
       };
