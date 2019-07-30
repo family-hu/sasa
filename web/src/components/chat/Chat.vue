@@ -96,7 +96,7 @@
               <div class="npcTalkCon">您好，我是<span>{{drName}}</span>医生的助理，请问有什么可以帮助您？</div>
             </div>
           </div>
-          <message-item v-for="(message,index) in imMsgList" :key="index" :index="index" :message="message" :friendHeadUrl="friendHeadUrl" :gender="gender" :groupId="groupId" v-on:fun="change"></message-item>
+          <message-item v-for="(message,index) in imMsgList" :key="index" :index="index" :message="message" :friendHeadUrl="friendHeadUrl" :gender="gender" :conn="conn" :groupId="groupId" v-on:fun="change"></message-item>
         </div>
 
         <div v-if="showFaceBox" class='shade_face' @click="hideFace"></div>
@@ -337,10 +337,10 @@ export default {
     this.wxapi.wxShare();
   },
   beforeDestroy(){
-    console.log('页面变为销毁前前前');
+    // console.log('页面变为销毁前前前');
   },
   destroyed() {
-    console.log('页面变为销毁');
+    // console.log('页面变为销毁');
     window.removeEventListener("scroll", this.scrollToBottom);
     //销毁定时器
     this.requestImStatus("endTime");
@@ -496,6 +496,7 @@ stopRecord: function(event) {
         chatId: data.from ? data.from : this.loginData.userObj.userId.value,//来自当前用户
         chatName: data.ext.IMname,
         chatType: type,
+        timestamp: Date.parse(new Date())
       }
       this.imMsgList.push(list); //渲染
       // if(!data.from){
@@ -828,10 +829,32 @@ stopRecord: function(event) {
               let json = data.data[i];
               if(json.chatType == 1 || json.chatType == 4){
                 json.chatBody = JSON.parse(json.chatBody);
+                if(json.chatBody.filename == 'audio'){
+                  let options = { url: json.chatBody.url};
+                  console.log(json.chatBody.url,'==json.chatBody.url');
+                  options.onFileDownloadComplete = function ( response ) {
+                    console.log('下载成功');
+                    //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
+                    var objectURL = WebIM.utils.parseDownloadResponse.call(this.conn, response);
+                    json.chatBody.objectURL = objectURL;
+                  };
+
+                  options.onFileDownloadError = function () {
+                    //音频下载失败
+                    console.log('音频下载失败');
+                  };
+
+                  //通知服务器将音频转为mp3
+                  options.headers = {
+                    'Accept': 'audio/mp3',
+                  };
+
+                  WebIM.utils.download.call(this.conn, options);
+                }
+
               }
               this.imMsgList.unshift(json);
               this.scrollToBottom();
-              console.log(this.imMsgList,'聊天记录');
             }
           }
         })
@@ -1117,6 +1140,8 @@ stopRecord: function(event) {
           // 手动上线指的是调用conn.setPresence(); 在本例中，conn初始化时已将isAutoLogin设置为true
           // 所以无需调用conn.setPresence();
           console.log("%c [opened] 连接已成功建立", "color: green");
+          this.getImchatdata(this.groupId);
+
         },
         onClosed: function(message) {
           console.log("连接关闭", message);
@@ -1304,6 +1329,18 @@ stopRecord: function(event) {
       };
       //登录环信
       this.conn.open(options);
+      if(this.conn){
+          //获取群ID
+        if (this.groupId && !this.isDoctorChat) { //助理群聊
+          this.getImchatdata(this.groupId);
+        } else { //医生单聊
+          //获取会话状态
+          this.requestImStatus();
+          //获取聊天记录
+          this.getImchatdata(this.selToID);
+        }
+      }
+
     },
     //语音。。。
     sendAudio() {
@@ -1398,15 +1435,7 @@ stopRecord: function(event) {
     //监听聊天窗口并建立连接
     this.listenerConn();
 
-    //获取群ID
-    if (this.groupId && !this.isDoctorChat) { //助理群聊
-      this.getImchatdata(this.groupId);
-    } else { //医生单聊
-      //获取会话状态
-      this.requestImStatus();
-      //获取聊天记录
-      this.getImchatdata(this.selToID);
-    }
+
     //获取医生详情
     this.expertDetail();
 
@@ -1768,7 +1797,7 @@ stopRecord: function(event) {
   margin-left: 0.3rem;
   background: url("/static/img/lyy.png") no-repeat center -1px;
   background-size: 100% 100%;
-  margin-top:3px;
+  margin-top: 3px;
 }
 .border-left .npcTalkImg img {
   margin-right: 20px;
@@ -1839,8 +1868,8 @@ stopRecord: function(event) {
   height: 20px;
 } */
 .audioPlay audio {
-    position: absolute;
-    /* opacity: 0; */
+  position: absolute;
+  /* opacity: 0; */
 }
 .serveritme {
   font-size: 14px;

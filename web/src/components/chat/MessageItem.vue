@@ -21,8 +21,8 @@
         <div class="end_time">结束时间：{{message.chatBody.time}}</div>
       </div>
 
-      <div class="npcTalkItem clearFix" v-else :class="[!isSelf ? 'border-left' : 'border-right']">  <!-- v-if="!tipType && !customType(105)" 不是提示消息，不是服务包-->
-
+      <div class="npcTalkItem clearFix" :style="message.chatBody.userAction == '200' && message.chatBody.desc == '本次咨询开始' ? ' display: none ' : ''" v-else :class="[!isSelf ? 'border-left' : 'border-right']">
+        <div class="timestamp">{{timestamp}}</div>
         <div class="npcTalkImg" :class="[!isSelf ? 'fl' : 'fr']">
           <img :src="headImg" alt='头像' width='50px' height='50px'>
         </div>
@@ -48,8 +48,17 @@
             </div>
           </div>
            <!--  音频  -->
-          <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'"  @click="audioPlay(index)">
-            <i> </i>"{{message.chatBody.length}}
+          <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'"  @click="audioPlayBtn(index)">
+            <div style="display:flex;align-items: center;">
+              <div class="audio_box">
+                <div class="wifi-symbol">
+                    <div class="wifi-circle first"></div>
+                    <div class="wifi-circle second" :class="playSend ? 'animation2' : ''"></div>
+                    <div class="wifi-circle third" :class="playSend ? 'animation3' : ''"></div>
+                </div>
+              </div>
+              <em>"{{message.chatBody.length}}</em>
+            </div>
             <audio v-if="isSelf"  preload="none" :src="message.chatBody.file.url" :id="'audioPlay' + index">
               <source :src="message.chatBody.file.url">
             </audio> <!-- controls="controls" 显示播放按钮 -->
@@ -210,7 +219,8 @@ export default {
       isDoctorChat: this.$route.query.isDoctorChat,
       customType: null,
       serverList: null,
-      type: null
+      type: null,
+      playSend: false,
       // groupId: this.$route.query.groupId
     };
   },
@@ -220,7 +230,7 @@ export default {
     friendHeadUrl: "",
     gender: "",
     index: "",
-    groupId: ""
+    groupId: "",
   },
 
   components: {
@@ -229,6 +239,39 @@ export default {
   mounted() {},
   computed: {
     ...mapGetters(["loginData"]),
+
+    //消息时间
+    timestamp() {
+      let timerDate = this.message.timestamp;
+      let timerStatus = parseInt(timerDate / 1000); //消息时间
+      let times = parseInt(Date.parse(new Date()) / 1000); //当前时间
+      let data = times - timerStatus;
+      // let today = new Date();
+      // let yesterday = new Date(now - 1000 * 60 * 60 * 24);
+      // let test = new Date(2016, 9, 27);
+      // if (yesterday.getYear() === test.getYear() && yesterday.getMonth() === test.getMonth() && yesterday.getDate() === test.getDate()) {
+      //     console.log('是昨天');
+      // } else {
+      //     console.log('不是昨天');
+      // }
+      if (data >= 86400 && data <= 259200) {
+        //超过1天小于三天
+        timerDate = parseInt(data / 86400) + "天前";
+      } else if (data >= 3600 && data <= 86400) {
+        //超过1小时小于24小时
+        timerDate = parseInt(data / 3600) + "小时前";
+      } else if (data >= 600 && data <= 3600) {
+        //超过10分钟小于1小时
+        timerDate = parseInt(data / 600) + "分钟前";
+      } else if (data < 600) {
+        //小于10分钟
+        timerDate = "刚刚";
+      } else {
+        timerDate = this.myUtils.formatTime(Number(timerDate), "MM-dd");
+      }
+
+      return timerDate;
+    },
     //当前时间
     nowTime() {
       Date.prototype.Format = function(fmt) {
@@ -303,7 +346,8 @@ export default {
         while (str.indexOf(strarr[i]) >= 0) {
           str = str.replace(
             strarr[i],
-            `<img src="http://webim.easemob.com/demo/images/faces/ee_${i+1}.png">`
+            `<img src="http://webim.easemob.com/demo/images/faces/ee_${i +
+              1}.png">`
           );
         }
       }
@@ -347,31 +391,6 @@ export default {
       }
     },
 
-    // firstEle() {
-    //   let elems = this.message.getElems(); //获取消息包含的元素数组
-    //   let count = elems.length;
-    //   if(count > 0) {
-    //     return elems[0];
-    //   }
-    // },
-
-    // tipType() {
-    //    let type = this.elementType;
-    //    if(type == this.CUSTOM && this.firstEle) {
-    //      let content = this.firstEle.getContent(); //获取元素对象
-    //      let data = content.getData(); //自定义数据
-    //      data = JSON.parse(data);
-    //      // console.log("自定义消息类型:" + data.userAction);
-    //      if(data.userAction == 301 || data.userAction == 300 || data.userAction == 200 || data.userAction == 201) return true;
-    //    }
-    // },
-
-    // tipValue() {
-    //   if(this.firstEle) {
-    //     let content = this.firstEle.getContent(); //获取元素对象
-    //     return content.getDesc();
-    //   }
-    // },
     //标签分隔
     tags() {
       if (this.message.chatBody.servInfoObj.tags) {
@@ -386,8 +405,11 @@ export default {
     //判断消息类型
     elementType() {
       let type;
-      let chatType = typeof this.message.chatType == 'string' ? this.message.chatType : this.message.chatType.value;
-      console.log(chatType,'==chatType')
+      let chatType =
+        typeof this.message.chatType == "string"
+          ? this.message.chatType
+          : this.message.chatType.value;
+      console.log(chatType, "==chatType");
       switch (chatType) {
         case "0":
           type = "TEXT";
@@ -407,39 +429,21 @@ export default {
         default:
           break;
       }
-      return type
+      return type;
     },
     //判断是发送的消息还是接受的消息
     isSelf() {
-      let chatId = typeof this.message.chatId == 'string' ? this.message.chatId : this.message.chatId.value;
+      let chatId =
+        typeof this.message.chatId == "string"
+          ? this.message.chatId
+          : this.message.chatId.value;
       if (chatId == this.loginData.userObj.userId.value) {
-        return true
-      }else{
-        return false
+        return true;
+      } else {
+        return false;
       }
     },
-    //服务包图片
-    servImgUrl() {
-      // if(this.message.chatBody.servInfoObj.servImgUrl){
-      //   return this.message.chatBody.servInfoObj.servImgUrl;
-      // }else{
-      //   return '/static/img/serverBag.png';
-      // }
-    },
 
-    videoUrl() {
-      // if(this.firstEle) {
-      //   let content = this.firstEle.getContent(); //获取元素对象
-      //   return content.getDownUrl();
-      // }
-    },
-
-    // videoSeconds() {
-    //   if(this.firstEle) {
-    //     let content = this.firstEle.getContent(); //获取元素对象
-    //     return content.second;
-    //   }
-    // },
     // 医生名片图像
     docImg() {
       if (this.message.chatBody.cardObj.photoUrl != "") {
@@ -460,7 +464,10 @@ export default {
         }
       } else {
         //如果别人发的消息
-        let chatId = typeof this.message.chatId == 'string' ? this.message.chatId : this.message.chatId.value;
+        let chatId =
+          typeof this.message.chatId == "string"
+            ? this.message.chatId
+            : this.message.chatId.value;
         if (chatId == this.docId) {
           console.log("==this.docId");
           if (this.friendHeadUrl) {
@@ -478,64 +485,19 @@ export default {
       }
       return img;
     }
-
-    // customData() {
-    //   const LosslessJSON = require('lossless-json');
-    //   let ele = this.firstEle;
-    //   let content = ele.getContent(); //获取元素对象
-    //   let data = content.getData(); //自定义数据
-    //   data = LosslessJSON.parse(data);
-    //   return data;
-    // },
-
-    // title() {
-    //   let data = this.customData;
-    //   return data.desc;
-    // },
-    // org() {
-    //   let data = this.customData;
-    //   return data.cardObj.orgNames;
-    // },
-    // dept() {
-    //   let data = this.customData;
-    //   return data.cardObj.departmentName;
-    // },
-
-    // orgNames() {
-    //   let data = this.customData;
-    //   return data.orgObj.orgNames;
-    // },
-
-    // htmlContent() {
-    //   let data = this.customData;
-    //   return data.articleObj.htmlContent;
-    // },
-
-    // healthHtmlContent() {
-    //   let data = this.customData;
-    //   return data.planObj.htmlContent;
-    // },
-
-    // content() {
-    //   let data = this.customData;
-    //   return data.visitObj.content;
-    // },
-
-    // serviceItem() {
-    //   let data = this.customData;
-    //   return data.servInfoObj;
-    // }
   },
 
   methods: {
     //播放语音
-    audioPlay(index) {
-      let audio = document.getElementById('audioPlay' +index);
-      if(audio.paused){
+    audioPlayBtn(index) {
+      let audio = document.getElementById("audioPlay" + index);
+      if (audio.paused) {
         audio.play();
-        return false
-      }else{
+        this.playSend = true;
+        return false;
+      } else {
         audio.pause();
+        this.playSend = false;
       }
     },
     //立即评价
@@ -634,17 +596,6 @@ export default {
         query: { servId: this.message.chatBody.servInfoObj.servId }
       });
     },
-    // customType(type) {
-    //   let currentType = this.elementType;
-    //   if(currentType == this.CUSTOM && this.firstEle) {
-    //     let content = this.firstEle.getContent(); //获取元素对象
-    //     let data = content.getData(); //自定义数据
-    //     // console.log(data);
-    //     data = JSON.parse(data);
-    //     if (data.userAction == type) return true;
-    //   }
-    //   return false;
-    // },
 
     //个人名片-跳转医生详情
     docDetail() {
@@ -656,21 +607,6 @@ export default {
         }
       });
     }
-
-    // serviceDetail() {
-    //   let data = this.customData;
-    //   this.$router.push({path: "serviceDetail", query: { servId: data.servInfoObj.servId.value}})
-    // },
-
-    // toHome() {
-    //   let data = this.customData;
-    //   this.$router.push({path: "home", query:{orgId: data.orgObj.orgId.value, focusEnter: true}});
-    // },
-
-    // newsDetail() {
-    //   let data = this.message.chatBody;
-    //   window.location.href = types.NEWS_DETAIL + data.articleObj.newsId;
-    // }
   },
   created() {
     //自定义消息，安卓数据转对象
@@ -686,17 +622,29 @@ export default {
       //   this.message.chatBody = JSON.parse(this.message.chatBody);
       // } else
       if (servInfoObj == "string") {
-        this.message.chatBody.servInfoObj = JSON.parse(this.message.chatBody.servInfoObj);
+        this.message.chatBody.servInfoObj = JSON.parse(
+          this.message.chatBody.servInfoObj
+        );
       } else if (cardObj == "string") {
-        this.message.chatBody.cardObj = JSON.parse(this.message.chatBody.cardObj);
+        this.message.chatBody.cardObj = JSON.parse(
+          this.message.chatBody.cardObj
+        );
       } else if (planObj == "string") {
-        this.message.chatBody.planObj = JSON.parse(this.message.chatBody.planObj);
+        this.message.chatBody.planObj = JSON.parse(
+          this.message.chatBody.planObj
+        );
       } else if (visitObj == "string") {
-        this.message.chatBody.visitObj = JSON.parse(this.message.chatBody.visitObj);
+        this.message.chatBody.visitObj = JSON.parse(
+          this.message.chatBody.visitObj
+        );
       } else if (articleObj == "string") {
-        this.message.chatBody.articleObj = JSON.parse(this.message.chatBody.articleObj);
+        this.message.chatBody.articleObj = JSON.parse(
+          this.message.chatBody.articleObj
+        );
       } else if (groupObj == "string") {
-        this.message.chatBody.groupObj = JSON.parse(this.message.chatBody.groupObj);
+        this.message.chatBody.groupObj = JSON.parse(
+          this.message.chatBody.groupObj
+        );
       } else if (
         this.message.chatBody.userAction == "200" &&
         this.message.chatBody.desc == "本次咨询结束"
@@ -706,16 +654,6 @@ export default {
         this.$parent.requestImStatus("endTime"); //医生结束聊天
       }
     }
-    //微信端发送表情
-    if (this.message.body) {
-      let str = this.message.body.msg;
-      let regex = /\[|\]|【|】/g;
-      let emoji = regex.test(str);
-      if (emoji == true) {
-        this.type = "emoji";
-      }
-    }
-
     console.log("elementType==", this.elementType);
     console.log("isSelf==", this.isSelf);
     console.log("friendHeadUrl==", this.friendHeadUrl);
@@ -725,6 +663,68 @@ export default {
 </script>
 
 <style scoped>
+/* 语音消息动画 --接收 */
+.audio_box {
+  box-sizing: border-box;
+  position: relative;
+  margin: 0 5px 0 8px;
+}
+.wifi-symbol {
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  transform: rotate(135deg);
+}
+.wifi-circle {
+  border: 2px solid #333;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.first {
+  width: 0px;
+  height: 0px;
+  background: #cccccc;
+  top: 13px;
+  left: 13px;
+}
+
+.second {
+  width: 16px;
+  height: 16px;
+  top: 8px;
+  left: 8px;
+}
+.animation2 {
+  animation: fadeInOut 1s infinite 0.2s;
+}
+.animation3 {
+  animation: fadeInOut 1s infinite 0.4s;
+}
+.third {
+  width: 25px;
+  height: 25px;
+  top: 3px;
+  left: 3px;
+}
+@keyframes fadeInOut {
+  0% {
+    opacity: 0; /*初始状态 透明度为0*/
+  }
+  100% {
+    opacity: 1; /*结尾状态 透明度为1*/
+  }
+}
+
+/* 消息时间 */
+.timestamp {
+  width: 100%;
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+  padding: 10px 0;
+}
 /* 服务记录 start */
 .server_list {
   padding: 0 15px 20px 15px;
