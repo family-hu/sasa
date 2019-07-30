@@ -9,6 +9,9 @@ export default {
     if (r != null) return unescape(r[2]);
     return null;
   },
+  appId() {
+    return context.$store.getters.appId;
+  },
   //微信授权登录
   wxLogin: function () {
       let code = this.getQueryString("code");
@@ -44,8 +47,8 @@ export default {
         const local = encodeURIComponent(
            window.location.href
         );
-        console.log(local);
         const appId = 'wx923325685a35b7d4';
+        console.log('this.appId-ismy==', this.appId);
         window.location.href =
           "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" +
           appId +

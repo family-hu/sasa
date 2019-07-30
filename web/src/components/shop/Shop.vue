@@ -23,9 +23,9 @@
       <div class="screening">
         <!-- 筛选 -->
         <filtrate-item :filtrateList="filtrateList"></filtrate-item>
-        <!-- 体检套餐list -->
+        <!-- 体检套餐list infinite-scroll-distance="10" -->
         <div class="cell_box">
-          <ul v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+          <ul v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-immediate-check="false">
             <health-service-item v-for="(item , index) in serviceList" :key="index" :healthServiceItem="item" :orgId="orgId" :orgNames="orgNames"></health-service-item>
           </ul>
           <div class="empty" v-else>
@@ -117,7 +117,7 @@ export default {
       this.loading = true;
       const request = {
         pageParam:{
-          pageSize: 10,
+          pageSize: 30,
           pageNum: this.page,
         },
         packages:{
@@ -161,11 +161,8 @@ export default {
 </script>
 
 <style scoped>
-.image [lazy=loading] {
-  width: 40px;
-  height: 175px;
-  margin: 0 auto;
-  color: #ccc
+.page-tabbar {
+  overflow: hidden;
 }
 .empty {
   padding: 50px 40px;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="cell">
-      <div class="flex-b">
+      <div class="flex_box">
         <div class="flex_left">
           <div>
             <ul v-if="orgMsgList.modeId == '8107103' && msgImg.length >= '1' && msgImg.length <= 9">
@@ -10,11 +10,16 @@
             <img v-else class="img" :src="msgImg">
           </div>
           <div class="text_box">
-            <div class="namecs">{{orgMsgList.modeDesc}}<span class="tagChat" v-if="isTalk">问诊中</span></div>
-            <div class="titlecs">{{orgMsgList.content}}</div>
+            <div class="flex-b">
+              <div class="namecs">{{orgMsgList.name}}<span class="tagChat" v-if="isTalk">问诊中</span></div>
+              <span class="time">{{msgTime}}</span>
+            </div>
+            <div class="flex-b">
+              <div class="titlecs">{{orgMsgList.content}}</div>
+              <div class="msg_dot" v-if="orgMsgList.unreadNum > 0">{{unreadNum}}</div>
+            </div>
           </div>
         </div>
-        <span class="time">{{msgTime}}</span>
       </div>
       <div class="other_line"></div>
     </div>
@@ -38,6 +43,13 @@ export default {
 
   computed: {
     ...mapGetters(['loginData']),
+    unreadNum(){
+      if(this.orgMsgList.unreadNum){
+        return this.orgMsgList.unreadNum.value
+      }else{
+        return ''
+      }
+    },
     msgTime(){
       let timerDate = this.orgMsgList.time;
           timerDate = timerDate.substring(0,19);
@@ -117,8 +129,7 @@ export default {
     }
   },
   created(){
-    //暂无 -消息列表显示该记录
-    // this.requestImStatus();
+    this.requestImStatus();
   }
 };
 </script>
@@ -127,7 +138,7 @@ export default {
   .cell{
     background:rgba(255,255,255,1);
   }
-  .cell .flex-b{
+  .cell .flex_box{
     padding: 15px 16px;
   }
   .flex_left{
@@ -136,7 +147,10 @@ export default {
   }
   .text_box{
     margin-left: 10px;
-    max-width: 230px;
+    width: 100%;
+  }
+  .text_box .flex-b {
+    margin-bottom: 4px;
   }
   .namecs{
     font-size:17px;
@@ -156,6 +170,7 @@ export default {
   }
 
   .titlecs{
+    width: 210px;
     font-size:14px;
     color:rgba(4,11,28,.4);
     display: -webkit-box;
@@ -177,6 +192,16 @@ export default {
     width: 17px;
     height: 17px;
     float: left;
+  }
+  .msg_dot{
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    background: #FF0000;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 50%;
+    text-align: center;
   }
   .other_line{
     margin-left: 60px;

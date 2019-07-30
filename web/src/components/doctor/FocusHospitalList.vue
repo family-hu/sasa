@@ -31,6 +31,7 @@ export default {
   },
   methods: {
     toHospital(hospital) {
+      sessionStorage.setItem('selected','home');
       this.$router.push({
         path: "home",
         query: {

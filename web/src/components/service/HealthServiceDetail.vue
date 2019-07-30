@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="head_bar flex-b">
+      <div class="head_bar flex-b" v-if="showBar">
         <div class="flex_box" @click="backHome">
           <img src="/static/img/bar_back_home@2x.png" alt="">
           <span>{{orgNames}}</span>
@@ -99,7 +99,7 @@
             </div>
             <!-- 评论区域 end-->
           </div>
-          <div id="href-4" class="package_item">
+          <div id="href-4" class="package_item" v-if="shopList.precautions">
             <!-- <p class="title"><span>注意事项</span></p>
             <div class="line-s"></div>
             <div class="attention">
@@ -107,7 +107,8 @@
               <p>2、体检当日晨应禁食、水，抽血不宜超过上午10：30。</p>
               <p>3、高血压、心脏病、糖尿病、等慢性病患者，可以喝一口白开水吃药，到检后需告知医生。</p>
             </div> -->
-            <img class="physical" src="/static/img/physical@2x.png" alt="">
+            <div class="physical" v-html="shopList.precautions">{{shopList.precautions}}</div>
+            <!-- <img class="physical" src="/static/img/physical@2x.png" alt=""> -->
           </div>
           </div>
         </div>
@@ -160,6 +161,7 @@ export default {
       page: 1,
       loaded: false, //是否加载完成
       barFixed: false, //是否固定导航
+      showBar: true, //头部导航
       moneyComm: "0",
       show: false,
       phone: "",
@@ -433,8 +435,10 @@ export default {
       let offsetTop = document.querySelector('#fixedBar').offsetTop;
       if (scrollTop > offsetTop) {
         this.barFixed = true;
+        this.showBar = false;
       } else {
         this.barFixed = false;
+        this.showBar = true;
       }
     },
     //分销注册
@@ -599,6 +603,7 @@ export default {
   }
 };
 </script>
+
 
 <style>
 .image[lazy=loading] {
@@ -1147,7 +1152,7 @@ p {
   color: #fff;
   font-weight: 500;
 }
-.physical {
+.physical{
   width: 100%;
   height: auto;
 }

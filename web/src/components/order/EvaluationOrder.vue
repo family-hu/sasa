@@ -167,7 +167,7 @@ export default {
 .el-rate__item .el-rate__icon {
   font-size: 20px;
 }
-</style>s
+</style>
 <style scoped>
 .dialog_box {
   width: 100%;
@@ -194,8 +194,8 @@ export default {
 }
 .evaluation_tag{
   margin-top: 25px;
-  margin-left: -15px;
-  overflow: hidden;
+  margin-left: -5px;
+  overflow: hidden
 }
 .evaluation_tag span{
   float: left;
@@ -203,9 +203,9 @@ export default {
   border-radius: 14px;
   padding: 5px 10px;
   background: #fff;
-  margin-left: 12px;
+  margin-left: 25px;
   margin-bottom: 15px;
-  width: 106px;
+  min-width: 80px;
   box-sizing: border-box;
   text-align: center;
   font-size: 13px;

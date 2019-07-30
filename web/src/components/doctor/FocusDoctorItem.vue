@@ -18,7 +18,7 @@
         <div class="my_line"></div>
         <div class="btn_box">
           <button type="button" class="btn" @click="toDetail">医生主页</button>
-          <button type="button" class="btn btn1" @click="toDoctorMsg">医生动态<em v-if="toDoctorMsg.mesNum > 0" class="dot"></em></button>
+          <button type="button" class="btn btn1" @click="toDoctorMsg">医生动态<em v-if="doctorDetail.mesNum > 0" class="dot"></em></button>
           <button type="button" class="btn btn1 btn2" @click="toDoctorChat" v-if="isTalk">问诊中</button>
           <button type="button" class="btn btn1" @click="toDoctorChat" v-else>联系医生</button>
         </div>
@@ -95,7 +95,7 @@ export default {
           isDocMsg: true,
           targetId: this.doctorDetail.userId.value, //医生ID
           docName: this.doctorDetail.userName,
-          orgId: this.doctorDetail.orgId,
+          orgId: this.doctorDetail.orgId.value,
           docPhotoUrl: this.doctorDetail.photoUrl,
           gender: this.doctorDetail.gender.value,
           modeId: 8107102

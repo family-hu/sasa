@@ -24,7 +24,7 @@
     },
 
     computed: {
-      ...mapGetters(['isUserApp', 'phoneFragment', 'loginData', 'loginUrl', 'appCode']),
+      ...mapGetters(['isUserApp', 'phoneFragment', 'loginData', 'loginUrl', 'appCode','appId']),
       appIconUser() {
         return imgMap.appIconUser;
       }
@@ -43,7 +43,7 @@
     },
 
     methods: {
-      ...mapActions(['updatePhoneFragment']),
+      ...mapActions(['updatePhoneFragment','appId']),
       getQueryString(name) {
         let reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
         let r = window.location.search.substr(1).match(reg);
@@ -84,10 +84,9 @@
         this.startLogin(request);
       } else {
         const local = encodeURIComponent(
-          'http://16health.com/login'
-          //  window.location.href
+           window.location.href
         );
-        const appId = 'wx923325685a35b7d4';
+        const appId = this.appId;
         window.location.href =
           "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" +
           appId +
@@ -107,7 +106,7 @@
   }
 </style>
 
-<!--
+<!-->
 <template>
   <div style="background-color: white; width: 100%; height: 100%">
     <mt-header :title="isUserApp | setTitle" style="background-color: white; color: black">
