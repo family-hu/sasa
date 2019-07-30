@@ -25,8 +25,8 @@ export var financeConfig = {
     }
     return data;
   },
-  abUrl: "/finance/"  //财务线上地址
-  // abUrl: "http://aiyizfb8899.aiyi01.com/sk/"   //本地测试环境测试地址
+  // abUrl: "/finance/"  //财务线上地址
+  abUrl: "http://aiyizfb8899.aiyi01.com/sk/"   //本地测试环境测试地址
   // abUrl: "http://ylb1688.sinoylb.com/sk/"       //本地正式环境测试地址
   // abUrl: "http://16health.com/finance/" //本地正式环境测试地址
 };
@@ -117,7 +117,7 @@ axios.interceptors.request.use(function (config) {
     }
     return config;
 }, function (error) {
-  return Promise.reject(error);
+  // return Promise.reject(error);
 });
 
 axios.interceptors.response.use(function (response) {
@@ -136,7 +136,7 @@ axios.interceptors.response.use(function (response) {
   }
   error.data = {rtnMsg: message};
   // error2.data = {msg: message};
-  return Promise.reject(error);
+  // return Promise.reject(error);
 });
 
 export default axios;
