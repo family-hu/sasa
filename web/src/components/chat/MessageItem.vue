@@ -13,41 +13,15 @@
           </div>
         </div>
       </div>
-      <!-- 医生服务记录 -->
-      <div class="server_list" v-if="serverList">
-        <h3>夏金晶医生的服务记录</h3>
-        <div class="list_box">
-          <img src="/static/img/assistant_head_img.png" alt="">
-          <div style="width:100%">
-            <div class="flex-b">
-              <span class="server_name">电话咨询</span>
-              <span class="server_status">已完成</span>
-            </div>
-            <div class="server_time">完成时间：2019-03-19 19:18</div>
-            <div class="server_time">订单金额：¥24</div>
-          </div>
-        </div>
-      </div>
-      <!-- 医生服务 无记录 -->
-      <div class="server_list2" v-if="serverList">
-        <div class="list_box">
-          <img :src="friendHeadUrl" alt="">
-          <div style="width:100%">
-            <div class="flex-b">
-              <span class="server_name">该医生目前暂无服务记录</span>
-            </div>
-            <div class="docDetail" @click="goDocDetail">进入医生主页</div>
-          </div>
-        </div>
-      </div>
+
       <!-- 服务结束 -->
-      <div class="server_end" v-if="elementType == 'CMD' && message.chatBody.userAction == '200' && message.chatBody.desc == '本次咨询结束'">
+      <div class="server_end" v-else-if="elementType == 'CMD' && message.chatBody.userAction == '200' && message.chatBody.desc == '本次咨询结束'">
         <!-- <div class="tip_box" v-if="!isDoctorChat">请对我的服务作出评价吧，<span @click="evaluationShow">立即评价</span></div> -->
         <div class="end_btn"><span>本次咨询结束</span></div>
         <div class="end_time">结束时间：{{message.chatBody.time}}</div>
       </div>
 
-      <div class="npcTalkItem clearFix" v-if="message.chatBody.userActionMy != '99' && message.chatBody.desc != '本次咨询开始'" :class="[!isSelf ? 'border-left' : 'border-right']">  <!-- v-if="!tipType && !customType(105)" 不是提示消息，不是服务包-->
+      <div class="npcTalkItem clearFix" v-else :class="[!isSelf ? 'border-left' : 'border-right']">  <!-- v-if="!tipType && !customType(105)" 不是提示消息，不是服务包-->
 
         <div class="npcTalkImg" :class="[!isSelf ? 'fl' : 'fr']">
           <img :src="headImg" alt='头像' width='50px' height='50px'>
@@ -178,6 +152,34 @@
 
         </div>
 
+      </div>
+
+      <!-- 医生服务记录 -->
+      <div class="server_list" v-if="serverList">
+        <h3>夏金晶医生的服务记录</h3>
+        <div class="list_box">
+          <img src="/static/img/assistant_head_img.png" alt="">
+          <div style="width:100%">
+            <div class="flex-b">
+              <span class="server_name">电话咨询</span>
+              <span class="server_status">已完成</span>
+            </div>
+            <div class="server_time">完成时间：2019-03-19 19:18</div>
+            <div class="server_time">订单金额：¥24</div>
+          </div>
+        </div>
+      </div>
+      <!-- 医生服务 无记录 -->
+      <div class="server_list2" v-if="serverList">
+        <div class="list_box">
+          <img :src="friendHeadUrl" alt="">
+          <div style="width:100%">
+            <div class="flex-b">
+              <span class="server_name">该医生目前暂无服务记录</span>
+            </div>
+            <div class="docDetail" @click="goDocDetail">进入医生主页</div>
+          </div>
+        </div>
       </div>
       <!--  自定义消息  服务包 -->
       <!-- <service-item style="margin: 0 16px;" :serviceItem="serviceItem"  @click.native="serviceDetail"></service-item> -->
@@ -672,31 +674,32 @@ export default {
   },
   created() {
     //自定义消息，安卓数据转对象
-    if (this.message.ext) {
-      let ext = typeof this.message.chatBody;
-      let servInfoObj = typeof this.message.ext.servInfoObj;
-      let cardObj = typeof this.message.ext.cardObj;
-      let planObj = typeof this.message.ext.planObj;
-      let visitObj = typeof this.message.ext.visitObj;
-      let articleObj = typeof this.message.ext.articleObj;
-      let groupObj = typeof this.message.ext.groupObj;
-      if (ext == "string") {
-        this.message.ext = JSON.parse(this.message.chatBody);
-      } else if (servInfoObj == "string") {
-        this.message.ext.servInfoObj = JSON.parse(this.message.ext.servInfoObj);
+    if (this.message.chatBody) {
+      // let chatBody = typeof this.message.chatBody;
+      let servInfoObj = typeof this.message.chatBody.servInfoObj;
+      let cardObj = typeof this.message.chatBody.cardObj;
+      let planObj = typeof this.message.chatBody.planObj;
+      let visitObj = typeof this.message.chatBody.visitObj;
+      let articleObj = typeof this.message.chatBody.articleObj;
+      let groupObj = typeof this.message.chatBody.groupObj;
+      // if (chatBody == "string") {
+      //   this.message.chatBody = JSON.parse(this.message.chatBody);
+      // } else
+      if (servInfoObj == "string") {
+        this.message.chatBody.servInfoObj = JSON.parse(this.message.chatBody.servInfoObj);
       } else if (cardObj == "string") {
-        this.message.ext.cardObj = JSON.parse(this.message.ext.cardObj);
+        this.message.chatBody.cardObj = JSON.parse(this.message.chatBody.cardObj);
       } else if (planObj == "string") {
-        this.message.ext.planObj = JSON.parse(this.message.ext.planObj);
+        this.message.chatBody.planObj = JSON.parse(this.message.chatBody.planObj);
       } else if (visitObj == "string") {
-        this.message.ext.visitObj = JSON.parse(this.message.ext.visitObj);
+        this.message.chatBody.visitObj = JSON.parse(this.message.chatBody.visitObj);
       } else if (articleObj == "string") {
-        this.message.ext.articleObj = JSON.parse(this.message.ext.articleObj);
+        this.message.chatBody.articleObj = JSON.parse(this.message.chatBody.articleObj);
       } else if (groupObj == "string") {
-        this.message.ext.groupObj = JSON.parse(this.message.ext.groupObj);
+        this.message.chatBody.groupObj = JSON.parse(this.message.chatBody.groupObj);
       } else if (
-        this.message.ext.userAction == "200" &&
-        this.message.ext.desc == "本次咨询结束"
+        this.message.chatBody.userAction == "200" &&
+        this.message.chatBody.desc == "本次咨询结束"
       ) {
         //结束会话
         this.$emit("fun", false);

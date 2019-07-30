@@ -164,12 +164,6 @@ export default {
 .page-tabbar {
   overflow: hidden;
 }
-.image [lazy=loading] {
-  width: 40px;
-  height: 175px;
-  margin: 0 auto;
-  color: #ccc
-}
 .empty {
   padding: 50px 40px;
   text-align: center;

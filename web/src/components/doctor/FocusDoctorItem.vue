@@ -95,7 +95,7 @@ export default {
           isDocMsg: true,
           targetId: this.doctorDetail.userId.value, //医生ID
           docName: this.doctorDetail.userName,
-          orgId: this.doctorDetail.orgId,
+          orgId: this.doctorDetail.orgId.value,
           docPhotoUrl: this.doctorDetail.photoUrl,
           gender: this.doctorDetail.gender.value,
           modeId: 8107102

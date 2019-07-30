@@ -604,6 +604,7 @@ export default {
 };
 </script>
 
+
 <style>
 .image[lazy=loading] {
   width: 40px;
