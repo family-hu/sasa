@@ -4,7 +4,7 @@
         <div class="head_bar flex-b">
           <div class="flex_box" @click="backHome">
             <img src="/static/img/bar_back_home@2x.png" alt="">
-            <span>{{orgNames}}</span>
+            <span>{{orgName}}</span>
           </div>
           <div>
             <!-- <img @click="focusDoc" src="/static/img/bar_ewm@2x.png" alt=""> -->
@@ -70,7 +70,7 @@
               <img :src="docImg" alt="">
               <div>
                 <p class="title">{{serviceDetail.acceptName}}</p>
-                <p v-if="orgNames">{{orgNames}}</p>
+                <p v-if="orgName">{{orgName}}</p>
                 <p>{{title}}</p>
               </div>
             </div>
@@ -98,7 +98,6 @@ export default {
       drId:this.$route.query.drId,
       servId: this.$route.query.servId,
       orgId: this.$route.query.orgId,
-      orgNames: this.$route.query.orgNames,
       serviceDetail: [],
       selected: "overview",
       codeShade: false,
@@ -139,7 +138,7 @@ export default {
         this.serviceDetail.basUserObj.departmentName
       );
     },
-    orgNames() {
+    orgName() {
       if (!this.serviceDetail.orgObj) return "";
       return this.serviceDetail.orgObj.orgNames;
     },

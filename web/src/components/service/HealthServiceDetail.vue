@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="head_bar flex-b">
+      <div class="head_bar flex-b" v-if="showBar">
         <div class="flex_box" @click="backHome">
           <img src="/static/img/bar_back_home@2x.png" alt="">
           <span>{{orgNames}}</span>
@@ -161,6 +161,7 @@ export default {
       page: 1,
       loaded: false, //是否加载完成
       barFixed: false, //是否固定导航
+      showBar: true, //头部导航
       moneyComm: "0",
       show: false,
       phone: "",
@@ -434,8 +435,10 @@ export default {
       let offsetTop = document.querySelector('#fixedBar').offsetTop;
       if (scrollTop > offsetTop) {
         this.barFixed = true;
+        this.showBar = false;
       } else {
         this.barFixed = false;
+        this.showBar = true;
       }
     },
     //分销注册
@@ -600,6 +603,7 @@ export default {
   }
 };
 </script>
+
 
 <style>
 .image[lazy=loading] {

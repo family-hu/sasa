@@ -96,15 +96,17 @@
               <div class="npcTalkCon">您好，我是<span>{{drName}}</span>医生的助理，请问有什么可以帮助您？</div>
             </div>
           </div>
-          <message-item v-for="(message,index) in imMsgList" :key="index" :index="index" :message="message" :friendHeadUrl="friendHeadUrl" :gender="gender" :groupId="groupId" v-on:fun="change"></message-item>
+          <message-item v-for="(message,index) in imMsgList" :key="index" :index="index" :message="message" :friendHeadUrl="friendHeadUrl" :gender="gender" :conn="conn" :groupId="groupId" v-on:fun="change"></message-item>
         </div>
 
         <div v-if="showFaceBox" class='shade_face' @click="hideFace"></div>
         <div v-if="showCustomPopup" class="shade" @click="showCustom"></div>
-        <div class="footer_box" v-if="(isDoctorChat && isTalk == true) || groupId">
+        <div class="footer_box" v-if="(isDoctorChat  &&  isTalk == true) || groupId">
           <div v-if="groupId" class="user_think" @click="hideFace">
             我想 <button @click="goServerList">查看服务记录</button><button @click="goServiceList">服务推荐</button><button @click="goDocDetail">向医生问诊</button>
           </div>
+          <!-- <button v-if="!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)" id="recrd_btn_mobile" class="record-button" @touchstart="startRecord" @touchend="stopRecord"></button> -->
+          <!-- <button  id="recrd_btn_pc" class="record-button"  @mousedown="startRecord" @mouseup="stopRecord"> 微信录音</button> -->
           <div class="footerTalk">
 
               <!-- contenteditable="true" -->
@@ -120,7 +122,7 @@
               </div>
               <!-- <img class="voice" src="/static/img/im_voice.png" alt="" @click="sendAudio"> -->
               <div class="center" v-if="audioInput">
-                <input type="button" class="send_msg_text send_audio"  id="audio" value="按住  说话" @click="sendPrivateAudio">
+                <input type="button" class="send_msg_text send_audio"  id="audio" value="按住  说话" @click="sendAudio">
               </div>
 
               <div class="center" v-else>
@@ -129,6 +131,7 @@
               </div>
 
               <button class="right" @click="onSendMsg()" type="button">发送</button>
+              <!-- <input type="" @click="sendAudio"> -->
               <img class="add" @click="showCustom" src="/static/img/add_im.png" alt="">
 
           </div>
@@ -185,7 +188,6 @@
 
 <script>
 import Header from "../Header.vue";
-// import { webim } from "../../assets/im/webim.js";
 import { mapGetters } from "vuex";
 import imgMap from "../../../static/js/imgmap.js";
 import MessageItem from "./MessageItem.vue";
@@ -208,13 +210,12 @@ export default {
       gender: this.$route.query.gender,
       groupId: this.$route.query.groupId, //群ID
       isDoctorChat: this.$route.query.isDoctorChat, //标记与医生问诊
-      isTalk: null, //是否可以会话
+      isTalk: this.$route.query.isTalk, //是否可以会话
       talkPrice: "", //咨询价格
       snapId: "",
       orgId: "",
       doctorDetail: [],
       imMsgList: [],
-      locationList: [],
       // selType: webim.SESSION_TYPE.C2C,
       loginInfo: null,
       selSess: null,
@@ -242,7 +243,8 @@ export default {
       setTime: null, //定时器
       countDown: {},
       timeSecKill: false,
-      docDownLine: true
+      docDownLine: true,
+      page: 1
     };
   },
 
@@ -332,8 +334,13 @@ export default {
   mounted() {
     //滚动到底部
     window.addEventListener("scroll", this.scrollToBottom);
+    this.wxapi.wxShare();
+  },
+  beforeDestroy() {
+    // console.log('页面变为销毁前前前');
   },
   destroyed() {
+    // console.log('页面变为销毁');
     window.removeEventListener("scroll", this.scrollToBottom);
     //销毁定时器
     this.requestImStatus("endTime");
@@ -341,6 +348,124 @@ export default {
     window.removeEventListener("visibilitychange", this.changeListennr);
   },
   methods: {
+    // 利用 _this.oRecordInfo.useWxRecord 来决定是否为假按钮 值可根据情况修改
+    touchmoveDefault: function(e) {
+      e.preventDefault();
+    },
+    startRecord: function(event) {
+      console.log("startRecord");
+      var _this = this;
+      if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+        // 移动端 取消浏览器长按事件 （否则在录音时会有弹出框）
+        document.oncontextmenu = _this.touchmoveDefault;
+        //禁止滑动事件 防止在长按时 下拉窗口不能触发stopRecord
+        document.body.addEventListener("touchmove", _this.touchmoveDefault, {
+          passive: false
+        });
+      }
+      if (
+        localStorage.rainAllowRecord !== "true" &&
+        _this.oRecordInfo.useWxRecord !== 2 &&
+        _this.oRecordInfo.useWxRecord !== 3
+      ) {
+        //  首次进入 弹出是否授权框
+        wx.startRecord({
+          success: function() {
+            //  授权录音
+            localStorage.rainAllowRecord = "true";
+            _this.oRecordInfo.useWxRecord = 3;
+            _this.oRecordInfo.bShowRecording = false; //  控制正在录音gif显示
+            wx.stopRecord();
+            return;
+          },
+          cancel: function() {
+            // 用户拒绝授权录音
+            _this.oRecordInfo.bShowRecording = false;
+            _this.oRecordInfo.useWxRecord = 0;
+            if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+              document.body.removeEventListener(
+                "touchmove",
+                _this.touchmoveDefault
+              );
+            }
+            return;
+          }
+        });
+        if (_this.oRecordInfo.useWxRecord === 1) {
+          //  使用假录音功能
+          _this.oRecordInfo.useWxRecord = 2;
+        }
+      }
+      _this.oRecordInfo.bShowRecording = true;
+      _this.oRecordInfo.timer = new Date();
+      //  防止因为js 加载时间过长导致调用录音接口失败问题 实现假按钮效果
+      if (
+        (_this.oRecordInfo.useWxRecord === 1 ||
+          _this.oRecordInfo.useWxRecord === 3) &&
+        localStorage.rainAllowRecord === "true"
+      ) {
+        _this.oRecordInfo.recordTimer = setTimeout(function() {
+          wx.startRecord({
+            success: function() {
+              console.log("wx.startRecord success");
+              localStorage.rainAllowRecord = "true";
+            },
+            cancel: function() {
+              _this.oRecordInfo.bShowRecording = false;
+            }
+          });
+        }, 300);
+      }
+    },
+    stopRecord: function(event) {
+      var _this = this;
+      console.log("stopRecord");
+      //  回复滑动事件
+      if (!!navigator.userAgent.match(/AppleWebKit.*Mobile.*/)) {
+        document.body.removeEventListener("touchmove", _this.touchmoveDefault);
+      }
+      _this.oRecordInfo.bShowRecording = false;
+      var t = new Date();
+      if (t - _this.oRecordInfo.timer < 300) {
+        //  少于300毫秒 不执行startRecord
+        clearTimeout(_this.oRecordInfo.recordTimer);
+      } else if (t - _this.oRecordInfo.timer < 2000) {
+        if (_this.toastInstance) {
+          _this.toastInstance.close();
+        }
+        _this.toastInstance = this.$toast({
+          message: "时间太短啦 重新试一次吧",
+          position: "bottom",
+          duration: 1000
+        });
+        if (_this.oRecordInfo.useWxRecord !== 2) {
+          setTimeout(function() {
+            wx.stopRecord({
+              success: function(res) {
+                console.log("updataRecord success");
+              },
+              fail: function(res) {
+                console.log(JSON.stringify(res));
+              }
+            });
+          }, 500);
+        }
+      } else {
+        wx.stopRecord({
+          success: function(res) {
+            console.log("updataRecord success");
+          },
+          fail: function(res) {
+            console.log(JSON.stringify(res));
+          }
+        });
+        if (_this.oRecordInfo.timer) {
+          _this.show_upload_next_button = true;
+        }
+      }
+      _this.oRecordInfo.timer = null;
+    },
+
     //监听页面离开状态
     changeListennr() {
       // 监听 visibility change hidden事件
@@ -356,6 +481,71 @@ export default {
           this.requestImStatus();
         }
       }
+    },
+    //针对环信的数据转译成我们自己消息体，方便统一渲染
+    msgFormat(msg, type) {
+      let data = JSON.parse(msg);
+      let msgData = "";
+      if (type == "0" || type == "3") {
+        //文本、表情
+        msgData = data.msg ? data.msg : data.data;
+      } else if (type == "1") {
+        //自定义消息
+        msgData = data.ext;
+      } else if (type == "5") {
+        //图片
+        msgData = data.body ? data.body.url : data.url;
+      } else if (type == "4") {
+        msgData = data;
+      }
+
+      //监听开启结束事件
+      if (msgData.userAction == "200" && msgData.desc == "本次咨询结束") {
+        msgData.chatRecordEnd = false;
+      }
+      //监听开启启动事件
+      if (msgData.userAction == "200" && msgData.desc == "本次咨询开始") {
+        msgData.chatRecordStart = false;
+      }
+      console.log(msgData, "==msgData消息体");
+      let list = {
+        chatBody: msgData, //消息体
+        chatHead: data.ext.IMicon,
+        chatId: data.from ? data.from : this.loginData.userObj.userId.value, //来自当前用户
+        chatName: data.ext.IMname,
+        chatType: type,
+        timestamp: Date.parse(new Date())
+      };
+      this.imMsgList.push(list); //渲染
+      // if(!data.from){
+      this.getImAddChatDate(data, msgData, type); //当前用户保存
+      // }
+      this.scrollToBottom();
+    },
+    //存储聊天记录
+    getImAddChatDate(msg, msgData, chatType) {
+      let request = {
+        chatType: chatType,
+        targetType: this.groupId
+          ? this.groupId
+          : msg.from
+            ? msg.from
+            : this.loginData.userObj.userId.value, //消息类型
+        fromuser: msg.from ? msg.from : this.loginData.userObj.userId.value, //来自当前用户
+        touser: this.groupId ? this.groupId : msg.to ? msg.to : this.selToID, //发送止群组ID或者医生
+        timestamp: Date.parse(new Date()), //当前时间时间戳-毫秒
+        chatbody: typeof msgData == "string" ? msgData : JSON.stringify(msgData) //消息体
+      };
+      this.$store
+        .dispatch("imAddChatDate", request)
+        .then(data => {
+          if (data.rtnCode == 1) {
+            console.log("消息提交成功");
+          }
+        })
+        .catch(error => {
+          console.log(error.message);
+        });
     },
     //改变状态
     change(data) {
@@ -565,54 +755,6 @@ export default {
         }
       });
     },
-    //获取本地的缓存
-    getStorage() {
-      //取缓存聊天记录
-      // window.localStorage.removeItem('localImMsgList');
-      let getLocalImMsgList = [];
-      getLocalImMsgList = window.localStorage.getItem("localImMsgList");
-      console.log(JSON.parse(getLocalImMsgList), "=localImMsgList缓存json");
-      let msgList = [];
-      if (
-        getLocalImMsgList &&
-        (getLocalImMsgList != "" ||
-          getLocalImMsgList != "null" ||
-          getLocalImMsgList != "undefined")
-      ) {
-        this.locationList = JSON.parse(getLocalImMsgList);
-        msgList = JSON.parse(getLocalImMsgList);
-        console.log(this.locationList, "=locationList当前接受缓存变量json");
-        console.log(msgList, "=msgList");
-        if (this.conn) {
-          let imUserId = this.conn.context.userId;
-          // console.log(imUserId,'===imUserId');
-          // console.log(this.groupId,'==this.groupId');
-          for (let i = 0; i < msgList.length; i++) {
-            if (this.groupId) {
-              //群
-              if (msgList[i].to == this.groupId) {
-                this.imMsgList.push(msgList[i]);
-                this.scrollToBottom();
-                // console.log(this.imMsgList,'==this.imMsgList-群');
-              }
-            } else {
-              //(msgList[i].to == imUserId && msgList[i].ext.userid == this.selToID)
-              if (
-                (msgList[i].to == imUserId &&
-                  msgList[i].from == this.selToID) ||
-                msgList[i].to == this.selToID
-              ) {
-                this.imMsgList.push(msgList[i]);
-                this.scrollToBottom();
-                // console.log(this.imMsgList,'==this.imMsgList-个人');
-              }
-            }
-          }
-        }
-      }
-
-      this.listenerConn();
-    },
     //聊天记录
     goChatRecord() {
       this.$router.push({
@@ -667,12 +809,11 @@ export default {
             vm.friendHeadUrl = doctorList[0].photoUrl;
             vm.gender = doctorList[0].gender;
 
-            if(this.groupId && !this.isDoctorChat){
-            //助理群聊
+            if (this.groupId && !this.isDoctorChat) {
+              //助理群聊
               document.title = this.drName + "医生的助理";
             } else {
               document.title = this.drName + "医生";
-
             }
 
             let list = doctorList[0].servList;
@@ -693,21 +834,57 @@ export default {
           this.$toast(error.message);
         });
     },
-    //获取环信聊天记录
-    getImchatdata() {
+    //获取聊天记录
+    getImchatdata(type) {
       let request = {
-        chatuser: this.selToID
+        chatuser: type,
+        isGroup: this.groupId ? 1 : 0,
+        pageSize: 10,
+        pageNum: this.page
       };
       this.$store
         .dispatch("imchatdata", request)
         .then(data => {
           if (data && data.data != "") {
             for (let i = 0; i < data.data.length; i++) {
-              let json = JSON.parse(data.data[i]);
-              this.imMsgList.push(json);
-              console.log(this.imMsgList, "==this.imMsgList");
+              let json = data.data[i];
+              if (
+                json.chatType == 1 ||
+                json.chatType == 4 ||
+                (json.chatType == 3 &&
+                  json.chatId.value != this.loginData.userObj.userId.value)
+              ) {
+                json.chatBody =
+                  typeof json.chatBody == "string"
+                    ? JSON.parse(json.chatBody)
+                    : json.chatBody;
+                if (json.chatBody.filename == "audio") {
+                  let options = json.chatBody;
+                  console.log(WebIM.utils, "==WebIM.utils");
+                  options.onFileDownloadComplete = function(response, xhr) {
+                    let objectURL = WebIM.utils.parseDownloadResponse.call(
+                      this,
+                      response
+                    );
+                    console.log("下载成功", objectURL);
+                    json.chatBody.objectURL = objectURL;
+                  };
+                  options.onFileDownloadError = function(e) {
+                    console.log("下载失败");
+                  };
+                  options.headers = {
+                    Accept: "audio/mp3"
+                  };
+                  WebIM.utils.download(options);
+                } else if (json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束") {
+                  json.chatBody.chatRecordEnd = true;
+                } else if (json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询开始") {
+                  json.chatBody.chatRecordStart = true;
+                }
+              }
+              this.imMsgList.unshift(json);
+              this.scrollToBottom();
             }
-            window.localStorage.removeItem("localImMsgList");
           }
         })
         .catch(error => {
@@ -795,13 +972,17 @@ export default {
           },
           success: function() {
             // 消息发送成功
-            console.log("Success");
+            console.log("Success", msg.body);
+            that.msgFormat(JSON.stringify(msg.body), "4");
           },
           flashUpload: WebIM.flashUpload
         };
         msg.set(option);
+        if (this.groupId) {
+          //如果是群
+          msg.setGroup("groupchat");
+        }
         this.conn.send(msg.body);
-        this.imMsgList.push(msg.body);
       }
     },
     //发送医生详情名片
@@ -833,13 +1014,7 @@ export default {
         }, //用户自扩展的消息内容（群聊用法相同）
         success: function(id, serverMsgId) {
           console.log("send private text Success -- 发送成功", msg.body);
-          that.imMsgList.push(msg.body);
-          that.locationList.push(msg.body);
-          window.localStorage.setItem(
-            "localImMsgList",
-            JSON.stringify(that.locationList)
-          );
-          that.scrollToBottom();
+          that.msgFormat(JSON.stringify(msg.body), "1");
         } //消息发送成功回调
       });
       if (this.groupId) {
@@ -873,15 +1048,14 @@ export default {
         },
         success: function(id, serverMsgId) {
           console.log("send private text Success -- 发送成功", msg.body);
-          that.imMsgList.push(msg.body);
-          console.log("that.imMsgList==", that.imMsgList);
-          that.locationList.push(msg.body);
-          window.localStorage.setItem(
-            "localImMsgList",
-            JSON.stringify(that.locationList)
-          );
-          console.log("that.locationList==", that.locationList);
-          that.scrollToBottom();
+          let str = msg.body.msg;
+          let regex = /\[|\]|【|】/g;
+          let a = regex.test(str);
+          if (a == true) {
+            that.msgFormat(JSON.stringify(msg.body), "3"); //带表情文本
+          } else {
+            that.msgFormat(JSON.stringify(msg.body), "0"); //普通文本
+          }
         },
         fail: function(e) {
           console.log("Send private text error  -- 发送失败");
@@ -922,6 +1096,13 @@ export default {
         file: file,
         to: userName,
         roomType: false,
+        ext: {
+          // _file: _file,
+          IMicon: that.loginData.userObj.photoUrl,
+          IMname: that.loginData.userObj.userName
+            ? that.loginData.userObj.userName
+            : that.loginData.userObj.nickName
+        },
         chatType: "singleChat",
         onFileUploadError: function() {
           console.log("onFileUploadError");
@@ -930,14 +1111,8 @@ export default {
           console.log("onFileUploadComplete");
         },
         success: function() {
-          console.log("Success");
-          that.imMsgList.push(msg.body);
-          that.locationList.push(msg.body);
-          window.localStorage.setItem(
-            "localImMsgList",
-            JSON.stringify(that.locationList)
-          );
-          that.scrollToBottom();
+          console.log("Success", msg.body.body.url);
+          that.msgFormat(JSON.stringify(msg.body), "5"); //以普通文本传递
         }
       };
       // for ie8
@@ -974,6 +1149,175 @@ export default {
           document.documentElement.scrollTop || document.body.scrollTop || 0;
         window.scrollTo(0, Math.max(scrollHeight - 1, 0));
       }, 100);
+    },
+    //聊天监听并建立连接
+    listenerConn() {
+      //接受信息，赋值给信息list
+      let isDoctorChat = this.isDoctorChat;
+      let groupId = this.groupId;
+      // let docID = this.selToID;
+      // let userIdIm = this.conn.context.userId;
+      let imConn = this.conn;
+
+      let that = this;
+      //监听接受消息
+      imConn.listen({
+        onOpened: function(message) {
+          //连接成功回调，连接成功后才可以发送消息
+          //如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
+          // 手动上线指的是调用conn.setPresence(); 在本例中，conn初始化时已将isAutoLogin设置为true
+          // 所以无需调用conn.setPresence();
+          console.log("%c [opened] 连接已成功建立", "color: green");
+        },
+        onClosed: function(message) {
+          console.log("连接关闭", message);
+          //环信登录
+          that.imLogin();
+          // window.location.reload(); //刷新页面
+        }, //连接关闭回调
+        onCmdMessage: function(message) {
+          console.log("收到命令消息");
+        }, //收到命令消息
+        onAudioMessage: function(message) {
+          if (
+            (message.type == "groupchat" && isDoctorChat) ||
+            (message.type == "chat" && groupId)
+          ) {
+            return false;
+          }
+          console.log("收到音频消息", message);
+
+          var options = { url: message.url };
+          options.onFileDownloadComplete = function(response) {
+            console.log("下载成功");
+            //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
+            var objectURL = WebIM.utils.parseDownloadResponse.call(
+              imConn,
+              response
+            );
+            message.objectURL = objectURL;
+            that.msgFormat(JSON.stringify(message), "4");
+            that.scrollToBottom();
+          };
+
+          options.onFileDownloadError = function() {
+            //音频下载失败
+            console.log("音频下载失败");
+          };
+
+          //通知服务器将音频转为mp3
+          options.headers = {
+            Accept: "audio/mp3"
+          };
+
+          WebIM.utils.download.call(imConn, options);
+        }, //收到音频消息
+        onLocationMessage: function(message) {
+          console.log("收到位置消息");
+        }, //收到位置消息
+        onError: function(message) {
+          console.log("监听失败回调", message);
+          // window.location.reload();
+        }, //失败回调
+        onTextMessage: function(message) {
+          // 在此接收和处理消息，根据message.type区分消息来源，私聊或群组或聊天室
+          console.log("Text", message);
+          if (
+            (message.type == "groupchat" && isDoctorChat) ||
+            (message.type == "chat" && groupId)
+          ) {
+            return false;
+          }
+
+          if (message.data == "[自定义消息]") {
+            that.msgFormat(JSON.stringify(message), "1");
+          } else {
+            that.msgFormat(JSON.stringify(message), "0");
+            that.scrollToBottom();
+          }
+
+          // if (message.type == "groupchat") {
+          //   //群
+          //   if (message.to == groupId) {
+          //     if(message == '[自定义消息]'){
+          //       that.msgFormat(JSON.stringify(message),'1');
+          //     }
+          //     that.msgFormat(JSON.stringify(message),'0');
+          //     that.scrollToBottom();
+          //   }
+          // } else {
+          //   if (
+          //     (message.to == userIdIm && message.from == docID) ||
+          //     message.to == docID
+          //   ) {
+          //     if(message == '[自定义消息]'){
+          //       that.msgFormat(JSON.stringify(message),'1');
+          //     }
+          //     that.msgFormat(JSON.stringify(message),'0');
+          //     that.scrollToBottom();
+          //   }
+          // }
+        },
+        onEmojiMessage: function(message) {
+          if (
+            (message.type == "groupchat" && isDoctorChat) ||
+            (message.type == "chat" && groupId)
+          ) {
+            return false;
+          }
+          //收到表情消息
+          // WebIM.utils.parseEmoji(message);
+          console.log("收到Emoji表情消息", message);
+          // var data = message.data;
+          // let Emoji = [];
+          //     // Emoji.push(message.to);
+          // for(var i = 0 , l = data.length ; i < l ; i++){
+          //     Emoji.push(data[i]);
+          // }
+
+          that.msgFormat(JSON.stringify(message), "3");
+          that.scrollToBottom();
+        },
+        onPictureMessage: function(message) {
+          if (
+            (message.type == "groupchat" && isDoctorChat) ||
+            (message.type == "chat" && groupId)
+          ) {
+            return false;
+          }
+          //收到图片消息
+          console.log("Location of Picture is ", message);
+
+          that.msgFormat(JSON.stringify(message), "5");
+          that.scrollToBottom();
+        },
+        onVideoMessage: function(message) {
+          if (
+            (message.type == "groupchat" && isDoctorChat) ||
+            (message.type == "chat" && groupId)
+          ) {
+            return false;
+          }
+          var node = document.getElementById("privateVideo");
+          var option = {
+            url: message.url,
+            headers: {
+              Accept: "audio/mp4"
+            },
+            onFileDownloadComplete: function(response) {
+              var objectURL = WebIM.utils.parseDownloadResponse.call(
+                this.conn,
+                response
+              );
+              node.src = objectURL;
+            },
+            onFileDownloadError: function() {
+              console.log("File down load error.");
+            }
+          };
+          WebIM.utils.download.call(this.conn, option);
+        } //收到视频消息
+      });
     },
     //环信登录
     imLogin() {
@@ -1025,201 +1369,94 @@ export default {
       //登录环信
       this.conn.open(options);
     },
-    //聊天监听并建立连接
-    listenerConn() {
-      //接受信息，赋值给信息list
-      let getImMsg = this.imMsgList;
-      let isDoctorChat = this.isDoctorChat;
-      let groupId = this.groupId;
-      let docID = this.selToID;
-      let userIdIm = this.conn.context.userId;
-      let imConn = this.conn;
-
-      //监听滚动
-      function toBottom() {
-        setTimeout(function() {
-          var scrollHeight =
-            document.documentElement.scrollHeight ||
-            document.body.scrollHeight ||
-            document.getElementById("dialogue_box");
-          window.scrollTo(0, Math.max(scrollHeight - 1, 0));
-        }, 100);
+    //语音。。。
+    sendAudio() {
+      let that = this;
+      //可以使用Blob对象来解决
+      function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(","),
+          mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]),
+          n = bstr.length,
+          u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {
+          type: mime
+        });
       }
 
-      //监听接受消息
-      imConn.listen({
-        onOpened: function(message) {
-          //连接成功回调，连接成功后才可以发送消息
-          //如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
-          // 手动上线指的是调用conn.setPresence(); 在本例中，conn初始化时已将isAutoLogin设置为true
-          // 所以无需调用conn.setPresence();
-          console.log("%c [opened] 连接已成功建立", "color: green");
+      function blobToFile(theBlob, fileName) {
+        //A Blob() is almost a File() - it's just missing the two properties below which we will add
+        theBlob.lastModifiedDate = new Date();
+        theBlob.name = fileName;
+        return theBlob;
+      }
+
+      var id = that.conn.getUniqueId(); // 生成本地消息id
+      var msg = new WebIM.message("audio", id); // 创建音频消息
+      //test: blob对象可以通过mui中的io获得
+      var blob = dataURLtoBlob(
+        "data:audio/wav;base64,UklGRhwMAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAZGF0Ya4LAACAgICAgICAgICAgICAgICAgICAgICAgICAf3hxeH+AfXZ1eHx6dnR5fYGFgoOKi42aloubq6GOjI2Op7ythXJ0eYF5aV1AOFFib32HmZSHhpCalIiYi4SRkZaLfnhxaWptb21qaWBea2BRYmZTVmFgWFNXVVVhaGdbYGhZbXh1gXZ1goeIlot1k6yxtKaOkaWhq7KonKCZoaCjoKWuqqmurK6ztrO7tbTAvru/vb68vbW6vLGqsLOfm5yal5KKhoyBeHt2dXBnbmljVlJWUEBBPDw9Mi4zKRwhIBYaGRQcHBURGB0XFxwhGxocJSstMjg6PTc6PUxVV1lWV2JqaXN0coCHhIyPjpOenqWppK6xu72yxMu9us7Pw83Wy9nY29ve6OPr6uvs6ezu6ejk6erm3uPj3dbT1sjBzdDFuMHAt7m1r7W6qaCupJOTkpWPgHqAd3JrbGlnY1peX1hTUk9PTFRKR0RFQkRBRUVEQkdBPjs9Pzo6NT04Njs+PTxAPzo/Ojk6PEA5PUJAQD04PkRCREZLUk1KT1BRUVdXU1VRV1tZV1xgXltcXF9hXl9eY2VmZmlna3J0b3F3eHyBfX+JgIWJiouTlZCTmpybnqSgnqyrqrO3srK2uL2/u7jAwMLFxsfEv8XLzcrIy83JzcrP0s3M0dTP0drY1dPR1dzc19za19XX2dnU1NjU0dXPzdHQy8rMysfGxMLBvLu3ta+sraeioJ2YlI+MioeFfX55cnJsaWVjXVlbVE5RTktHRUVAPDw3NC8uLyknKSIiJiUdHiEeGx4eHRwZHB8cHiAfHh8eHSEhISMoJyMnKisrLCszNy8yOTg9QEJFRUVITVFOTlJVWltaXmNfX2ZqZ21xb3R3eHqAhoeJkZKTlZmhpJ6kqKeur6yxtLW1trW4t6+us7axrbK2tLa6ury7u7u9u7vCwb+/vr7Ev7y9v8G8vby6vru4uLq+tri8ubi5t7W4uLW5uLKxs7G0tLGwt7Wvs7avr7O0tLW4trS4uLO1trW1trm1tLm0r7Kyr66wramsqaKlp52bmpeWl5KQkImEhIB8fXh3eHJrbW5mYGNcWFhUUE1LRENDQUI9ODcxLy8vMCsqLCgoKCgpKScoKCYoKygpKyssLi0sLi0uMDIwMTIuLzQ0Njg4Njc8ODlBQ0A/RUdGSU5RUVFUV1pdXWFjZGdpbG1vcXJ2eXh6fICAgIWIio2OkJGSlJWanJqbnZ2cn6Kkp6enq62srbCysrO1uLy4uL+/vL7CwMHAvb/Cvbq9vLm5uba2t7Sysq+urqyqqaalpqShoJ+enZuamZqXlZWTkpGSkpCNjpCMioqLioiHhoeGhYSGg4GDhoKDg4GBg4GBgoGBgoOChISChISChIWDg4WEgoSEgYODgYGCgYGAgICAgX99f398fX18e3p6e3t7enp7fHx4e3x6e3x7fHx9fX59fn1+fX19fH19fnx9fn19fX18fHx7fHx6fH18fXx8fHx7fH1+fXx+f319fn19fn1+gH9+f4B/fn+AgICAgH+AgICAgIGAgICAgH9+f4B+f35+fn58e3t8e3p5eXh4d3Z1dHRzcXBvb21sbmxqaWhlZmVjYmFfX2BfXV1cXFxaWVlaWVlYV1hYV1hYWVhZWFlaWllbXFpbXV5fX15fYWJhYmNiYWJhYWJjZGVmZ2hqbG1ub3Fxc3V3dnd6e3t8e3x+f3+AgICAgoGBgoKDhISFh4aHiYqKi4uMjYyOj4+QkZKUlZWXmJmbm52enqCioqSlpqeoqaqrrK2ur7CxsrGys7O0tbW2tba3t7i3uLe4t7a3t7i3tre2tba1tLSzsrKysbCvrq2sq6qop6alo6OioJ+dnJqZmJeWlJKSkI+OjoyLioiIh4WEg4GBgH9+fXt6eXh3d3V0c3JxcG9ubWxsamppaWhnZmVlZGRjYmNiYWBhYGBfYF9fXl5fXl1dXVxdXF1dXF1cXF1cXF1dXV5dXV5fXl9eX19gYGFgYWJhYmFiY2NiY2RjZGNkZWRlZGVmZmVmZmVmZ2dmZ2hnaGhnaGloZ2hpaWhpamlqaWpqa2pra2xtbGxtbm1ubm5vcG9wcXBxcnFycnN0c3N0dXV2d3d4eHh5ent6e3x9fn5/f4CAgIGCg4SEhYaGh4iIiYqLi4uMjY2Oj5CQkZGSk5OUlJWWlpeYl5iZmZqbm5ybnJ2cnZ6en56fn6ChoKChoqGio6KjpKOko6SjpKWkpaSkpKSlpKWkpaSlpKSlpKOkpKOko6KioaKhoaCfoJ+enp2dnJybmpmZmJeXlpWUk5STkZGQj4+OjYyLioqJh4eGhYSEgoKBgIB/fn59fHt7enl5eHd3dnZ1dHRzc3JycXBxcG9vbm5tbWxrbGxraWppaWhpaGdnZ2dmZ2ZlZmVmZWRlZGVkY2RjZGNkZGRkZGRkZGRkZGRjZGRkY2RjZGNkZWRlZGVmZWZmZ2ZnZ2doaWhpaWpra2xsbW5tbm9ub29wcXFycnNzdHV1dXZ2d3d4eXl6enp7fHx9fX5+f4CAgIGAgYGCgoOEhISFhoWGhoeIh4iJiImKiYqLiouLjI2MjI2OjY6Pj46PkI+QkZCRkJGQkZGSkZKRkpGSkZGRkZKRkpKRkpGSkZKRkpGSkZKRkpGSkZCRkZCRkI+Qj5CPkI+Pjo+OjY6Njo2MjYyLjIuMi4qLioqJiomJiImIh4iHh4aHhoaFhoWFhIWEg4SDg4KDgoKBgoGAgYCBgICAgICAf4CAf39+f35/fn1+fX59fHx9fH18e3x7fHt6e3p7ent6e3p5enl6enl6eXp5eXl4eXh5eHl4eXh5eHl4eXh5eHh3eHh4d3h4d3h3d3h4d3l4eHd4d3h3eHd4d3h3eHh4eXh5eHl4eHl4eXh5enl6eXp5enl6eXp5ent6ent6e3x7fHx9fH18fX19fn1+fX5/fn9+f4B/gH+Af4CAgICAgIGAgYCBgoGCgYKCgoKDgoOEg4OEg4SFhIWEhYSFhoWGhYaHhoeHhoeGh4iHiIiHiImIiImKiYqJiYqJiouKi4qLiouKi4qLiouKi4qLiouKi4qLi4qLiouKi4qLiomJiomIiYiJiImIh4iIh4iHhoeGhYWGhYaFhIWEg4OEg4KDgoOCgYKBgIGAgICAgH+Af39+f359fn18fX19fHx8e3t6e3p7enl6eXp5enl6enl5eXh5eHh5eHl4eXh5eHl4eHd5eHd3eHl4d3h3eHd4d3h3eHh4d3h4d3h3d3h5eHl4eXh5eHl5eXp5enl6eXp7ent6e3p7e3t7fHt8e3x8fHx9fH1+fX59fn9+f35/gH+AgICAgICAgYGAgYKBgoGCgoKDgoOEg4SEhIWFhIWFhoWGhYaGhoaHhoeGh4aHhoeIh4iHiIeHiIeIh4iHiIeIiIiHiIeIh4iHiIiHiIeIh4iHiIeIh4eIh4eIh4aHh4aHhoeGh4aHhoWGhYaFhoWFhIWEhYSFhIWEhISDhIOEg4OCg4OCg4KDgYKCgYKCgYCBgIGAgYCBgICAgICAgICAf4B/f4B/gH+Af35/fn9+f35/fn1+fn19fn1+fX59fn19fX19fH18fXx9fH18fXx9fH18fXx8fHt8e3x7fHt8e3x7fHt8e3x7fHt8e3x7fHt8e3x7fHt8e3x8e3x7fHt8e3x7fHx8fXx9fH18fX5+fX59fn9+f35+f35/gH+Af4B/gICAgICAgICAgICAgYCBgIGAgIGAgYGBgoGCgYKBgoGCgYKBgoGCgoKDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KDgoOCg4KCgoGCgYKBgoGCgYKBgoGCgYKBgoGCgYKBgoGCgYKBgoGCgYKBgoGCgYKBgoGBgYCBgIGAgYCBgIGAgYCBgIGAgYCBgIGAgYCBgIGAgYCAgICBgIGAgYCBgIGAgYCBgIGAgYCBgExJU1RCAAAASU5GT0lDUkQMAAAAMjAwOC0wOS0yMQAASUVORwMAAAAgAAABSVNGVBYAAABTb255IFNvdW5kIEZvcmdlIDguMAAA"
+      );
+      var url = window.URL.createObjectURL(blob);
+      var input = blobToFile(blob, "audio");
+      var uri = {
+        url: "",
+        filename: "",
+        filetype: "",
+        data: ""
+      };
+      uri.data = input;
+      uri.url = window.URL.createObjectURL(input);
+      uri.filename = input.name || "";
+      var index = uri.filename.lastIndexOf(".");
+      if (index != -1) {
+        uri.filetype = uri.filename.substring(index + 1).toLowerCase();
+      }
+      var file = uri;
+      var option = {
+        apiUrl: WebIM.config.apiURL,
+        file: file,
+        to: that.groupId ? that.groupId : that.selToID, // 接收消息对象
+        roomType: false,
+        ext: {
+          IMicon: that.loginData.userObj.photoUrl,
+          IMname: that.loginData.userObj.userName
+            ? that.loginData.userObj.userName
+            : that.loginData.userObj.nickName
         },
-        onClosed: function(message) {
-          console.log("连接关闭", message);
-          //环信登录
-          this.imLogin();
-          // window.location.reload(); //刷新页面
-        }, //连接关闭回调
-        onCmdMessage: function(message) {
-          console.log("收到命令消息");
-        }, //收到命令消息
-        onAudioMessage: function(message) {
-          if (message.type == "groupchat" && isDoctorChat) {
-            //群
-            return false;
-          }
-          console.log("收到音频消息", message);
-          if (message.type == "groupchat") {
-            //群
-            if (message.to == groupId) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          } else {
-            if (
-              (message.to == userIdIm && message.from == docID) ||
-              message.to == docID
-            ) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          }
-
-          // var options = { url: message.url };
-
-          // options.onFileDownloadComplete = function ( response ) {
-          //   //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
-          //   var objectURL = WebIM.utils.parseDownloadResponse.call(this.conn, response);
-          // };
-
-          // options.onFileDownloadError = function () {
-          //   //音频下载失败
-          // };
-
-          // //通知服务器将音频转为mp3
-          // options.headers = {
-          //   'Accept': 'audio/mp3'
-          // };
-
-          // WebIM.utils.download.call(this.conn, options);
-        }, //收到音频消息
-        onLocationMessage: function(message) {
-          console.log("收到位置消息");
-        }, //收到位置消息
-        onError: function(message) {
-          console.log("监听失败回调", message);
-        }, //失败回调
-        onTextMessage: function(message) {
-          // 在此接收和处理消息，根据message.type区分消息来源，私聊或群组或聊天室
-          if (message.type == "groupchat" && isDoctorChat) {
-            //群
-            return false;
-          }
-          console.log("Text", message);
-          if (message.type == "groupchat") {
-            //群
-            if (message.to == groupId) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          } else {
-            if (
-              (message.to == userIdIm && message.from == docID) ||
-              message.to == docID
-            ) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          }
+        // chatType: 'singleChat',
+        onFileUploadError: function() {
+          // 消息上传失败
+          console.log("onFileUploadError");
         },
-        onEmojiMessage: function(message) {
-          if (message.type == "groupchat" && isDoctorChat) {
-            //群
-            return false;
-          }
-          //收到表情消息
-          // WebIM.utils.parseEmoji(message);
-          console.log("收到Emoji表情消息", message);
-          // var data = message.data;
-          // let Emoji = [];
-          //     // Emoji.push(message.to);
-          // for(var i = 0 , l = data.length ; i < l ; i++){
-          //     Emoji.push(data[i]);
-          // }
-
-          if (message.type == "groupchat") {
-            //群
-            if (message.to == groupId) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          } else {
-            if (
-              (message.to == userIdIm && message.from == docID) ||
-              message.to == docID
-            ) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          }
+        onFileUploadComplete: function() {
+          // 消息上传成功
+          console.log("onFileUploadComplete");
         },
-        onPictureMessage: function(message) {
-          if (message.type == "groupchat" && isDoctorChat) {
-            //群
-            return false;
-          }
-          //收到图片消息
-          console.log("Location of Picture is ", message);
-          if (message.type == "groupchat") {
-            //群
-            if (message.to == groupId) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          } else {
-            if (
-              (message.to == userIdIm && message.from == docID) ||
-              message.to == docID
-            ) {
-              getImMsg.push(message);
-              toBottom();
-            }
-          }
+        success: function() {
+          // 消息发送成功
+          console.log("Success", msg.body);
+          that.msgFormat(JSON.stringify(msg.body), "4");
         },
-        onVideoMessage: function(message) {
-          if (message.type == "groupchat" && isDoctorChat) {
-            //群
-            return false;
-          }
-          var node = document.getElementById("privateVideo");
-          var option = {
-            url: message.url,
-            headers: {
-              Accept: "audio/mp4"
-            },
-            onFileDownloadComplete: function(response) {
-              var objectURL = WebIM.utils.parseDownloadResponse.call(
-                this.conn,
-                response
-              );
-              node.src = objectURL;
-            },
-            onFileDownloadError: function() {
-              console.log("File down load error.");
-            }
-          };
-          WebIM.utils.download.call(this.conn, option);
-        } //收到视频消息
-      });
+        flashUpload: WebIM.flashUpload
+      };
+      if (that.groupId) {
+        // 群消息
+        msg.setGroup("groupchat");
+      } else {
+        msg.body.chatType = "singleChat";
+      }
+      msg.set(option);
+      that.conn.send(msg.body);
+      console.log(msg.body, "msg.body.url");
     }
   },
-
   created() {
     // 监听 visibility change 事件
     document.addEventListener("visibilitychange", this.changeListennr);
-
-    console.log(this.isDoctorChat, "==this.isDoctorChat");
 
     if (!this.loginData.tid) {
       this.myUtils.wxLogin();
@@ -1227,19 +1464,23 @@ export default {
 
     //环信登录
     this.imLogin();
+    //监听聊天窗口并建立连接
+    this.listenerConn();
+
+    //获取群ID
+    if (this.groupId && !this.isDoctorChat) {
+      //助理群聊
+      this.getImchatdata(this.groupId);
+    } else {
+      //医生单聊
+      //获取会话状态
+      this.requestImStatus();
+      //获取聊天记录
+      this.getImchatdata(this.selToID);
+    }
 
     //获取医生详情
     this.expertDetail();
-    //获取群ID
-    if (!this.groupId && this.isDoctorChat) {
-      //获取会话状态
-      this.requestImStatus();
-    }
-    //获取本地缓存
-    this.getStorage();
-
-    //获取环信聊天记录
-    // this.getImchatdata();
 
     // 初始化WebRTC Call
     var rtcCall = null;
@@ -1341,30 +1582,6 @@ export default {
 };
 </script>
 <style scoped>
-.list {
-  float: left;
-  text-align: center;
-  margin-left: 27px;
-  margin-top: 15px;
-  position: relative;
-}
-.list img {
-  width: 59px;
-  height: 59px;
-}
-.list p {
-  color: rgba(4, 11, 28, 0.75);
-  font-size: 12px;
-}
-.list .file_input {
-  width: 55px;
-  height: 55px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 300;
-  opacity: 0;
-}
 .emotion-box {
   margin: 0 auto;
   width: 100%;
@@ -1623,6 +1840,7 @@ export default {
   margin-left: 0.3rem;
   background: url("/static/img/lyy.png") no-repeat center -1px;
   background-size: 100% 100%;
+  margin-top: 3px;
 }
 .border-left .npcTalkImg img {
   margin-right: 20px;
@@ -1695,7 +1913,6 @@ export default {
 .audioPlay audio {
   position: absolute;
   /* opacity: 0; */
-  border: 1px solid red;
 }
 .serveritme {
   font-size: 14px;
@@ -1831,7 +2048,30 @@ export default {
   transition: all 0.5s liner;
   transform: translateY(0);
 }
-
+.list {
+  float: left;
+  text-align: center;
+  margin-left: 27px;
+  margin-top: 15px;
+  position: relative;
+}
+.list img {
+  width: 59px;
+  height: 59px;
+}
+.list p {
+  color: rgba(4, 11, 28, 0.75);
+  font-size: 12px;
+}
+.list .file_input {
+  width: 55px;
+  height: 55px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 300;
+  opacity: 0;
+}
 @media (max-width: 374px) {
   html {
     font-size: 85.34px;

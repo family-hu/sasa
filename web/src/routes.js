@@ -32,7 +32,6 @@ const ShareDoctor = () => import('./components/doctor/ShareDoctor.vue');
 //聊天
 const Chat = () => import('./components/chat/Chat.vue');
 const RecordList = () => import('./components/chat/ChatRecordList.vue');
-const ConversationList = () => import('./components/chat/ConversationList.vue');
 const ChatSubmitPay = () => import('./components/chat/ChatSubmitPay.vue');
 const ChatPayOk = () => import('./components/chat/ChatPayOk.vue');
 
@@ -142,7 +141,6 @@ export const routes = [
     //chat
     {path: "/chat", component: Chat, meta: {title: "聊天", keepAlive: false}},
     {path: "/recordList", component: RecordList, meta: {title: "聊天记录", keepAlive: false}},
-    {path: "/conversationList", component: ConversationList, meta: {title: "我的咨询", keepAlive: false}},
     {path: "/chatSubmitPay", component: ChatSubmitPay, meta: {title: "咨询订单", keepAlive: false}},
     {path: "/chatPayOk", component: ChatPayOk, meta: {title: "支付成功", keepAlive: false}},
 

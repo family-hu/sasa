@@ -117,7 +117,7 @@ axios.interceptors.request.use(function (config) {
     }
     return config;
 }, function (error) {
-  return Promise.reject(error);
+  // return Promise.reject(error);
 });
 
 axios.interceptors.response.use(function (response) {
@@ -136,7 +136,7 @@ axios.interceptors.response.use(function (response) {
   }
   error.data = {rtnMsg: message};
   // error2.data = {msg: message};
-  return Promise.reject(error);
+  // return Promise.reject(error);
 });
 
 export default axios;

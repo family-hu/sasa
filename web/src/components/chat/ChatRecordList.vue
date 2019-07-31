@@ -1,8 +1,17 @@
 <template>
     <div>
-        <div v-if="chatRecordList.length > 0">
-          <!-- <div class="no_record">没有更多记录了</div>
-          <div class="pull_list">下拉查看更多历史消息</div> -->
+        <div v-if="chatRecordList.length > 0" class="chat_list_box">
+
+          <div class="no_record" v-if="loaded">没有更多记录了</div>
+          <!-- <div class="pull_list" v-if="loading && !loaded">加载中...</div> -->
+          <div class='loading' v-if="loading && !loaded">
+            <div class="spinner">
+              <div class="bounce1"> </div>
+              <div class="bounce2"></div>
+              <div class="bounce3"></div>
+            </div>
+          </div>
+          <div class="pull_list" v-if="!loaded && !loading">下拉查看更多历史消息</div>
           <message-item v-for="(message,index) in chatRecordList" :key="index" :index="index" :message="message" :groupId="groupId" :friendHeadUrl="friendHeadUrl" :gender="gender"></message-item>
         </div>
         <div class="empty" v-if="chatRecordList.length == 0">
@@ -15,16 +24,20 @@
 <script>
 import { mapGetters } from "vuex";
 import MessageItem from "./MessageItem.vue";
+import websdk from "../../../node_modules/easemob-websdk";
 import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
     return {
       chatRecordList: [],
+      page: 1,
       docId: this.$route.query.docId, //医生ID
       userId: this.$route.query.userId, //用户ID
       groupId: this.$route.query.groupId, //群ID
       friendHeadUrl: this.$route.query.friendHeadUrl, //医生头像
-      gender: this.$route.query.gender
+      gender: this.$route.query.gender,
+      loaded: false,
+      loading: false
     };
   },
 
@@ -39,60 +52,113 @@ export default {
   },
 
   methods: {
-    //获取环信聊天记录
-    getImchatdata() {
+    onScroll() {
+      let scrollTop = document.documentElement.scrollTop;
+      if (scrollTop == 0) {
+        console.log('loading');
+        this.loading = true;
+        let that = this;
+        //加载更多操作
+        if (!that.loaded) {
+          setTimeout(function() {
+            that.page++;
+            if (that.groupId && !that.isDoctorChat) {
+              //助理群聊
+              that.getImchatdata(that.groupId);
+            } else {
+              //医生单聊
+              that.getImchatdata(that.docId);
+            }
+          }, 2000);
+        }
+      }
+    },
+    //滚动条到底部
+    scrollToBottom() {
+      setTimeout(function() {
+        var scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight ||
+          document.getElementById("dialogue_box");
+        window.scrollTo(0, Math.max(scrollHeight - 1, 0));
+      }, 100);
+    },
+    //获取聊天记录
+    getImchatdata(type) {
+      this.loading = true;
       let request = {
-        chatuser: this.docId
+        chatuser: type,
+        isGroup: this.groupId ? 1 : 0,
+        pageSize: 10,
+        pageNum: this.page
       };
       this.$store
         .dispatch("imchatdata", request)
         .then(data => {
           if (data && data.data != "") {
             for (let i = 0; i < data.data.length; i++) {
-              let json = JSON.parse(data.data[i]);
-              this.imMsgList.push(json);
-              console.log(this.imMsgList, "==this.imMsgList");
+              let json = data.data[i];
+              if (json.chatType == 1 || json.chatType == 4 || (json.chatType == 3 && json.chatId.value != this.loginData.userObj.userId.value)) {
+                json.chatBody = typeof json.chatBody == "string" ? JSON.parse(json.chatBody) : json.chatBody;
+                if (json.chatBody.filename == "audio") {
+                  console.log(json.chatBody.url, "==json.chatBody.url");
+                  let options = json.chatBody;
+                  options.onFileDownloadComplete = function(response, xhr) {
+                    let objectURL = WebIM.utils.parseDownloadResponse.call(this, response);
+                    console.log('下载成功',objectURL);
+                    json.chatBody.objectURL = objectURL;
+                  }
+                 
+                  options.onFileDownloadError = function(e) {
+                    console.log('下载失败');
+                  };
+                  options.headers = {
+                    "Accept" : "audio/mp3"
+                  };
+
+                  WebIM.utils.download(options);
+                } else if(json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束"){
+                  json.chatBody.chatRecordEnd = true;
+                } else if (json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询开始") {
+                  json.chatBody.chatRecordStart = true;
+                }
+              }
+              this.chatRecordList.unshift(json);
+              this.scrollToBottom();
             }
-            window.localStorage.removeItem("localImMsgList");
+            this.loaded = this.chatRecordList.length == data.total;
+            this.loading = false;
           }
         })
         .catch(error => {
+          this.loaded = true;
           this.$toast(error.message);
         });
-    },
-    //获取本地的缓存
-    getStorage() {
-      //取缓存聊天记录
-      // window.localStorage.removeItem('localImMsgList');
-      let localImMsgList = window.localStorage.getItem("localImMsgList");
-      // console.log(localImMsgList,'=localImMsgList');
-      if (localImMsgList && (localImMsgList != "" || localImMsgList != "null" || localImMsgList != "undefined")) {
-        let msgList = JSON.parse(localImMsgList);
-        console.log(msgList, "=msgList");
-        for (let i = 0; i < msgList.length; i++) {
-          if(this.groupId){ //群记录
-            if (msgList[i].to == this.groupId) {
-              this.chatRecordList.push(msgList[i]);
-            }
-          }else{
-            //(msgList[i].to == imUserId && msgList[i].ext.userid == this.selToID)
-            if ((msgList[i].to == this.userId && msgList[i].from == this.docId) || msgList[i].to == this.docId) {
-              this.chatRecordList.push(msgList[i]);
-            }
-          }
-        }
-      }
     }
   },
-
+  mounted() {
+    window.addEventListener("scroll", this.onScroll);
+  },
+  destroyed() {
+    window.removeEventListener("scroll", this.onScroll);
+  },
   created() {
-    // this.getImchatdata();
-    this.getStorage()
+
+    if (this.groupId && !this.isDoctorChat) {
+      //助理群聊
+      this.getImchatdata(this.groupId);
+    } else {
+      //医生单聊
+      this.getImchatdata(this.docId);
+    }
   }
 };
 </script>
 
 <style>
+.chat_list_box {
+  padding-bottom: 20px;
+}
 .no_record {
   color: #0076ff;
   font-size: 13px;
@@ -336,8 +402,8 @@ export default {
   right: -20px;
 }
 .npcTalk .audioPlay {
-  width: 50px;
-  height: 20px;
+  min-width: 50px;
+  /* height: 20px; */
 }
 .audioPlay audio {
   position: absolute;
