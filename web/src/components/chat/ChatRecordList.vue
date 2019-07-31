@@ -124,7 +124,7 @@ export default {
                 }
               }
               this.chatRecordList.unshift(json);
-              this.scrollToBottom();
+
             }
             this.loaded = this.chatRecordList.length == data.total;
             this.loading = false;
@@ -138,12 +138,12 @@ export default {
   },
   mounted() {
     window.addEventListener("scroll", this.onScroll);
+    this.scrollToBottom();
   },
   destroyed() {
     window.removeEventListener("scroll", this.onScroll);
   },
   created() {
-
     if (this.groupId && !this.isDoctorChat) {
       //助理群聊
       this.getImchatdata(this.groupId);
