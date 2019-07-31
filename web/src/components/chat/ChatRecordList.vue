@@ -97,10 +97,11 @@ export default {
           if (data && data.data != "") {
             for (let i = 0; i < data.data.length; i++) {
               let json = data.data[i];
-              if (json.chatType == 1) {
-                json.chatBody = JSON.parse(json.chatBody);
+              if (json.chatType == 1 || json.chatType == 4 || (json.chatType == 3 && json.chatId.value != this.loginData.userObj.userId.value)) {
+                json.chatBody = typeof json.chatBody == "string" ? JSON.parse(json.chatBody) : json.chatBody;
               }
               this.chatRecordList.unshift(json);
+              this.scrollToBottom();
             }
             this.loaded = this.chatRecordList.length == data.total;
             this.loading = false;
@@ -114,13 +115,12 @@ export default {
   },
   mounted() {
     window.addEventListener("scroll", this.onScroll);
-
   },
   destroyed() {
     window.removeEventListener("scroll", this.onScroll);
   },
   created() {
-    this.scrollToBottom();
+
     if (this.groupId && !this.isDoctorChat) {
       //助理群聊
       this.getImchatdata(this.groupId);

@@ -53,8 +53,8 @@
               <div class="audio_box">
                 <div class="wifi-symbol">
                     <div class="wifi-circle first"></div>
-                    <div class="wifi-circle second" :class="playSend ? 'animation2' : ''"></div>
-                    <div class="wifi-circle third" :class="playSend ? 'animation3' : ''"></div>
+                    <div :class="playSend ? 'animation2 wifi-circle second' : 'wifi-circle second'"></div>
+                    <div :class="playSend ? 'animation3 wifi-circle third' : 'wifi-circle third'"></div>
                 </div>
               </div>
               <em>"{{message.chatBody.length}}</em>
@@ -221,6 +221,7 @@ export default {
       serverList: null,
       type: null,
       playSend: false,
+      chatRecordEnd: true
       // groupId: this.$route.query.groupId
     };
   },
@@ -259,10 +260,12 @@ export default {
         timerDate = parseInt(data / 86400) + "天前";
       } else if (data >= 3600 && data <= 86400) {
         //超过1小时小于24小时
-        timerDate = parseInt(data / 3600) + "小时前";
+        // timerDate = parseInt(data / 3600) + "小时前";
+        timerDate = this.myUtils.formatTime(Number(timerDate), "hh:mm");
       } else if (data >= 600 && data <= 3600) {
         //超过10分钟小于1小时
-        timerDate = parseInt(data / 600) + "分钟前";
+        // timerDate = parseInt(data / 600) + "分钟前";
+        timerDate = this.myUtils.formatTime(Number(timerDate), "hh:mm");
       } else if (data < 600) {
         //小于10分钟
         timerDate = "刚刚";
@@ -469,7 +472,6 @@ export default {
             ? this.message.chatId
             : this.message.chatId.value;
         if (chatId == this.docId) {
-          console.log("==this.docId");
           if (this.friendHeadUrl) {
             img = this.friendHeadUrl;
           } else {
@@ -485,6 +487,7 @@ export default {
       }
       return img;
     }
+
   },
 
   methods: {
@@ -647,7 +650,7 @@ export default {
         );
       } else if (
         this.message.chatBody.userAction == "200" &&
-        this.message.chatBody.desc == "本次咨询结束"
+        this.message.chatBody.desc == "本次咨询结束" && !chatRecordEnd
       ) {
         //结束会话
         this.$emit("fun", false);
@@ -665,16 +668,16 @@ export default {
 <style scoped>
 /* 语音消息动画 --接收 */
 .audio_box {
-  box-sizing: border-box;
   position: relative;
   margin: 0 5px 0 8px;
 }
 .wifi-symbol {
   width: 16px;
   height: 16px;
-  box-sizing: border-box;
   overflow: hidden;
   transform: rotate(135deg);
+  background: #fff;
+  position: relative;
 }
 .wifi-circle {
   border: 2px solid #333;
