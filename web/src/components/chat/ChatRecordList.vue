@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="dialogue_box">
         <div v-if="chatRecordList.length > 0" class="chat_list_box">
 
           <div class="no_record" v-if="loaded">没有更多记录了</div>
@@ -52,10 +52,10 @@ export default {
   },
 
   methods: {
-    onScroll() {
-      let scrollTop = document.documentElement.scrollTop;
+    onScrollTop() {
+      let scrollTop = document.body.scrollTop;
       if (scrollTop == 0) {
-        console.log('loading');
+        // console.log('loading',scrollTop);
         this.loading = true;
         let that = this;
         //加载更多操作
@@ -126,22 +126,22 @@ export default {
               this.chatRecordList.unshift(json);
 
             }
-            this.loaded = this.chatRecordList.length == data.total;
+            this.loaded = this.chatRecordList.length >= data.total;
             this.loading = false;
           }
         })
         .catch(error => {
           this.loaded = true;
-          this.$toast(error.message);
+          // this.$toast(error.message);
         });
     }
   },
   mounted() {
-    window.addEventListener("scroll", this.onScroll);
+    window.addEventListener("scroll", this.onScrollTop);
     this.scrollToBottom();
   },
   destroyed() {
-    window.removeEventListener("scroll", this.onScroll);
+    window.removeEventListener("scroll", this.onScrollTop);
   },
   created() {
     if (this.groupId && !this.isDoctorChat) {
@@ -151,8 +151,9 @@ export default {
       //医生单聊
       this.getImchatdata(this.docId);
     }
+
   }
-};
+}
 </script>
 
 <style>
