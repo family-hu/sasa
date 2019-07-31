@@ -117,8 +117,10 @@ export default {
                   };
 
                   WebIM.utils.download(options);
-                }else if(json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束"){
+                } else if(json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束"){
                   json.chatBody.chatRecordEnd = true;
+                } else if (json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询开始") {
+                  json.chatBody.chatRecordStart = true;
                 }
               }
               this.chatRecordList.unshift(json);

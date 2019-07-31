@@ -498,11 +498,16 @@ export default {
       } else if (type == "4") {
         msgData = data;
       }
-      console.log(msgData, "==msgData消息体");
+
       //监听开启结束事件
-      if(msgData.userAction == "200" && msgData.desc == "本次咨询结束"){
-        msgData.chatRecordEnd = false
+      if (msgData.userAction == "200" && msgData.desc == "本次咨询结束") {
+        msgData.chatRecordEnd = false;
       }
+      //监听开启启动事件
+      if (msgData.userAction == "200" && msgData.desc == "本次咨询开始") {
+        msgData.chatRecordStart = false;
+      }
+      console.log(msgData, "==msgData消息体");
       let list = {
         chatBody: msgData, //消息体
         chatHead: data.ext.IMicon,
@@ -519,10 +524,6 @@ export default {
     },
     //存储聊天记录
     getImAddChatDate(msg, msgData, chatType) {
-      //聊天记录中，结束事件屏蔽
-      if(msgData.userAction == "200" && msgData.desc == "本次咨询结束"){
-        msgData.chatRecordEnd = true
-      }
       let request = {
         chatType: chatType,
         targetType: this.groupId
@@ -847,26 +848,38 @@ export default {
           if (data && data.data != "") {
             for (let i = 0; i < data.data.length; i++) {
               let json = data.data[i];
-              if (json.chatType == 1 || json.chatType == 4 || (json.chatType == 3 && json.chatId.value != this.loginData.userObj.userId.value)) {
-                json.chatBody = typeof json.chatBody == "string" ? JSON.parse(json.chatBody) : json.chatBody;
+              if (
+                json.chatType == 1 ||
+                json.chatType == 4 ||
+                (json.chatType == 3 &&
+                  json.chatId.value != this.loginData.userObj.userId.value)
+              ) {
+                json.chatBody =
+                  typeof json.chatBody == "string"
+                    ? JSON.parse(json.chatBody)
+                    : json.chatBody;
                 if (json.chatBody.filename == "audio") {
                   let options = json.chatBody;
-                  options.onFileDownloadComplete = function(response, xhr) {
-                    let objectURL = WebIM.utils.parseDownloadResponse.call(this, response);
-                    console.log('下载成功',objectURL);
+                  console.log(WebIM.utils, "==WebIM.utils");
+                  options.onFileDownloadComplete = function(response, xhr) {
+                    let objectURL = WebIM.utils.parseDownloadResponse.call(
+                      this,
+                      response
+                    );
+                    console.log("下载成功", objectURL);
                     json.chatBody.objectURL = objectURL;
-                  }
-                 
-                  options.onFileDownloadError = function(e) {
-                    console.log('下载失败');
-                  };
-                  options.headers = {
-                    "Accept" : "audio/mp3"
-                  };
-
-                  WebIM.utils.download(options);
-                }else if(json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束"){
+                  };
+                  options.onFileDownloadError = function(e) {
+                    console.log("下载失败");
+                  };
+                  options.headers = {
+                    Accept: "audio/mp3"
+                  };
+                  WebIM.utils.download(options);
+                } else if (json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束") {
                   json.chatBody.chatRecordEnd = true;
+                } else if (json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询开始") {
+                  json.chatBody.chatRecordStart = true;
                 }
               }
               this.imMsgList.unshift(json);
@@ -1442,15 +1455,6 @@ export default {
     }
   },
   created() {
-    navigator.getUserMedia = navigator.getUserMedia ||
-                  navigator.webkitGetUserMedia ||
-                  navigator.mozGetUserMedia ||
-                  navigator.msGetUserMedia;
-    if(navigator.getUserMedia){
-  alert("支持");
-}else{
-  alert("您的浏览器不支持getUserMedia");
-}
     // 监听 visibility change 事件
     document.addEventListener("visibilitychange", this.changeListennr);
 

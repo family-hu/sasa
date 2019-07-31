@@ -665,6 +665,13 @@ export default {
         //触发结束会话拦截
         this.$emit("fun", false);
         this.$parent.requestImStatus("endTime"); //医生结束聊天
+      } else if (
+        this.message.chatBody.userAction == "200" &&
+        this.message.chatBody.desc == "本次咨询开始" && !this.message.chatBody.chatRecordStart
+      ) {
+        //触发开启会话
+        this.$emit("fun", true);
+        this.$parent.requestImStatus(); //医生开始聊天
       }
     }
     console.log("elementType==", this.elementType);
