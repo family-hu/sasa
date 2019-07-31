@@ -24,6 +24,7 @@
 <script>
 import { mapGetters } from "vuex";
 import MessageItem from "./MessageItem.vue";
+import websdk from "../../../node_modules/easemob-websdk";
 import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
@@ -99,6 +100,26 @@ export default {
               let json = data.data[i];
               if (json.chatType == 1 || json.chatType == 4 || (json.chatType == 3 && json.chatId.value != this.loginData.userObj.userId.value)) {
                 json.chatBody = typeof json.chatBody == "string" ? JSON.parse(json.chatBody) : json.chatBody;
+                if (json.chatBody.filename == "audio") {
+                  console.log(json.chatBody.url, "==json.chatBody.url");
+                  let options = json.chatBody;
+                  options.onFileDownloadComplete = function(response, xhr) {
+                    let objectURL = WebIM.utils.parseDownloadResponse.call(this, response);
+                    console.log('下载成功',objectURL);
+                    json.chatBody.objectURL = objectURL;
+                  }
+                 
+                  options.onFileDownloadError = function(e) {
+                    console.log('下载失败');
+                  };
+                  options.headers = {
+                    "Accept" : "audio/mp3"
+                  };
+
+                  WebIM.utils.download(options);
+                }else if(json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束"){
+                  json.chatBody.chatRecordEnd = true;
+                }
               }
               this.chatRecordList.unshift(json);
               this.scrollToBottom();

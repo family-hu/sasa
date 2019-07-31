@@ -499,6 +499,7 @@ export default {
         msgData = data;
       }
       console.log(msgData, "==msgData消息体");
+      //监听开启结束事件
       if(msgData.userAction == "200" && msgData.desc == "本次咨询结束"){
         msgData.chatRecordEnd = false
       }
@@ -518,6 +519,10 @@ export default {
     },
     //存储聊天记录
     getImAddChatDate(msg, msgData, chatType) {
+      //聊天记录中，结束事件屏蔽
+      if(msgData.userAction == "200" && msgData.desc == "本次咨询结束"){
+        msgData.chatRecordEnd = true
+      }
       let request = {
         chatType: chatType,
         targetType: this.groupId
@@ -845,29 +850,21 @@ export default {
               if (json.chatType == 1 || json.chatType == 4 || (json.chatType == 3 && json.chatId.value != this.loginData.userObj.userId.value)) {
                 json.chatBody = typeof json.chatBody == "string" ? JSON.parse(json.chatBody) : json.chatBody;
                 if (json.chatBody.filename == "audio") {
-                  let options = { url: json.chatBody.url };
-                  console.log(json.chatBody.url, "==json.chatBody.url");
-                  options.onFileDownloadComplete = function(response) {
-                    console.log("下载成功");
-                    //音频下载成功，需要将response转换成blob，使用objectURL作为audio标签的src即可播放。
-                    var objectURL = WebIM.utils.parseDownloadResponse.call(
-                      this.conn,
-                      response
-                    );
+                  let options = json.chatBody;
+                  options.onFileDownloadComplete = function(response, xhr) {
+                    let objectURL = WebIM.utils.parseDownloadResponse.call(this, response);
+                    console.log('下载成功',objectURL);
                     json.chatBody.objectURL = objectURL;
-                  };
+                  }
+                 
+                  options.onFileDownloadError = function(e) {
+                    console.log('下载失败');
+                  };
+                  options.headers = {
+                    "Accept" : "audio/mp3"
+                  };
 
-                  options.onFileDownloadError = function() {
-                    //音频下载失败
-                    console.log("音频下载失败");
-                  };
-
-                  //通知服务器将音频转为mp3
-                  options.headers = {
-                    Accept: "audio/mp3"
-                  };
-
-                  WebIM.utils.download.call(this.conn, options);
+                  WebIM.utils.download(options);
                 }else if(json.chatBody.userAction == "200" && json.chatBody.desc == "本次咨询结束"){
                   json.chatBody.chatRecordEnd = true;
                 }
@@ -1158,7 +1155,6 @@ export default {
           // 手动上线指的是调用conn.setPresence(); 在本例中，conn初始化时已将isAutoLogin设置为true
           // 所以无需调用conn.setPresence();
           console.log("%c [opened] 连接已成功建立", "color: green");
-          this.getImchatdata(this.groupId);
         },
         onClosed: function(message) {
           console.log("连接关闭", message);
@@ -1446,6 +1442,15 @@ export default {
     }
   },
   created() {
+    navigator.getUserMedia = navigator.getUserMedia ||
+                  navigator.webkitGetUserMedia ||
+                  navigator.mozGetUserMedia ||
+                  navigator.msGetUserMedia;
+    if(navigator.getUserMedia){
+  alert("支持");
+}else{
+  alert("您的浏览器不支持getUserMedia");
+}
     // 监听 visibility change 事件
     document.addEventListener("visibilitychange", this.changeListennr);
 

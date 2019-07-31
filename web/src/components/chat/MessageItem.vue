@@ -50,14 +50,15 @@
            <!--  音频  -->
           <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'"  @click="audioPlayBtn(index)">
             <div style="display:flex;align-items: center;">
-              <div class="audio_box">
+              <em v-if="isSelf">{{message.chatBody.length}}"</em>
+              <div :class=" isSelf ? 'audio_box_isSelf' : 'audio_box' ">
                 <div class="wifi-symbol">
                     <div class="wifi-circle first"></div>
                     <div :class="playSend ? 'animation2 wifi-circle second' : 'wifi-circle second'"></div>
                     <div :class="playSend ? 'animation3 wifi-circle third' : 'wifi-circle third'"></div>
                 </div>
               </div>
-              <em>"{{message.chatBody.length}}</em>
+              <em v-if="!isSelf">"{{message.chatBody.length}}</em>
             </div>
             <audio v-if="isSelf"  preload="none" :src="message.chatBody.file.url" :id="'audioPlay' + index">
               <source :src="message.chatBody.file.url">
@@ -221,7 +222,6 @@ export default {
       serverList: null,
       type: null,
       playSend: false,
-      chatRecordEnd: true
       // groupId: this.$route.query.groupId
     };
   },
@@ -237,7 +237,8 @@ export default {
   components: {
     // serviceItem: ServiceItem
   },
-  mounted() {},
+  mounted() {
+  },
   computed: {
     ...mapGetters(["loginData"]),
 
@@ -494,14 +495,23 @@ export default {
     //播放语音
     audioPlayBtn(index) {
       let audio = document.getElementById("audioPlay" + index);
-      if (audio.paused) {
-        audio.play();
-        this.playSend = true;
-        return false;
-      } else {
-        audio.pause();
-        this.playSend = false;
+      let that = this;
+      if(audio){
+        audio.loop = false;
+        audio.addEventListener('ended', function () { //监听是否结束
+          audio.pause();
+          that.playSend = false;
+          return false
+        }, false);
+        if (audio.paused) { //暂停
+          audio.play();
+          that.playSend = true;
+        }else {
+          audio.pause();
+          that.playSend = false;
+        }
       }
+
     },
     //立即评价
     evaluationShow() {
@@ -650,9 +660,9 @@ export default {
         );
       } else if (
         this.message.chatBody.userAction == "200" &&
-        this.message.chatBody.desc == "本次咨询结束" && !chatRecordEnd
+        this.message.chatBody.desc == "本次咨询结束" && !this.message.chatBody.chatRecordEnd
       ) {
-        //结束会话
+        //触发结束会话拦截
         this.$emit("fun", false);
         this.$parent.requestImStatus("endTime"); //医生结束聊天
       }
@@ -666,7 +676,22 @@ export default {
 </script>
 
 <style scoped>
-/* 语音消息动画 --接收 */
+/* 语音消息动画 -- 发出 */
+.audio_box_isSelf{
+  position: relative;
+  margin: 0 5px 0 8px;
+  transform: rotate(180deg);
+}
+.audio_box_isSelf .wifi-symbol{
+  background: #0076ff
+}
+.audio_box_isSelf .wifi-circle{
+  border: 2px solid #fff;
+}
+.audio_box_isSelf .first {
+  background: #fff
+}
+/* 语音消息动画 -- 接收 */
 .audio_box {
   position: relative;
   margin: 0 5px 0 8px;
