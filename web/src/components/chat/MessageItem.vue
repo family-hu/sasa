@@ -267,7 +267,7 @@ export default {
         //超过10分钟小于1小时
         // timerDate = parseInt(data / 600) + "分钟前";
         timerDate = this.myUtils.formatTime(Number(timerDate), "hh:mm");
-      } else if (data < 600) {
+      } else if (data < 60) {
         //小于10分钟
         timerDate = "刚刚";
       } else {
