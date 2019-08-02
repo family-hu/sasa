@@ -73,7 +73,7 @@
         </div>
         <p class="descdata" v-html="topicItem.descdata">{{topicItem.descdata}}</p>
         <div class="imgList_box" id="imgs">
-          <img class="imgList" v-lazy="item"  v-for="(item,index) in topicItem.imgList" :key="index" :src="item" alt="" @click="toBigPic(index)">
+          <img class="imgList image" v-lazy="item"  v-for="(item,index) in topicItem.imgList" :key="index" :src="item" alt="" @click="toBigPic(index)">
         </div>
         <div v-if="topicItem.groupName" class="group_back" @click="goGroupDetail">{{topicItem.groupName}}<img src="/static/img/group_back.png" alt=""></div>
         <div class="flex-b">
@@ -429,6 +429,12 @@ export default {
 </script>
 
 <style scoped>
+.image[lazy="loading"] {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  color: #ccc;
+}
 .empty {
   padding: 50px 40px;
   text-align: center;

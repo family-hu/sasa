@@ -11,53 +11,62 @@
 </template>
 
 <script>
-  import { mapGetters} from 'vuex';
-  import DoctorItem from './FocusDoctorItem.vue';
-  import imgMap from '../../../static/js/imgmap.js';
-    export default {
-        data() {
-          return {
-            doctorList: [],
-            orgId: this.$route.query.orgId,
-          }
-        },
+import { mapGetters } from "vuex";
+import DoctorItem from "./FocusDoctorItem.vue";
+import imgMap from "../../../static/js/imgmap.js";
+export default {
+  data() {
+    return {
+      doctorList: [],
+      orgId: this.$route.query.orgId
+    };
+  },
 
-        components: {
-          doctorItem: DoctorItem
-        },
-        computed: {
-          ...mapGetters(['loginData']),
-          consultationEmpty() {
-            return imgMap.consultationEmpty;
-          },
-        },
-      methods:{
-          requestDoctorList() {
-            let request = {busiType:1000100105, favType:1014102, userId: this.loginData.userObj.userId.value};
-            let vm = this;
-            this.$store.dispatch("myFavList", request).then((data) => {
-              if(data.expertList) {
-                for(let i = 0; i < data.expertList.length; i++) {
-                  vm.doctorList.push(data.expertList[i]);
-                }
-              }
-            }).catch(error => {
-              this.$toast(error.message);
-            });
-          }
-      },
-
-        created() {
-          const userInfo = this.loginData.userObj;
-          if(userInfo) {
-            this.requestDoctorList();
-          }else{
-            this.myUtils.wxLogin();
-          }
-
-        }
-
+  components: {
+    doctorItem: DoctorItem
+  },
+  computed: {
+    ...mapGetters(["loginData"]),
+    consultationEmpty() {
+      return imgMap.consultationEmpty;
     }
+  },
+  methods: {
+    requestDoctorList() {
+      this.$indicator.open();
+      let request = {
+        busiType: 1000100105,
+        favType: 1014102,
+        userId: this.loginData.userObj.userId.value
+      };
+      let vm = this;
+      this.$store
+        .dispatch("myFavList", request)
+        .then(data => {
+          if (data.expertList) {
+            for (let i = 0; i < data.expertList.length; i++) {
+              vm.doctorList.push(data.expertList[i]);
+            }
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
+        });
+    }
+  },
+
+  created() {
+    const userInfo = this.loginData.userObj;
+    if (userInfo) {
+      this.requestDoctorList();
+    } else {
+      this.myUtils.wxLogin();
+    }
+  }
+};
 </script>
 
 <style scoped>

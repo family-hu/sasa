@@ -198,7 +198,6 @@ export default {
   },
   created() {
     this.requestOrgInfo();
-
     let selected = sessionStorage.getItem("selected");
     if (selected != "" && selected != null && selected != undefined) {
       this.selected = selected;

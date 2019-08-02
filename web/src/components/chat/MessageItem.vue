@@ -259,16 +259,14 @@ export default {
       if (data >= 86400 && data <= 259200) {
         //超过1天小于三天
         timerDate = parseInt(data / 86400) + "天前";
-      } else if (data >= 3600 && data <= 86400) {
-        //超过1小时小于24小时
-        // timerDate = parseInt(data / 3600) + "小时前";
-        timerDate = this.myUtils.formatTime(Number(timerDate), "hh:mm");
-      } else if (data >= 600 && data <= 3600) {
-        //超过10分钟小于1小时
-        // timerDate = parseInt(data / 600) + "分钟前";
+      } else if (data >= 43200 && data <= 86400) {
+        //超过12小时小于24小时
+        timerDate =  '昨天 '
+      } else if (data >= 60 && data <= 43200) {
+        //超过1分钟小于12小时
         timerDate = this.myUtils.formatTime(Number(timerDate), "hh:mm");
       } else if (data < 60) {
-        //小于10分钟
+        //小于1分钟
         timerDate = "刚刚";
       } else {
         timerDate = this.myUtils.formatTime(Number(timerDate), "MM-dd");

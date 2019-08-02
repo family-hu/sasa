@@ -2,9 +2,9 @@
     <div>
       <div class="main_list">
         <h3 class="ser_title">服务团队（{{docNum}}）</h3>
-        <div class="doc_list" v-for="(item,index) in docList" :key="index">
-          <img @click="goDocdetail(item)" v-if="item.headImg" :src="item.headImg" alt="">
-          <img @click="goDocdetail(item)" v-else :src="docImgUrl" alt="">
+        <div class="doc_list" v-for="(item,index) in docList" :key="index" @click="goDocdetail(item)">
+          <img v-if="item.headImg" :src="item.headImg" alt="">
+          <img v-else :src="docImgUrl" alt="">
           <div>
             <p class="doc_name">{{item.nick}}<span v-if="item.teamleader">队长</span></p>
             <p class="doc_desp">{{item.departmentName}} | {{item.titlesName}}</p>

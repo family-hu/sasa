@@ -1,25 +1,5 @@
 <template>
   <div>
-      <!-- <div class="cell" style="position: relative">
-          <img width="76px" height="76px" :src="servImgUrl">
-
-          <div style="float: right; margin-top: 24px;">
-            <div class="money">￥{{ serviceItem.price }}</div>
-            <div class="moneyold">￥{{ serviceItem.priceOri }}</div>
-          </div>
-
-          <div style="display: inline-block; position: absolute; margin-left: 10px; margin-right: 80px;">
-              <div class="namecs">{{ serviceItem.servName }}</div>
-              <div class="accept">{{ acceptName }}<span v-html="space"></span>{{ orgNames }}</div>
-              <div class="shanchang">使用范围：{{ serviceItem.scopeCustom }}</div>
-          </div>
-
-        <div style="margin-left: 90px;">
-          <span v-for="(tag,index) in tags" class="label"  :style="{color: tagColor(index), 'border-color': tagColor(index) }" :key="index">{{tag}}</span>
-        </div>
-
-     </div>
-    <hr class="full-line"> -->
     <div class="team_box good_service">
       <div class="li">
         <img :src="servImgUrl" alt="">

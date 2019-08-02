@@ -2,15 +2,11 @@
     <div>
       <div class="main">
         <img class="pay_ok_img" src="/static/img/pay_ok_icon.png" alt="">
-        <p class="pay_ok_text">支付成功</p>
-      </div>
-      <div class="pay_detail">
-        <span class="pay_ok_text">共一件商品，实付款 :</span>
-        <span class="price">¥{{totalPrice}}</span>
-      </div>
-      <div class="btn_box2">
-        <a class="order_detail" href="javascript:void(0);" @click="goOrderDetail">订单详情</a>
-        <a class="home" href="javascript:void(0);" @click="goHome">返回首页</a>
+        <p class="pay_ok_text">订单支付成功</p>
+        <div class="btn_box2">
+          <a class="home" href="javascript:void(0);" @click="goHome">更多医疗服务</a>
+          <a class="order_detail" href="javascript:void(0);" @click="goOrderDetail">查看订单</a>
+        </div>
       </div>
     </div>
 </template>
@@ -25,24 +21,19 @@ export default {
     };
   },
 
-  components: {
+  components: {},
 
-  },
+  computed: {},
 
-
-  computed: {
-
-  },
-
-  mounted() {
-  },
+  mounted() {},
 
   methods: {
     goHome() {
+      sessionStorage.setItem("selected", "shopping");
       this.$router.push({
         path: "home",
         query: {
-          orgId: localStorage.getItem('orgId')
+          orgId: localStorage.getItem("orgId"),
         }
       });
     },
@@ -50,22 +41,18 @@ export default {
       this.$router.push({
         path: "shopOrderList",
         query: {
-          orgId: localStorage.getItem('orgId')
+          orgId: localStorage.getItem("orgId")
         }
       });
     }
-
   },
 
-  created() {
-  },
-
-
+  created() {}
 };
 </script>
 
 <style scoped>
-.main{
+/* .main{
   background: #fff;
   padding: 37px;
   text-align: center;
@@ -116,5 +103,46 @@ export default {
   background: #0093FF;
   color: #fff;
   border:1px solid transparent;
+} */
+.main {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  text-align: center;
+}
+.pay_ok_img {
+  width: 54px;
+  height: 54px;
+  margin-top: 50px;
+  margin-bottom: 14px;
+}
+.pay_ok_text {
+  font-size: 16px;
+  color: #040b1c;
+}
+.btn_box2 {
+  padding: 15px 0;
+  display: flex;
+  justify-content: center;
+}
+.btn_box2 a {
+  display: block;
+  padding: 4px 15px;
+  text-align: center;
+  border-radius: 16px;
+  font-size: 14px;
+}
+.order_detail {
+  color: #fff;
+  background: #0076ff;
+  border: 1px solid transparent;
+  margin-left: 15px;
+}
+.home {
+  background: #fff;
+  color: #040b1c;
+  border: 1px solid rgba(4, 11, 28, 0.118);
 }
 </style>

@@ -22,6 +22,8 @@
             <p class="item_tag">{{item.resourceName}}</p>
           </div>
           <!-- 评论区域 end-->
+          <!-- 没有更多提示 -->
+          <bottomloadMore v-if="loaded"></bottomloadMore>
         </div>
 
     </div>
@@ -30,6 +32,7 @@
 <script>
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 export default {
   data() {
     return {
@@ -43,6 +46,7 @@ export default {
   },
 
   components: {
+    bottomloadMore : BottomloadMore
   },
 
   computed: {

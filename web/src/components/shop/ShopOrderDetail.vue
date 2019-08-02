@@ -18,12 +18,14 @@
           <p>身份证：{{cardId}}</p>
         </div>
         <div class="detail_addres">
-          <h3>{{compayInfo.name}}</h3>
-          <a :href="'tel:'+ compayInfo.phone" class="right_img"><img src="../../../static/img/shop_tel_big.png" alt=""></a>
-          <div class="tel"><img src="../../../static/img/shop_time.png" alt="">营业时间：{{compayInfo.workingHours}}</div>
+          <h3>商家信息</h3>
+          <div class="flex-b" style="margin:10px 0 8px 0;">
+            <h4>{{compayInfo.name}}</h4>
+            <a :href="'tel:'+ compayInfo.phone" class="right_img"><img src="../../../static/img/shop_tel_big.png" alt=""></a>
+          </div>
+          <div class="tel">营业时间：{{compayInfo.workingHours}}</div>
           <div class="tel addres">
-            <img src="../../../static/img/shop_position.png" alt="">
-            <div>{{compayInfo.detailsAddr}}</div>
+            <div>地址：{{compayInfo.detailsAddr}}</div>
              <!-- <div>{{compayInfo.detailsAddr}}<br/><span class="distance">距您1.00km</span></div> -->
           </div>
         </div>
@@ -107,8 +109,14 @@ export default {
     goTel() {
       this.$toast('电话预约，敬请期待～');
     },
+    //查看报告
     goShopReport() {
-      this.$toast('查看报告，敬请期待～');
+      this.$router.push({
+        path: "shopPackageReport",
+        query: {
+          reportImg: this.consumeList.serviceInfo
+        }
+      });
     },
     //查看卷
     goServiceVoucher() {
@@ -145,10 +153,12 @@ export default {
     //套餐详情
     goItemDetail() {
       this.$router.push({
-        path: "shopPackageDetail",
+        path: "healthServiceDetail",
         query: {
-          packDetailsId: this.orderInfo.prodId.value
-          // localStorage.getItem('packDetailsId'), //套餐ID
+          packDetailsId: this.orderInfo.prodId.value,
+          serviceCompanyId: this.compayInfo.serviceCompanyId,
+          orgId: this.orderInfo.orgId.value,
+          orgNames: this.compayInfo.name
         }
       });
     },
@@ -167,7 +177,6 @@ export default {
             }
             this.compayInfo = data.data[0].compayInfo;
             this.moneyPay = data.data[0].moneyPay.value;
-
           }
         })
         .catch(e => {
@@ -250,7 +259,7 @@ export default {
   height: 14px;
 }
 .appointment_msg h3{
-  font-size: 14px;
+  font-size: 17px;
   color: #000;
   font-weight: 500;
   margin-bottom: 12px;
@@ -270,35 +279,34 @@ export default {
   margin-bottom: 6px;
 }
 
-.detail_addres{
+.detail_addres {
   background: #fff;
   padding: 16px;
   position: relative;
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
-.detail_addres h3{
-  color: #0093FF;
-  font-size: 20px;
+.detail_addres h3 {
+  color: #040b1c;
+  font-size: 17px;
   font-weight: 500;
 }
-.right_img{
-  display: block;
-  position: absolute;
-  right: 16px;
-  top: 56px;
+.detail_addres h4{
+  color: #040b1c;
+  font-size: 16px;
+  font-weight: 500;
 }
-.right_img img{
-  width: 34px;
-  height: 34px;
+.right_img img {
+  width: 18px;
+  height: 16px;
 }
-.tel{
-  color: #000;
+.tel {
+  color: rgba(4, 11, 28, 0.75);
   font-size: 13px;
   font-weight: 400;
-  margin-top: 10px;
-  width: 80%;
+  margin-top: 5px;
+  width: 100%;
 }
-.tel img{
+.tel img {
   width: 15px;
   height: 15px;
   margin-right: 5px;
