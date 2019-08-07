@@ -19,7 +19,7 @@
                 <a class="btn_border" href="javascript:void(0);" @click="goTel" v-if="orderList.orderStatus == '1'">电话预约</a>
                 <a class="btn_background" href="javascript:void(0);" @click="goServiceVoucher" v-if="orderList.orderStatus == '1'">查看券</a>
                 <a class="btn_border" href="javascript:void(0);" @click="goShopAddComments" v-if="orderList.orderStatus == '11'">评价</a>
-                <a class="btn_background" href="javascript:void(0);" @click="goShopReport(item)" v-if="orderList.orderStatus == '11'">查看报告</a>
+                <a class="btn_background" href="javascript:void(0);" @click="goShopReport" v-if="orderList.orderStatus == '11'">查看报告</a>
               </div>
             </div>
           </div>
@@ -52,11 +52,11 @@ export default {
       this.$toast('电话预约，敬请期待～');
     },
     //查看报告
-    goShopReport(item) {
+    goShopReport() {
       this.$router.push({
         path: "shopPackageReport",
         query: {
-          reportImg: item.consumeList[0].serviceInfo
+          reportImg: this.orderList.consumeList[0].serviceInfo
         }
       });
     },
