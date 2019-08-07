@@ -179,6 +179,13 @@ const actions = {
       return value.data;
     }).catch(err);
   },
+
+  //附件上传
+  fileUpload: ({ commit }, request) => {
+    return axios.post("fileUpload.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
 };
 
 export default {

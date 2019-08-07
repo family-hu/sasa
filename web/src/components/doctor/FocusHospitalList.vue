@@ -1,10 +1,10 @@
 <template>
     <div>
-      <div class="empty" v-if="hospitalList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无关注医院，请扫码医生二维码进行关注</div>
+      <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无关注医院，请扫码医生二维码进行关注</div>
       </div>
-      <div v-else>
+      <div v-if="hospitalList.length > 0">
         <focus-hospital-item v-for="hospital in hospitalList" :key="hospital.orgId.value" :hospitalDetail="hospital" @click.native="toHospital(hospital)"></focus-hospital-item>
       </div>
     </div>
@@ -16,7 +16,8 @@ import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
     return {
-      hospitalList: []
+      hospitalList: [],
+      empty: false
     };
   },
 
@@ -43,6 +44,7 @@ export default {
     },
 
     requestHospitalList() {
+      this.$indicator.open();
       let vm = this;
       const request = {
         busiType: 1000100103,
@@ -52,14 +54,20 @@ export default {
       this.$store
         .dispatch("myFavList", request)
         .then(data => {
-          if (data.orgList) {
+          if (data.orgList.length > 0) {
             for (let i = 0; i < data.orgList.length; i++) {
               vm.hospitalList.push(data.orgList[i]);
             }
+          }else{
+            this.empty = true;
           }
         })
         .catch(error => {
+          this.empty = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     }
   },
@@ -76,8 +84,4 @@ export default {
 </script>
 
 <style scoped>
-.empty {
-  padding: 50px 40px;
-  text-align: center;
-}
 </style>

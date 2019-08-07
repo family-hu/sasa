@@ -46,17 +46,18 @@
       </div>
       <button type="button" class="btn" @click="report">提交</button>
 
-
-      <mt-datetime-picker
+      <div  @touchmove.prevent>
+        <mt-datetime-picker
         ref="datePicker"
         type="date"
-        startDate=""
         year-format="{value}年"
         month-format="{value}月"
         date-format="{value}日"
         :startDate="startDate"
         @confirm="handleChange">
-      </mt-datetime-picker>
+        </mt-datetime-picker>
+      </div>
+
 
       <mt-actionsheet :actions="sexs" v-model="showSex" cancel-text=""></mt-actionsheet>
 
@@ -82,7 +83,7 @@
             return this.request.first;
           },
           startDate() {
-             return new Date(Date.parse("1900-01-01"));
+            return new Date(Date.parse("1900-01-01"));
           }
         },
 

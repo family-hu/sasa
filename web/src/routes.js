@@ -69,7 +69,7 @@ const FeaturesDepartment = () => import('./components/service/FeaturesDepartment
 //体检商品详情
 const HealthServiceDetail = () => import('./components/service/HealthServiceDetail.vue');
 
-//选择加项 shop
+// shop
 const AddItem = () => import('./components/shop/AddItem.vue');
 const ConfirmOrder = () => import('./components/shop/ConfirmOrder.vue');
 const MedicalManList = () => import('./components/shop/MedicalManList.vue');
@@ -83,10 +83,12 @@ const ShopOrderDetail = () => import('./components/shop/ShopOrderDetail.vue');
 const ShopPackageDetail = () => import('./components/shop/ShopPackageDetail.vue');
 const ShopCommentList = () => import('./components/shop/ShopCommentList.vue');
 const ShopList = () => import('./components/shop/ShopList.vue');
+const ShopPackageReport = () => import('./components/shop/ShopPackageReport.vue');
+
 
 //自定义组件
-const CustomPopup = () => import('./customComponents/CustomPopup.vue');
-
+// const CustomPopup = () => import('./customComponents/CustomPopup.vue');
+// const BottomloadMore = () => import('./customComponents/BottomloadMore.vue');
 
 //资讯
 const NewsList = () => import('./components/news/NewsList.vue');
@@ -179,9 +181,9 @@ export const routes = [
     { path: "/shopPackageDetail", component: ShopPackageDetail, meta: { title: "套餐内容", keepAlive: false } },
     { path: "/shopCommentList", component: ShopCommentList, meta: { title: "用户评价", keepAlive: false } },
     { path: "/shopList", component: ShopList, meta: { title: "健康服务列表", keepAlive: false } },
+    { path: "/shopPackageReport", component: ShopPackageReport, meta: { title: "报告单", keepAlive: false } },
 
-  //底部弹出层
-  { path: "/CustomPopup", component: CustomPopup, meta: { title: "", keepAlive: false } },
+
 
   //news
     {path: "/newsList", component: NewsList, meta: {title: "资讯列表", keepAlive: false}},

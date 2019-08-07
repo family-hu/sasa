@@ -1,8 +1,8 @@
 <template>
     <div>
-      <div class="empty" v-if="commentList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无评价</div>
+      <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无评价</div>
       </div>
         <div v-else class="package_item" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
           <!-- 评论区域 -->
@@ -22,6 +22,8 @@
             <p class="item_tag">{{item.resourceName}}</p>
           </div>
           <!-- 评论区域 end-->
+          <!-- 没有更多提示 -->
+          <bottomloadMore v-if="loaded"></bottomloadMore>
         </div>
 
     </div>
@@ -30,6 +32,7 @@
 <script>
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 export default {
   data() {
     return {
@@ -38,11 +41,13 @@ export default {
       commentList:[],
       loading: false,
       page: 1,
+      empty: false,
       loaded: false ,//是否加载完成
     };
   },
 
   components: {
+    bottomloadMore : BottomloadMore
   },
 
   computed: {
@@ -67,6 +72,7 @@ export default {
     },
     //评价列表
     getCommentList() {
+      this.$indicator.open();
       this.loading = true;
       const request = {
         pageParam:{
@@ -80,19 +86,24 @@ export default {
 
       };
       this.$store.dispatch("shoppingCommentList", request).then((data) => {
-        if(data){
+        if(data.data.appraisalList.length > 0){
           for(let i = 0; i < data.data.appraisalList.length;i++){
             this.commentList.push(data.data.appraisalList[i]);
             this.rateScore = parseInt(data.data.appraisalList[i].score.value);
           }
           this.loaded = (this.commentList.length == data.data.total.value);
           this.loading = false;
+        }else{
+          this.empty = true;
         }
       }).catch(error => {
         this.loading = false;
         this.loaded = true;
         this.$toast(error.message);
       })
+      .finally(() => {
+        this.$indicator.close();
+      });
     },
   },
 
@@ -151,9 +162,5 @@ li , h3 ,p {
   margin-top: 15px;
   font-size: 12px;
   color: #B3B3B3;
-}
-.empty {
-  padding: 50px 40px;
-  text-align: center;
 }
 </style>

@@ -4,9 +4,9 @@
       <ul v-if="groupList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <group-item v-for="(item,index) in groupList" :key="index"  :groupItem="item"></group-item>
       </ul>
-      <div class="empty" v-if="groupList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无小组</div>
+      <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无小组</div>
       </div>
     </div>
 </template>
@@ -22,6 +22,7 @@
           orgNames: this.$route.query.orgNames,
           groupList:[],
           loading: false,
+          empty: false,
           loaded: false,   //是否加载完成
         }
       },
@@ -50,6 +51,7 @@
         },
 
         requestGroupList() {
+          this.$indicator.open();
           this.loading = true;
           let request = {
             userid: this.loginData.userObj.userId.value,
@@ -59,16 +61,22 @@
           };
           let vm = this;
           this.$store.dispatch("bbsOrgGroupList", request).then((data) => {
-            if(data){
+            if(data.length > 0){
               this.groupList = data;
               // vm.loaded = vm.groupList.length == data.total;
               vm.loading = false;
+            }else{
+              this.empty = true;
             }
 
           }).catch(error => {
+            this.empty = true;
             vm.loading = false;
             // vm.loaded = true;
             this.$toast(error.message);
+          })
+          .finally(() => {
+            this.$indicator.close();
           });
         },
 
@@ -85,9 +93,8 @@
 </script>
 
 <style scoped>
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
+  .empty{
+    top:44px
   }
   .seach_box{
     width: 100%;

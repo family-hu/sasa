@@ -87,7 +87,6 @@
     font-weight: 400;
     /*overflow-x: hidden;*/
   }
-
   .page-header-main {
     margin-top: 40px;
   }
@@ -124,6 +123,38 @@
     height: 1px;
     margin: 0 16px 0 11px;
     border: 0;
+  }
+  /* 没有内容默认样式  */
+  .empty{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    padding: 50px 40px;
+    text-align: center;
+  }
+  .empty img{
+    width: 149px;
+    height: 155px
+  }
+  .empty div{
+    font-size: 15px;
+    margin-top: 10px;
+    color:rgba(4,11,28,.8);
+  }
+  .empty a{
+    display: block;
+    width: 84px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    background: #0076FF;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 16px;
+    font-weight:600;
+    margin: 20px auto;
   }
 
   .fl{float: left;}
