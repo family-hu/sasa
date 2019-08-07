@@ -6,12 +6,15 @@
       </div>
       <div v-if="hospitalList.length > 0">
         <focus-hospital-item v-for="hospital in hospitalList" :key="hospital.orgId.value" :hospitalDetail="hospital" @click.native="toHospital(hospital)"></focus-hospital-item>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && hospitalList.length > 6"></bottomloadMore>
       </div>
     </div>
 </template>
  <script>
 import { mapGetters } from "vuex";
 import FocusHospitalItem from "./FocusHospitalItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
@@ -22,7 +25,8 @@ export default {
   },
 
   components: {
-    focusHospitalItem: FocusHospitalItem
+    focusHospitalItem: FocusHospitalItem,
+    bottomloadMore : BottomloadMore
   },
   computed: {
     ...mapGetters(["loginData"]),

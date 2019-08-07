@@ -1,8 +1,10 @@
 <template>
     <div>
-      <ul v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
+      <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
         <appoint-order-item ref="oItem" v-for="(item,index) in orderList" :key="index" :orderItem="item" @cancelOrder="cancelOrder" @click.native="goDetail(index)"></appoint-order-item>
-      </ul>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
+      </div>
       <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
         <div class="text">您还没有预约订单呢</div>
@@ -14,6 +16,7 @@
 <script>
 import { mapGetters } from "vuex";
 import AppointOrderItem from "./AppointOrderItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from '../../../static/js/imgmap.js';
 export default {
   data() {
@@ -28,7 +31,8 @@ export default {
   },
 
   components: {
-    appointOrderItem: AppointOrderItem
+    appointOrderItem: AppointOrderItem,
+    bottomloadMore : BottomloadMore
   },
 
   computed: {

@@ -1,6 +1,6 @@
 <template>
   <div v-if="healthServiceItem" class="list" @click="goodsDetail(healthServiceItem)">
-    <img class="image" v-lazy="healthServiceItem.imagePath" :src="healthServiceItem.imagePath"/>
+    <img class="image" v-lazy.container="healthServiceItem.imagePath" :src="healthServiceItem.imagePath"/>
     <div class="flex-b">
       <div class="namecs">{{healthServiceItem.name}}</div>
       <!-- <div class="people">{{healthServiceItem.reservationNumber.value}}人已约</div> -->

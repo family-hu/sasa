@@ -50,7 +50,7 @@
            <!--  音频  -->
           <div class="npcTalkCon audioPlay" v-if="elementType == 'SOUND'"  @click="audioPlayBtn(index)">
             <div style="display:flex;align-items: center;">
-              <em v-if="isSelf">{{message.chatBody.length}}"</em>
+              <span v-if="isSelf">{{message.chatBody.length}}"</span>
               <div :class=" isSelf ? 'audio_box_isSelf' : 'audio_box' ">
                 <div class="wifi-symbol">
                     <div class="wifi-circle first"></div>

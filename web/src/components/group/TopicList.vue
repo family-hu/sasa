@@ -1,8 +1,10 @@
 <template>
     <div>
-      <ul v-if="topicList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+      <div v-if="topicList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <topic-item v-for="(item,index) in topicList" :key="index"  :topicItem="item" :group="group" @click.native="toDetail(index,item)" ></topic-item>
-      </ul>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && topicList.length > 2"></bottomloadMore>
+      </div>
       <div class="empty"  v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无话题</div>
@@ -12,6 +14,7 @@
 <script>
   import { mapGetters } from "vuex";
   import TopicItem from './TopicItem.vue';
+  import BottomloadMore from "../../customComponents/BottomloadMore.vue";
   import imgMap from '../../../static/js/imgmap.js';
     export default {
       data() {
@@ -38,7 +41,8 @@
       },
 
       components: {
-        topicItem: TopicItem
+        topicItem: TopicItem,
+        bottomloadMore : BottomloadMore
       },
 
       methods:{

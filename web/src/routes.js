@@ -52,6 +52,7 @@ const EvaluationOrder = () => import('./components/order/EvaluationOrder.vue');
 const Mine = () => import('./components/user/Mine.vue');
 const UserDetail = () => import('./components/user/UserDetail.vue');
 const PatientReport = () => import('./components/user/PatientReport.vue');
+const CouponsList = () => import('./components/user/CouponsList.vue');
 
 //首页
 const Main = () => import('./components/Main.vue');
@@ -193,6 +194,7 @@ export const routes = [
     {path: "/mine", component: Mine, meta: {title: "我的", keepAlive: false}},
     {path: "/userDetail", component: UserDetail, meta: {title: "个人信息", keepAlive: false}},
     {path: "/patientReport", component: PatientReport, meta: {title: '信息完善', keepAlive: false}},
+    {path: "/couponsList", component: CouponsList, meta: {title: '优惠券', keepAlive: false}},
 
 
   //consultation  咨询

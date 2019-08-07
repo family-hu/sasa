@@ -43,9 +43,11 @@
         </div>
         </div>
       </div>
-      <ul v-if="doctorList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading"  infinite-scroll-immediate-check="false">
+      <div v-if="doctorList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading"  infinite-scroll-immediate-check="false">
         <doctor-item v-for="(doctorDetail,index) in doctorList" :key="index" :doctorDetail="doctorDetail" @click.native="toDetail(doctorDetail)"></doctor-item>
-      </ul>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && doctorList.length > 3"></bottomloadMore>
+      </div>
       <div class="empty" style="padding: 180px 40px;" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无相关结果</div>
@@ -55,6 +57,7 @@
 
 <script>
 import DoctorItem from "./DoctorItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from '../../../static/js/imgmap.js';
 import Header from "../Header.vue";
 import Vue from "vue";
@@ -116,7 +119,8 @@ export default {
 
   components: {
     doctorItem: DoctorItem,
-    appHeader: Header
+    appHeader: Header,
+    bottomloadMore : BottomloadMore
   },
   computed: {
     consultationEmpty() {

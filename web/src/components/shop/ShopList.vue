@@ -2,9 +2,11 @@
     <div>
       <!-- 体检套餐list -->
       <div class="cell_box" style="padding-top:20px" v-if="serviceList.length > 0">
-        <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+        <div v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
           <health-service-item v-for="(item , index) in serviceList" :key="index" :healthServiceItem="item" :orgId="orgId"></health-service-item>
-        </ul>
+        </div>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && serviceList.length > 5"></bottomloadMore>
       </div>
       <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
@@ -15,6 +17,7 @@
 
 <script>
 import HealthServiceItem from "../service/HealthServiceItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
 export default {
@@ -32,6 +35,7 @@ export default {
 
   components: {
     healthServiceItem: HealthServiceItem,
+    bottomloadMore : BottomloadMore
   },
 
 

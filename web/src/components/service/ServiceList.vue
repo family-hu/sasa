@@ -4,9 +4,11 @@
       <img width="30px" height="30px" class="icon" :src="orgImg" v-if="orgId">
       <p class="org" v-if="orgId">{{ orgInfo.orgNames }}</p>
 
-      <ul style="padding: 0 16px" v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+      <div style="padding: 0 16px" v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <service-item v-for="item in serviceList" :key="item.servId.value" :showPrice="true" :serviceItem="item" @click.native="toDetail(item)" ></service-item>
-      </ul>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && serviceList.length > 4"></bottomloadMore>
+      </div>
       <div class="empty"  v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无服务包</div>
@@ -16,6 +18,7 @@
 
 <script>
   import ServiceItem from './ServiceItem.vue';
+  import BottomloadMore from "../../customComponents/BottomloadMore.vue";
   import imgMap from '../../../static/js/imgmap.js';
     export default {
       data() {
@@ -47,7 +50,8 @@
       },
 
       components: {
-        serviceItem: ServiceItem
+        serviceItem: ServiceItem,
+        bottomloadMore : BottomloadMore
       },
 
       methods:{

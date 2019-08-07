@@ -1,9 +1,11 @@
 <template>
     <div>
       <!-- <div class="seach_box"><input type="text" placeholder="搜索你感兴趣的小组" placeholder-style="color:rgba(4,11,28,.4);"></div> -->
-      <ul v-if="groupList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+      <div v-if="groupList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <group-item v-for="(item,index) in groupList" :key="index"  :groupItem="item"></group-item>
-      </ul>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && groupList.length > 3"></bottomloadMore>
+      </div>
       <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无小组</div>
@@ -14,6 +16,7 @@
   import { mapGetters } from 'vuex';
   import TopicItem from './TopicItem.vue';
   import GroupItem from './GroupItem.vue';
+  import BottomloadMore from "../../customComponents/BottomloadMore.vue";
   import imgMap from '../../../static/js/imgmap.js';
     export default {
       data() {
@@ -37,7 +40,8 @@
 
       components: {
         topicItem: TopicItem,
-        groupItem: GroupItem
+        groupItem: GroupItem,
+        bottomloadMore : BottomloadMore
       },
 
       methods:{

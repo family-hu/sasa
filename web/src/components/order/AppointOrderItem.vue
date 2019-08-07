@@ -1,6 +1,6 @@
 <template>
     <div style="background: white;margin: 0 15px;">
-      <div style="padding: 12px 16px;">
+      <div style="padding: 12px 16px;overflow: hidden;">
         <span class="titlecs">{{ orderItem.orgNames}}</span>
         <span class="state">{{ statusName }}</span>
       </div>
@@ -167,6 +167,7 @@
     height: 29px;
     float: right;
     margin-right: 13px;
+    padding: 0 5px;
   }
 
 
