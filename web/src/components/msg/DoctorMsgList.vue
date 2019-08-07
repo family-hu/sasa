@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="docMsgList.length > 0">
+    <div v-if="docMsgList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
       <div class="box" :class="isDocMsg == 'true' ? 'padding' : ''">
         <doctor-msg-item v-for="(message,index) in docMsgList" :key="index" :index="index" :docMsgList="message" :orgId="orgId" :targetId="targetId" :friendHeadUrl="docPhotoUrl" :gender="gender"></doctor-msg-item>
       </div>
@@ -35,7 +35,10 @@ export default {
       docPhotoUrl: this.$route.query.docPhotoUrl,
       gender: this.$route.query.gender,
       isTalk: false,
-      empty: false
+      loading: false,
+      page: 1,
+      empty: false,
+      loaded: false //是否加载完成
     };
   },
 
@@ -50,6 +53,13 @@ export default {
   },
 
   methods: {
+    //加载更多
+    loadMore() {
+      if (!this.loaded) {
+        this.page++;
+        this.requestMsgList();
+      }
+    },
     //问诊中
     toChat() {
       this.$router.push({
@@ -101,7 +111,9 @@ export default {
         orgId: this.orgId,
         userId: this.loginData.userObj.userId.value,
         modeId: this.modeId,
-        targetId: this.targetId
+        targetId: this.targetId,
+        pageNum: this.page,
+        pageSize: 10
       };
       this.$store
         .dispatch("sysMesList", request)
@@ -110,11 +122,15 @@ export default {
             for (let i = 0; i < data.mesList.length; i++) {
               vm.docMsgList.push(data.mesList[i]);
             }
-          }else{
+            vm.loaded = vm.docMsgList.length == data.total;
+            vm.loading = false;
+          } else {
             this.empty = true;
           }
         })
         .catch(error => {
+          vm.loading = false;
+          vm.loaded = true;
           this.$toast(error.message);
         })
         .finally(() => {
@@ -143,7 +159,7 @@ export default {
 
   created() {
     this.requestMsgList();
-    document.title = '消息列表';
+    document.title = "消息列表";
     if (this.isDocMsg == "true") {
       document.title = this.docName;
       this.requestImStatus();
@@ -178,14 +194,14 @@ export default {
   position: relative;
   z-index: 1000;
 }
-.bottom_box span:not(:last-child)::after{
-  content: '';
+.bottom_box span:not(:last-child)::after {
+  content: "";
   position: absolute;
   right: 0;
   width: 1px;
   height: 15px;
   top: 17.5px;
-  background:rgba(4,11,28,.1);
+  background: rgba(4, 11, 28, 0.1);
   z-index: 999;
 }
 .padding {

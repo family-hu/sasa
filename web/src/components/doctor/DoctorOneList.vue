@@ -288,7 +288,6 @@ export default {
 
         })
         .catch(error => {
-          this.empty = true;
           vm.loading = false;
           vm.loaded = true;
           this.$toast(error.message);
@@ -612,6 +611,8 @@ li {
   background: #f2f2f2;
   text-align: center;
   padding: 14px 0;
+  position: relative;
+  z-index: 100;
 }
 .input-box {
   width: 85.6%;

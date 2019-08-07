@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="empty" v-if="commentList.length == 0">
+      <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无评价</div>
       </div>
@@ -41,6 +41,7 @@ export default {
       commentList:[],
       loading: false,
       page: 1,
+      empty: false,
       loaded: false ,//是否加载完成
     };
   },
@@ -71,6 +72,7 @@ export default {
     },
     //评价列表
     getCommentList() {
+      this.$indicator.open();
       this.loading = true;
       const request = {
         pageParam:{
@@ -84,19 +86,24 @@ export default {
 
       };
       this.$store.dispatch("shoppingCommentList", request).then((data) => {
-        if(data){
+        if(data.data.appraisalList.length > 0){
           for(let i = 0; i < data.data.appraisalList.length;i++){
             this.commentList.push(data.data.appraisalList[i]);
             this.rateScore = parseInt(data.data.appraisalList[i].score.value);
           }
           this.loaded = (this.commentList.length == data.data.total.value);
           this.loading = false;
+        }else{
+          this.empty = true;
         }
       }).catch(error => {
         this.loading = false;
         this.loaded = true;
         this.$toast(error.message);
       })
+      .finally(() => {
+        this.$indicator.close();
+      });
     },
   },
 

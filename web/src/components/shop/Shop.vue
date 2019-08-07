@@ -117,6 +117,7 @@ export default {
     },
     //健康服务--套餐列表
     getPackagesList(sortType, arr) {
+      this.$indicator.open();
       this.sortType = sortType;
       const request = {
         pageParam: {
@@ -156,6 +157,9 @@ export default {
           this.loaded = true;
           this.empty = true
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     }
   },
@@ -181,6 +185,10 @@ export default {
 </script>
 
 <style scoped>
+.empty{
+  top: 346px;
+  padding: 20px 40px;
+}
 .image[lazy="loading"] {
   width: 40px;
   height: 175px;

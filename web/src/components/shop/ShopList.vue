@@ -6,10 +6,10 @@
           <health-service-item v-for="(item , index) in serviceList" :key="index" :healthServiceItem="item" :orgId="orgId"></health-service-item>
         </ul>
       </div>
-      <div class="empty" v-else>
+      <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无相关结果</div>
-      </div>
+      </div>=
     </div>
 </template>
 
@@ -25,6 +25,7 @@ export default {
       serviceList:[],
       loading: false,
       page: 1,
+      empty: false,
       loaded: false ,//是否加载完成
     };
   },
@@ -54,6 +55,7 @@ export default {
 
     //健康服务--套餐列表
     getPackagesList() {
+      this.$indicator.open();
       this.loading = true;
       const request = {
         pageParam:{
@@ -65,18 +67,23 @@ export default {
       this.$store
         .dispatch("groupPackagesList", request)
         .then(data => {
-          if (data.data) {
+          if (data.data.list.length > 0) {
             for(let i = 0; i < data.data.list.length; i++){
               this.serviceList.push(data.data.list[i]);
             }
             this.loaded = (this.serviceList.length >= data.data.total.value);
             this.loading = false;
+          }else{
+            this.empty = true
           }
         })
         .catch(error => {
           this.loading = false;
           this.loaded = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
 

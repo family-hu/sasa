@@ -7,7 +7,7 @@
       <ul style="padding: 0 16px" v-if="serviceList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <service-item v-for="item in serviceList" :key="item.servId.value" :showPrice="true" :serviceItem="item" @click.native="toDetail(item)" ></service-item>
       </ul>
-      <div class="empty"  v-if="serviceList.length == 0">
+      <div class="empty"  v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无服务包</div>
       </div>
@@ -26,6 +26,7 @@
           serviceList: [],
           loading: false,
           page: 1,
+          empty: false,
           loaded: false,   //是否加载完成
         }
       },
@@ -61,24 +62,28 @@
         },
 
         requestServiceList() {
+          this.$indicator.open();
           this.loading = true;
           let request = {acceptId:this.acceptId, ishowDraft:0, orgId: this.orgId, pageNum: this.page, pageSize:10};
           let vm = this;
           this.$store.dispatch("servInfoList", request).then((serviceList) => {
             vm.page++;
-            if(serviceList) {
+            if(serviceList.length > 0) {
               for(let i = 0; i < serviceList.length; i++) {
                 vm.serviceList.push(serviceList[i]);
               }
               vm.loaded = (serviceList.length != 10);
+              vm.loading = false;
             } else {
-              vm.loaded = true;
+              this.empty = true;
             }
-            vm.loading = false;
           }).catch(error => {
             vm.loading = false;
             vm.loaded = true;
             this.$toast(error.message);
+          })
+          .finally(() => {
+            this.$indicator.close();
           });
         },
 
