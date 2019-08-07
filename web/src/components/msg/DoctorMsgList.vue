@@ -4,6 +4,8 @@
       <div class="box" :class="isDocMsg == 'true' ? 'padding' : ''">
         <doctor-msg-item v-for="(message,index) in docMsgList" :key="index" :index="index" :docMsgList="message" :orgId="orgId" :targetId="targetId" :friendHeadUrl="docPhotoUrl" :gender="gender"></doctor-msg-item>
       </div>
+      <!-- 没有更多提示 -->
+      <bottomloadMore v-if="loaded"></bottomloadMore>
       <div v-if="isDocMsg == 'true'" class="bottom_box">
         <span @click="goDocDetail">医生主页</span>
         <span @click="goChatRecord">咨询记录</span>
@@ -21,6 +23,7 @@
 <script>
 import { mapGetters } from "vuex";
 import DoctorMsgItem from "./DoctorMsgItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
@@ -43,7 +46,8 @@ export default {
   },
 
   components: {
-    doctorMsgItem: DoctorMsgItem
+    doctorMsgItem: DoctorMsgItem,
+    bottomloadMore : BottomloadMore
   },
   computed: {
     ...mapGetters(["loginData"]),
