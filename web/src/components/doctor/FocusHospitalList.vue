@@ -1,8 +1,8 @@
 <template>
     <div>
       <div class="empty" v-if="empty">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无关注医院，请扫码医生二维码进行关注</div>
+        <img :src="consultationEmpty">
+        <div>暂无关注医院，请扫码医生二维码进行关注</div>
       </div>
       <div v-if="hospitalList.length > 0">
         <focus-hospital-item v-for="hospital in hospitalList" :key="hospital.orgId.value" :hospitalDetail="hospital" @click.native="toHospital(hospital)"></focus-hospital-item>
@@ -84,8 +84,4 @@ export default {
 </script>
 
 <style scoped>
-.empty {
-  padding: 50px 40px;
-  text-align: center;
-}
 </style>

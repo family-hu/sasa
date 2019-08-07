@@ -3,9 +3,9 @@
       <div v-if="doctorList.length > 0">
         <doctor-item v-for="doctorDetail in doctorList" :key="doctorDetail.userId.value" :doctorDetail="doctorDetail"></doctor-item>
       </div>
-      <div class="empty" v-if="doctorList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无关注医生，请扫码医生二维码进行关注</div>
+      <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无关注医生，请扫码医生二维码进行关注</div>
       </div>
     </div>
 </template>
@@ -18,7 +18,8 @@ export default {
   data() {
     return {
       doctorList: [],
-      orgId: this.$route.query.orgId
+      orgId: this.$route.query.orgId,
+      empty: false
     };
   },
 
@@ -43,10 +44,12 @@ export default {
       this.$store
         .dispatch("myFavList", request)
         .then(data => {
-          if (data.expertList) {
+          if (data.expertList.length > 0) {
             for (let i = 0; i < data.expertList.length; i++) {
               vm.doctorList.push(data.expertList[i]);
             }
+          }else{
+            vm.empty = true;
           }
         })
         .catch(error => {
@@ -70,8 +73,4 @@ export default {
 </script>
 
 <style scoped>
-.empty {
-  padding: 50px 40px;
-  text-align: center;
-}
 </style>

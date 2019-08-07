@@ -14,9 +14,9 @@
           <div class="pull_list" v-if="!loaded && !loading">下拉查看更多历史消息</div>
           <message-item v-for="(message,index) in chatRecordList" :key="index" :index="index" :message="message" :groupId="groupId" :friendHeadUrl="friendHeadUrl" :gender="gender"></message-item>
         </div>
-        <div class="empty" v-if="chatRecordList.length == 0">
-          <img :src="consultationEmpty" width="144px" height="136px">
-          <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无聊天记录</div>
+        <div class="empty" v-if="empty">
+          <img :src="consultationEmpty">
+          <div>暂无聊天记录</div>
         </div>
     </div>
 </template>
@@ -37,7 +37,8 @@ export default {
       friendHeadUrl: this.$route.query.friendHeadUrl, //医生头像
       gender: this.$route.query.gender,
       loaded: false,
-      loading: false
+      loading: false,
+      empty: false
     };
   },
 
@@ -85,6 +86,7 @@ export default {
     },
     //获取聊天记录
     getImchatdata(type) {
+      this.$indicator.open();
       this.loading = true;
       let request = {
         chatuser: type,
@@ -95,7 +97,7 @@ export default {
       this.$store
         .dispatch("imchatdata", request)
         .then(data => {
-          if (data && data.data != "") {
+          if (data.data.length > 0) {
             for (let i = 0; i < data.data.length; i++) {
               let json = data.data[i];
               if (json.chatType == 1 || json.chatType == 4 || (json.chatType == 3 && json.chatId.value != this.loginData.userObj.userId.value)) {
@@ -128,11 +130,16 @@ export default {
             }
             this.loaded = this.chatRecordList.length >= data.total;
             this.loading = false;
+          }else{
+            this.empty = true;
           }
         })
         .catch(error => {
           this.loaded = true;
           // this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     }
   },
@@ -170,10 +177,6 @@ export default {
   font-size: 13px;
   color: rgba(4, 11, 28, 0.75);
   margin-top: 15px;
-  text-align: center;
-}
-.empty {
-  padding: 50px 40px;
   text-align: center;
 }
 .docDetail_box {

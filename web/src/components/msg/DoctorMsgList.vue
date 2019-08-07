@@ -11,9 +11,9 @@
       </div>
       <div @click="toChat" class="flex_btn" v-if="isTalk && isDocMsg == 'true'">问诊中</div>
     </div>
-    <div class="empty" v-if="docMsgList.length == 0">
-      <img :src="consultationEmpty" width="144px" height="136px">
-      <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无消息记录</div>
+    <div class="empty" v-if="empty">
+      <img :src="consultationEmpty">
+      <div>暂无消息记录</div>
     </div>
   </div>
 </template>
@@ -34,7 +34,8 @@ export default {
       targetId: this.$route.query.targetId,
       docPhotoUrl: this.$route.query.docPhotoUrl,
       gender: this.$route.query.gender,
-      isTalk: false
+      isTalk: false,
+      empty: false
     };
   },
 
@@ -94,6 +95,7 @@ export default {
     },
     //获取消息列表
     requestMsgList() {
+      this.$indicator.open();
       let vm = this;
       const request = {
         orgId: this.orgId,
@@ -104,14 +106,19 @@ export default {
       this.$store
         .dispatch("sysMesList", request)
         .then(data => {
-          if (data.mesList) {
+          if (data.mesList.length > 0) {
             for (let i = 0; i < data.mesList.length; i++) {
               vm.docMsgList.push(data.mesList[i]);
             }
+          }else{
+            this.empty = true;
           }
         })
         .catch(error => {
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //获取会话状态
@@ -148,10 +155,6 @@ export default {
 </script>
 
 <style scoped>
-.empty {
-  padding: 50px 40px;
-  text-align: center;
-}
 .box {
   padding: 0 16px;
 }

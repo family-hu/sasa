@@ -196,7 +196,7 @@ export default {
             this.$router.push({
               path: "shopOrderList",
               query: {
-                orgId: localStorage.getItem('orgId')
+                orgId: this.orderInfo.orgId.value
               }
             })
           }else{

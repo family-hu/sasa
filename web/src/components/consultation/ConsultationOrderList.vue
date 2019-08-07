@@ -6,8 +6,8 @@
     </ul>
 
     <div class="empty" v-if="orderList.length == 0">
-      <img :src="consultationEmpty" width="150px" height="150px">
-      <div style="font-size: 15px;margin-top: 10px">您还没有{{ state == '0' ? '未完成测试' : '已完成测评'}}</div>
+      <img :src="consultationEmpty">
+      <div>您还没有{{ state == '0' ? '未完成测试' : '已完成测评'}}</div>
       <button type="button" class="btn" @click="setSelected('home')">去看看</button>
     </div>
 
@@ -121,11 +121,6 @@
 
 <style scoped>
   ul,li{ padding:0;list-style:none; margin: 0;}
-
-  .empty {
-    padding: 20px 40px;
-    text-align: center;
-  }
 
   .empty-div {
     display: flex;

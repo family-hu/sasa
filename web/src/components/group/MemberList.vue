@@ -19,8 +19,8 @@
       </div>
 
       <!-- <div class="empty"  v-if="memberList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无成员</div>
+        <img :src="consultationEmpty">
+        <div>暂无成员</div>
       </div> -->
     </div>
 </template>
@@ -128,10 +128,6 @@
 </script>
 
 <style scoped>
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
-  }
   .ser_title{
     font-size: 16px;
     color: #040B1C;

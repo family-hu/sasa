@@ -7,8 +7,8 @@
         </ul>
       </div>
       <div class="empty" v-else>
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无相关结果</div>
+        <img :src="consultationEmpty">
+        <div>暂无相关结果</div>
       </div>
     </div>
 </template>
@@ -91,10 +91,6 @@ export default {
 </script>
 
 <style scoped>
-.empty {
-  padding: 50px 40px;
-  text-align: center;
-}
 ul,
 li , h3 ,p {
   padding: 0;

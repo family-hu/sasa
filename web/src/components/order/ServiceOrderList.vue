@@ -3,9 +3,10 @@
     <ul v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
       <order-item v-for="item in orderList" :key="item.orderId.value" :orderItem="item" @cancelOrder="cancelOrder" @click.native="toDetail(item)" ></order-item>
     </ul>
-    <div class="empty" v-if="orderList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无此类订单</div>
+    <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>您还没有服务包订单呢</div>
+        <a href="javascript:void(0);" @click="goDoctorMore">去购买</a>
     </div>
   </div>
 </template>
@@ -21,6 +22,7 @@ export default {
       loading: false,
       orgId: this.$route.query.orgId,
       page: 1,
+      empty: false,
       loaded: false //是否加载完成
     };
   },
@@ -37,6 +39,10 @@ export default {
   },
 
   methods: {
+    //医生列表
+    goDoctorMore() {
+       this.$router.push({path: "doctorOneList", query:{orgId: this.orgId}});
+    },
     toDetail(orderDetail) {
       // let json = JSON.stringify(orderDetail);
       // sessionStorage.setItem("orderDetail", json);
@@ -50,6 +56,7 @@ export default {
     },
 
     requestOrderList() {
+      this.$indicator.open();
       this.loading = true;
       let request = {
         planStatus: 0,
@@ -63,18 +70,25 @@ export default {
         .dispatch("servOrderList", request)
         .then(data => {
           vm.page++;
-          if (data.orderList) {
+          if (data.orderList.length > 0) {
             for (let i = 0; i < data.orderList.length; i++) {
               vm.orderList.push(data.orderList[i]);
             }
+            vm.loaded = vm.orderList.length == data.total;
+            vm.loading = false;
+          }else{
+            vm.empty = true;
           }
-          vm.loaded = vm.orderList.length == data.total;
-          vm.loading = false;
+
         })
         .catch(error => {
+          vm.empty = true;
           vm.loading = false;
           vm.loaded = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     cancelOrder(request) {
@@ -117,9 +131,5 @@ li {
   padding: 0;
   list-style: none;
   margin: 0;
-}
-.empty {
-  padding: 50px 40px;
-  text-align: center;
 }
 </style>

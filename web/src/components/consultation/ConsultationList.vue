@@ -6,8 +6,8 @@
 
     <!--<div class="empty-div" >-->
       <div class="empty" v-if="consultationList.length == 0 && isFav">
-        <img :src="consultationEmpty" width="150px" height="150px">
-        <div style="font-size: 15px;margin-top: 10px">您还没有任何收藏</div>
+        <img :src="consultationEmpty">
+        <div>您还没有任何收藏</div>
         <button type="button" class="btn" @click="setSelected('home')">去看看</button>
       </div>
     <!--</div>-->
@@ -124,11 +124,6 @@
 
 <style scoped>
   ul,li{ padding:0;list-style:none; margin: 0;}
-
-  .empty {
-    padding: 20px 40px;
-    text-align: center;
-  }
 
   .empty-div {
     display: flex;

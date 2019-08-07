@@ -92,21 +92,21 @@
       </div>
       <mt-tab-container v-model="selected">
         <mt-tab-container-item id="1">
-          <ul style="background:#fff;" v-if="groupList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+          <ul style="background:#fff;" v-if="groupList.length > 0">
             <group-detail-item v-for="(item,index) in groupList" :key="index"  :groupDetailItem="item"></group-detail-item>
           </ul>
-          <div class="empty" v-if="groupList.length == 0">
-            <img :src="consultationEmpty" width="144px" height="136px">
-            <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无回复</div>
+          <div class="empty" v-if="empty">
+            <img :src="consultationEmpty">
+            <div>暂无回复</div>
           </div>
         </mt-tab-container-item>
         <mt-tab-container-item id="2">
-          <ul style="background:#fff;" v-if="groupList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+          <ul style="background:#fff;" v-if="groupList.length > 0">
             <group-detail-item v-for="(item,index) in groupList" :key="index"  :groupDetailItem="item"></group-detail-item>
           </ul>
-          <div class="empty" v-if="groupList.length == 0">
-            <img :src="consultationEmpty" width="144px" height="136px">
-            <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无回复</div>
+          <div class="empty" v-if="empty">
+            <img :src="consultationEmpty">
+            <div>暂无回复</div>
           </div>
         </mt-tab-container-item>
       </mt-tab-container>
@@ -149,6 +149,7 @@ export default {
       support: null,
       supportNum: "0",
       flag: true,
+      empty: false,
       loading: false,
       page: 1,
       loaded: false //是否加载完成
@@ -166,12 +167,6 @@ export default {
       if (this.topicItem.headImg) return this.topicItem.headImg;
       return imgMap.defaultAva;
     },
-    loadMore() {
-      if (!this.loaded) {
-        this.page++;
-        // this.requestCommentlist();
-      }
-    },
     consultationEmpty() {
       return imgMap.consultationEmpty;
     },
@@ -188,6 +183,18 @@ export default {
   },
 
   methods: {
+    // 加载更多
+    loadMore() {
+      if (!this.loaded) {
+        this.page++;
+        if (this.selected == "1") {
+          this.requestCommentlist(false);
+        } else {
+          this.requestCommentlist(true);
+        }
+      }
+    },
+    //医生主页
     goDocdetail(item) {
       this.$router.push({
         path: "doctorDetail",
@@ -346,7 +353,10 @@ export default {
             this.$toast("评论成功");
             this.addcomment = "";
             //刷新评论
-            this.changeTitle();
+            this.page = 1;
+            this.groupList = [];
+            this.selected = "1";
+            this.requestCommentlist(false);
             this.requestTopicList();
           }
         })
@@ -381,6 +391,8 @@ export default {
     },
     //评论回复列表
     requestCommentlist(onlyDoc) {
+      this.$indicator.open();
+      this.empty = false
       let request = {
         con_id: this.con_id,
         onlyDoc: onlyDoc,
@@ -390,23 +402,34 @@ export default {
       this.$store
         .dispatch("bbscommentlist", request)
         .then(data => {
-          if (data) {
-            this.groupList = data.data;
+          if (data.data.length > 0) {
+            for(let i = 0; i < data.data.length; i++){
+              this.groupList.push(data.data[i]);
+            }
             if (onlyDoc == false) {
               this.groupListAll = data.total.value;
             }
+            this.loaded = this.groupList.length >= data.total.value;
+            this.loading = false;
+          }else{
+            this.empty = true;
           }
         })
         .catch(error => {
+          this.loading = false;
+          this.loaded = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     changeTitle() {
+      this.groupList = [];
+      this.page = 1;
       if (this.selected == "1") {
-        this.page = 1;
         this.requestCommentlist(false);
       } else {
-        this.page = 1;
         this.requestCommentlist(true);
       }
     },
@@ -424,20 +447,34 @@ export default {
   created() {
     this.requestCommentlist(false);
     this.requestTopicList();
+    let that = this;
+    window.onscroll = function() {
+      //滚动条滚动时，距离顶部的距离
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      //可视区的高度
+      var windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      //滚动条的总高度
+      var scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+      //滚动条到底部的条件
+      if (scrollTop + windowHeight == scrollHeight) {
+        that.loadMore();
+      }
+    };
   }
 };
 </script>
 
 <style scoped>
+.empty{
+  position: relative;
+  background: none
+}
+
 .image[lazy="loading"] {
   width: 40px;
   height: 40px;
   margin: 0 auto;
   color: #ccc;
-}
-.empty {
-  padding: 50px 40px;
-  text-align: center;
 }
 .topic_box {
   padding: 16px;

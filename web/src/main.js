@@ -80,6 +80,7 @@ Promise.prototype.finally = function(fn) {
   return this
 };
 
+//data格式时间转换
 Date.prototype.format = function (format) {
   var date = {
     "M+": this.getMonth() + 1,

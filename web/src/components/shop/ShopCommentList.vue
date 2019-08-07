@@ -1,8 +1,8 @@
 <template>
     <div>
       <div class="empty" v-if="commentList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无评价</div>
+        <img :src="consultationEmpty">
+        <div>暂无评价</div>
       </div>
         <div v-else class="package_item" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
           <!-- 评论区域 -->
@@ -155,9 +155,5 @@ li , h3 ,p {
   margin-top: 15px;
   font-size: 12px;
   color: #B3B3B3;
-}
-.empty {
-  padding: 50px 40px;
-  text-align: center;
 }
 </style>

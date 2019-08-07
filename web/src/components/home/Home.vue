@@ -21,7 +21,7 @@
       <!-- :class=" barFixed ? 'boxFixed' : 'main' " -->
       <div class="main">
         <div class="box">
-          <dl @click="goDoctorMore('more')">
+          <dl @click="goDoctorMore">
             <dt><a href="javascript:void(0);"><img src="/static/img/experts.png" alt=""></a></dt>
             <dd>找专家</dd>
           </dl>
@@ -54,7 +54,7 @@
           <div v-if="show" class="upDown" @click="goUp">展开<img :class="display ? '' : 'on'" src="/static/img/upDown.png" alt=""></div>
           <div class="title" id="experts">
             <div class="h3"><span></span>精选专家</div>
-            <a @click="goDoctorMore('more')" class="more">更多<img src="/static/img/more.png" alt=""></a>
+            <a @click="goDoctorMore" class="more">更多<img src="/static/img/more.png" alt=""></a>
           </div>
           <div class="full-line"></div>
           <ul infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
@@ -123,7 +123,6 @@ export default {
       doctorList: [],
       orgId: this.$route.query.orgId,//   1023720023400685568   "890429085795262464"
       orgNames: this.$route.query.orgNames,
-      type: this.$route.query.type,
       hotDataList: [],
       serviceList: [],
       serviceListLength:'',
@@ -214,8 +213,8 @@ export default {
       this.$emit("child", 'shopping');
     },
     //医生列表更多
-    goDoctorMore(type) {
-       this.$router.push({path: "doctorOneList", query:{type: type, orgId: this.orgId}});
+    goDoctorMore() {
+       this.$router.push({path: "doctorOneList", query:{orgId: this.orgId}});
     },
     //资讯更多
     goTab() {

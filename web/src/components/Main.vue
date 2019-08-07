@@ -83,7 +83,7 @@ export default {
   data() {
     return {
       selected: "home", //默认首页
-      orgId: this.$route.query.orgId, //this.$route.query.orgId
+      orgId: this.$route.query.orgId,
       focusEnter: true, //this.$route.query.focusEnter,
       orgNames: null,
     };

@@ -46,9 +46,9 @@
       <ul v-if="doctorList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading"  infinite-scroll-immediate-check="false">
         <doctor-item v-for="(doctorDetail,index) in doctorList" :key="index" :doctorDetail="doctorDetail" @click.native="toDetail(doctorDetail)"></doctor-item>
       </ul>
-      <div class="empty" v-if="doctorList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无相关结果</div>
+      <div class="empty" style="padding: 180px 40px;" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无相关结果</div>
       </div>
     </div>
 </template>
@@ -62,11 +62,10 @@ export default {
   data() {
     return {
       orgId: this.$route.query.orgId, //机构ID
-      type: this.$route.query.type, //首页更多
       deptId: this.$route.query.deptId, //科室ID
       drName: this.$route.query.drName,
       dictName: this.$route.query.dictName,//首页科室名称
-      deptId2: null,
+      deptId2: 0,
       type: null,
       doctorList: [],
       typeList: [],
@@ -110,8 +109,8 @@ export default {
       current:null,
       showClass1:false,
       showClass2:false,
-      showClass3:false
-
+      showClass3:false,
+      empty: false
     };
   },
 
@@ -132,6 +131,7 @@ export default {
       this.showClass = !this.showClass;
     },
     getSeachVal() {
+      this.$indicator.open();
       let val = this.$refs.getVal.value;
       if(val == '' || val == null || val == undefined){
         return false;
@@ -150,16 +150,23 @@ export default {
       that.$store
         .dispatch(method, request)
         .then(data => {
-          if (data.doctorList) {
+          if (data.doctorList.length > 0) {
             for (let i = 0; i < data.doctorList.length; i++) {
               that.doctorList.push(data.doctorList[i]);
             }
+            that.loading = false;
+          }else{
+            this.empty = true;
           }
-          that.loading = false;
+
         })
         .catch(e => {
+          this.empty = true;
           that.loading = false;
           that.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     shade() {
@@ -225,6 +232,8 @@ export default {
 
     //医生列表
     requestDoctorList(sortType) {
+      this.$indicator.open();
+      this.empty = false;
       this.loading = true;
       this.show = false;
       this.display = false;
@@ -249,7 +258,7 @@ export default {
       }
       let request = {
         orgId: this.orgId,
-        deptId:  this.type == '1' ? this.deptId2 : this.type == '0' ? '0' :this.deptId,
+        deptId:  this.type == '1' ? this.deptId2 : this.type == '0' ? '0' : this.deptId,
         drName: this.drName,
         pageNum: this.page,
         pageSize: 10,
@@ -271,15 +280,21 @@ export default {
             for (let i = 0; i < data.doctorList.length; i++) {
               vm.doctorList.push(data.doctorList[i]);
             }
+            vm.loaded = vm.doctorList.length == data.total;
+            vm.loading = false;
+          }else{
+            this.empty = true;
           }
-          vm.loaded = vm.doctorList.length == data.total;
 
-          vm.loading = false;
         })
         .catch(error => {
+          this.empty = true;
           vm.loading = false;
           vm.loaded = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
 
@@ -329,6 +344,8 @@ export default {
     },
     //筛选详情医生
     requestDetailList(dict) {
+      this.$indicator.open();
+      this.empty = false;
       this.page = 1;
       this.loading = true;
       this.display = false;
@@ -349,22 +366,28 @@ export default {
       that.$store
         .dispatch(method, request)
         .then(data => {
-          if (data) {
+          if (data.doctorList.length > 0) {
             for (let i = 0; i < data.doctorList.length; i++) {
               that.doctorList.push(data.doctorList[i]);
-
             }
-
+            that.loading = false;
+          }else{
+            that.empty = true;
           }
-          that.loading = false;
         })
         .catch(e => {
+          that.empty = true;
           that.loading = false;
           that.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //筛选全部医生
     requestDetailListAll(type) {
+      this.$indicator.open();
+      this.empty = false;
       this.page = 1;
       this.current = null;
       this.loading = true;
@@ -390,19 +413,25 @@ export default {
       that.$store
         .dispatch(method, request)
         .then(data => {
-          if (data) {
+          if (data.doctorList.length > 0) {
             for (let i = 0; i < data.doctorList.length; i++) {
               that.doctorList.push(data.doctorList[i]);
             }
+            that.loaded = that.doctorList.length == data.total;
+            that.loading = false;
+          }else{
+            this.empty = true;
           }
-          that.loaded = that.doctorList.length == data.total;
 
-          that.loading = false;
         })
         .catch(e => {
+          this.empty = true;
           that.loaded = true;
           that.loading = false;
           that.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     }
   },
@@ -442,10 +471,6 @@ li {
 /deep/ :-ms-input-placeholder {
   /* Internet Explorer 10+ */
   color: #ccc;
-}
-.empty {
-  padding: 50px 40px;
-  text-align: center;
 }
 .shade {
   position: fixed;

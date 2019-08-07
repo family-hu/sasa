@@ -83,6 +83,7 @@ export default {
   //我的
   my_n: './static/img/my_n.png',
   my_s: './static/img/my_s.png',
+  mine_headImg: './static/img/mine_headImg.png', //用户头像
 
   //关注/取消
   focusLookImg: "./static/img/look@2.png",

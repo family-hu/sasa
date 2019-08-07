@@ -8,8 +8,8 @@
         <service-item v-for="item in serviceList" :key="item.servId.value" :showPrice="true" :serviceItem="item" @click.native="toDetail(item)" ></service-item>
       </ul>
       <div class="empty"  v-if="serviceList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无服务包</div>
+        <img :src="consultationEmpty">
+        <div>暂无服务包</div>
       </div>
     </div>
 </template>
@@ -125,9 +125,5 @@
     overflow: hidden;
     position: absolute;
     top: 60px;
-  }
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
   }
 </style>

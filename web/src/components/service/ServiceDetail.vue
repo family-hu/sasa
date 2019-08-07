@@ -458,11 +458,12 @@ export default {
 }
 .btn_box {
   position: fixed;
-  bottom: 10px;
+  bottom: 0px;
   width: 100%;
-  height: 40px;
-  padding: 0 16px;
+  padding: 10px 16px;
   box-sizing: border-box;
+  background: #fff;
+  box-shadow:0px 0px 14px 2px rgba(0,0,0,0.08);
 }
 .btn_box .btn {
   display: block;
