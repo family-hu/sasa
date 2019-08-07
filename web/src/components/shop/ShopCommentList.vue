@@ -4,7 +4,7 @@
         <img :src="consultationEmpty">
         <div>暂无评价</div>
       </div>
-        <div v-else class="package_item" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+        <div v-if="commentList.length > 0" class="package_item" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
           <!-- 评论区域 -->
           <div class="comments_box" v-for="(item,index) in commentList" :key="index">
             <div class="flex-b comments_list">
@@ -23,7 +23,7 @@
           </div>
           <!-- 评论区域 end-->
           <!-- 没有更多提示 -->
-          <bottomloadMore v-if="loaded"></bottomloadMore>
+          <bottomloadMore v-if="loaded && commentList.length > 4"></bottomloadMore>
         </div>
 
     </div>

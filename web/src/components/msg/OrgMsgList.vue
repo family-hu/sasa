@@ -80,5 +80,8 @@ export default {
 </script>
 
 <style scoped>
+  .page-wrap{
+    overflow: auto
+  }
 </style>
 

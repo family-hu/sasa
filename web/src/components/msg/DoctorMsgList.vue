@@ -3,9 +3,9 @@
     <div v-if="docMsgList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
       <div class="box" :class="isDocMsg == 'true' ? 'padding' : ''">
         <doctor-msg-item v-for="(message,index) in docMsgList" :key="index" :index="index" :docMsgList="message" :orgId="orgId" :targetId="targetId" :friendHeadUrl="docPhotoUrl" :gender="gender"></doctor-msg-item>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && docMsgList.length > 3"></bottomloadMore>
       </div>
-      <!-- 没有更多提示 -->
-      <bottomloadMore v-if="loaded"></bottomloadMore>
       <div v-if="isDocMsg == 'true'" class="bottom_box">
         <span @click="goDocDetail">医生主页</span>
         <span @click="goChatRecord">咨询记录</span>
@@ -187,6 +187,7 @@ export default {
   display: flex;
   width: 100%;
   z-index: 1000;
+  box-shadow:0px 0px 14px 2px rgba(0,0,0,0.08);
 }
 .bottom_box span {
   flex: 1;

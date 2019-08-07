@@ -10,7 +10,7 @@
           <mt-tab-item id="5" @click.native="changeTab('2')">退款</mt-tab-item>
         </mt-navbar>
         <!-- 切换主体内容 -->
-        <mt-tab-container v-model="selected">
+        <mt-tab-container v-model="selected" style="padding-top:44px">
           <mt-tab-container-item id="1">
             <!-- 全部订单 -->
             <div class="empty" v-if="empty">
@@ -21,7 +21,7 @@
             <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
               <shop-order-item  v-for="(item , index) in orderList" :key="index" :orderList="item"></shop-order-item>
               <!-- 没有更多提示 -->
-              <bottomloadMore v-if="loaded"></bottomloadMore>
+              <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
             </div>
           </mt-tab-container-item>
           <mt-tab-container-item id="2">
@@ -33,7 +33,7 @@
             <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
               <shop-order-item  v-for="(item , index) in orderList" :key="index" :orderList="item"></shop-order-item>
                <!-- 没有更多提示 -->
-              <bottomloadMore v-if="loaded"></bottomloadMore>
+              <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
             </div>
           </mt-tab-container-item>
           <mt-tab-container-item id="3">
@@ -45,7 +45,7 @@
             <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
               <shop-order-item  v-for="(item , index) in orderList" :key="index" :orderList="item"></shop-order-item>
                <!-- 没有更多提示 -->
-              <bottomloadMore v-if="loaded"></bottomloadMore>
+              <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
             </div>
           </mt-tab-container-item>
           <mt-tab-container-item id="4">
@@ -57,7 +57,7 @@
             <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
               <shop-order-item  v-for="(item , index) in orderList" :key="index" :orderList="item"></shop-order-item>
                <!-- 没有更多提示 -->
-              <bottomloadMore v-if="loaded"></bottomloadMore>
+              <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
             </div>
           </mt-tab-container-item>
           <mt-tab-container-item id="5">
@@ -69,7 +69,7 @@
             <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
               <shop-order-item  v-for="(item , index) in orderList" :key="index" :orderList="item"></shop-order-item>
                <!-- 没有更多提示 -->
-              <bottomloadMore v-if="loaded"></bottomloadMore>
+              <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
             </div>
           </mt-tab-container-item>
         </mt-tab-container>

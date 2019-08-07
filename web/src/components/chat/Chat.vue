@@ -176,11 +176,11 @@
       <div class="dialog_box" :class=" show ? 'dialog-fade-in' : 'dialog-fade-out'">
         <p class="evaluation_title">请对本次服务进行评价</p>
         <div class="rate_box">
-          <el-rate v-model="evaluationScore" show-text text-color="#FF7A00" :colors="['#FF7A00','#FF7A00','#FF7A00']"></el-rate>
+          <el-rate v-model="evaluationScore" show-text text-color="#FF7A00" :colors="['#FF7A00','#FF7A00','#FF7A00']" :texts="['非常不满意，特别失望','不满意，有点失望','一般，还需改善','满意，仍可改善','非常满意，完美']"></el-rate>
         </div>
-        <div class="evaluation_tag">
+        <!-- <div class="evaluation_tag">
           <span v-on:click="addClass(index,$event)" v-bind:class="{ on:index==current}" v-for="(item,index) in tagList" :key="index">{{item}}</span>
-        </div>
+        </div> -->
         <div class="evaluation_btn" @click="submitEvaInfo">提交评价</div>
       </div>
     </div>
@@ -340,6 +340,7 @@ export default {
     // console.log('页面变为销毁前前前');
   },
   destroyed() {
+    this.conn.close();
     // console.log('页面变为销毁');
     window.removeEventListener("scroll", this.scrollToBottom);
     //销毁定时器
@@ -922,7 +923,7 @@ export default {
         userFrom: this.loginData.userObj.userId.value, //评价人
         userTo: this.selToID, //被评价人
         score: this.evaluationScore, //评分
-        comment: this.tagList[this.current] //评语
+        comment: ''//this.tagList[this.current] //评语
       };
       let vm = this;
       this.$store
@@ -1217,7 +1218,7 @@ export default {
         }, //收到位置消息
         onError: function(message) {
           console.log("监听失败回调", message);
-          // window.location.reload();
+          window.location.reload();
         }, //失败回调
         onTextMessage: function(message) {
           // 在此接收和处理消息，根据message.type区分消息来源，私聊或群组或聊天室
@@ -2156,6 +2157,7 @@ export default {
 }
 .rate_box {
   text-align: center;
+  margin-bottom: 25px;
 }
 .el-rate {
   height: auto;

@@ -60,7 +60,7 @@
 
         </div>
     </div>
-    <div class="img_box" v-for="(item , index) in reportImg" :key="index">
+    <div id="imgs" class="img_box" v-for="(item , index) in reportImg" :key="index">
       <img v-lazy="item" :src="item" alt="" @click="toBigPic(index)">
     </div>
   </div>

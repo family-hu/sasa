@@ -2,6 +2,8 @@
     <div>
       <div v-if="doctorList.length > 0">
         <doctor-item v-for="doctorDetail in doctorList" :key="doctorDetail.userId.value" :doctorDetail="doctorDetail"></doctor-item>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="doctorList.length > 3"></bottomloadMore>
       </div>
       <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
@@ -13,6 +15,7 @@
 <script>
 import { mapGetters } from "vuex";
 import DoctorItem from "./FocusDoctorItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
@@ -24,7 +27,8 @@ export default {
   },
 
   components: {
-    doctorItem: DoctorItem
+    doctorItem: DoctorItem,
+    bottomloadMore : BottomloadMore
   },
   computed: {
     ...mapGetters(["loginData"]),

@@ -167,28 +167,34 @@ export default {
     },
     //提交信息
     submitMsg() {
-      this.$indicator.open();
-      let request = {
-        userid: this.loginData.userObj.userId.value,
-        docid: this.docId,
-        gender: this.userSex == "男" ? "1" : this.userSex == "女" ? "0" : "-1",
-        userName: this.userName,
-        birth: this.userBirth,
-        mobile: this.mobile
-      };
-      this.$store
-        .dispatch("userUpdate", request)
-        .then(() => {
-          this.$toast("提交成功");
-          this.$router.go(-1);
-          // this.getUserInfo();
-        })
-        .catch(e => {
-          this.$toast(e.message);
-        })
-        .finally(() => {
-          this.$indicator.close();
-        });
+      if (!this.checkPhone(this.mobile) && this.mobile) {
+        this.$toast("请输入正确的手机号");
+        return false;
+      }else{
+        this.$indicator.open();
+        let request = {
+          userid: this.loginData.userObj.userId.value,
+          docid: this.docId,
+          gender: this.userSex == "男" ? "1" : this.userSex == "女" ? "0" : "-1",
+          userName: this.userName,
+          birth: this.userBirth,
+          mobile: this.mobile
+        };
+        this.$store
+          .dispatch("userUpdate", request)
+          .then(() => {
+            this.$toast("提交成功");
+            this.$router.go(-1);
+            // this.getUserInfo();
+          })
+          .catch(e => {
+            this.$toast(e.message);
+          })
+          .finally(() => {
+            this.$indicator.close();
+          });
+      }
+
     },
     //更新用户信息
     getUserInfo() {

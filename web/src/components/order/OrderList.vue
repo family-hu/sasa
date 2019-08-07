@@ -1,8 +1,10 @@
 <template>
   <div>
-    <ul v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
+    <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
       <order-item v-for="item in orderList" :key="item.servId.value" :orderItem="item" @cancelOrder="cancelOrder" @click.native="toDetail(item)" ></order-item>
-    </ul>
+      <!-- 没有更多提示 -->
+      <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
+    </div>
     <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
         <div>您还没有问诊订单呢</div>
@@ -14,6 +16,7 @@
 <script>
 import { mapGetters } from "vuex";
 import OrderItem from "./OrderItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import * as types from "../../constant/ConstantConfig.js";
 import imgMap from '../../../static/js/imgmap.js';
 export default {
@@ -29,7 +32,8 @@ export default {
   },
 
   components: {
-    orderItem: OrderItem
+    orderItem: OrderItem,
+    bottomloadMore : BottomloadMore
   },
 
   computed: {
