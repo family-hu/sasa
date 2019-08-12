@@ -90,6 +90,9 @@
   .page-header-main {
     margin-top: 40px;
   }
+  .mint-tab-item-label{
+    font-size: 14px;
+  }
   .pswp{
     z-index: 100000;
   }

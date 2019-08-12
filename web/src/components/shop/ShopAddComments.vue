@@ -74,7 +74,7 @@ export default {
     },
     //提价评论
     submitComment() {
-      console.log(this.rateScore,this.msg);
+      this.$indicator.open();
       let request = {
         appraisal : {
           resourceId : this.prodId, //套餐ID
@@ -99,10 +99,14 @@ export default {
         })
         .catch(e => {
           this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
-    //确认信息-订单详情
+    //订单详情
     getShopOrderDetail() {
+      this.$indicator.open();
       let request = {
         orderId: this.orderId
       };
@@ -116,6 +120,9 @@ export default {
         })
         .catch(e => {
           this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //上传图片

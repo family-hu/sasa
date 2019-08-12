@@ -80,7 +80,7 @@ export default {
       this.$router.push({
         path: "doctorDetail",
         query: {
-          docId: this.docId,
+          drId: this.docId,
         }
       });
     },

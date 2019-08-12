@@ -1,6 +1,35 @@
 <template>
-  <div style="background: white;margin: 0 15px;">
-    <div style="padding: 12px 16px;">
+  <div class="main">
+    <div class="flex-b title">
+      <div class="order_num">订单编号：{{orderItem.orderId.value}}</div>
+      <div class="state" v-if="statusName == '已取消' || statusName == '已完成'">{{statusName}}</div>
+      <div class="state state1" v-else>{{statusName}}</div>
+    </div>
+    <div class="box" @click="goDetail">
+      <img :src="servImgUrl" alt="">
+      <div class="text">
+        <div style="display:flex;align-items: center;margin-bottom:5px">
+           <p class="order_name">{{ orderItem.docName}}</p>
+           <span>{{ deptName }}</span>
+           <span>{{ orderItem.titlesName }}</span>
+        </div>
+        <p class="order_time">{{ orderItem.subscribe_day }} {{ orderItem.subscribe_am | maText }}{{ orderItem.subscribe_work_time }}</p>
+      </div>
+    </div>
+    <div class="flex-b" style="height:56px">
+      <div class="total">订单金额：<span>¥{{orderItem.price.value}}</span></div>
+      <div class="btn_box" v-if="orderItem.status.value == '0'">
+        <a href="javascript:void(0);" class="btn_border" @click.stop="cancelOrder">取消订单</a>
+      </div>
+      <div class="btn_box" v-if="orderItem.status.value == '5'">
+        <a href="javascript:void(0);" class="btn_background" @click.stop="goPay">去支付</a>
+      </div>
+      <div class="btn_box" v-if="orderItem.status.value == '2'">
+        <a href="javascript:void(0);" class="btn_background" @click.stop="documentDetail">诊疗详情</a>
+      </div>
+    </div>
+
+    <!-- <div style="padding: 12px 16px;">
       <span class="titlecs">{{ orderItem.orgNames }}</span>
       <span class="state">{{ typeName }}</span>
     </div>
@@ -26,7 +55,7 @@
       <button type="button" class="btn1" v-if="isShowPay" @click.stop="goPay">去支付</button>
     </div>
 
-    <div style="height: 10px; background: #f7f7f7"></div>
+    <div style="height: 10px; background: #f7f7f7"></div> -->
   </div>
 </template>
 
@@ -46,7 +75,7 @@
           return imgMap.packDept;
         },
 
-        typeName() {
+        statusName() {
           let status = this.orderItem.status.value;
           let isEnd = this.orderItem.isEnd.value;
           if(status == types.ORDER_COMPLETE_UNCOMMENT || status == types.ORDER_COMPLETE_COMMENT) {

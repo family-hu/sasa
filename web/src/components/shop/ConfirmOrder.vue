@@ -170,7 +170,7 @@ export default {
         prodType: '1'
       }
       goodsList.unshift(packId);
-
+      console.log(this.serviceCompanyId,'==this.serviceCompanyId');
       const request = {
         compId: this.serviceCompanyId ? this.serviceCompanyId : localStorage.getItem('serviceCompanyId'),
         orderType: '2000107', //医疗服务
@@ -306,6 +306,7 @@ export default {
     if(this.packDetailsId){
       localStorage.setItem('packDetailsId',this.packDetailsId);
     }
+    console.log(JSON.stringify(this.serviceCompanyId),'==this.serviceCompanyId111');
     if(this.serviceCompanyId){
       localStorage.setItem('serviceCompanyId',this.serviceCompanyId);
     }

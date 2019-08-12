@@ -90,7 +90,7 @@
                   <img class="icon" v-else :src="userImg">
                   <div>
                     <span class="namecs">{{item.nickName}}</span>
-                    <el-rate v-model="rateScore" disabled text-color="#ff9900" score-template="{value}" allow-half></el-rate>
+                    <el-rate v-model="rateScore" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
                   </div>
                 </div>
                 <div class="times">{{item.createTime}}</div>
@@ -585,6 +585,7 @@ export default {
   },
 
   created() {
+    console.log(this.serviceCompanyId,'==serviceCompanyId');
     this.getPackagesDetail();
     this.getServiceCompany();
     this.getPackagesProductList();

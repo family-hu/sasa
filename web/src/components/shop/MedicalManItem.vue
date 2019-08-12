@@ -153,6 +153,14 @@ export default {
 
 };
 </script>
+<style>
+  .el-radio__input{
+    overflow: hidden;
+  }
+  .el-radio__input.is-checked .el-radio__inner{
+    border: 1px solid #409eff;
+  }
+</style>
 
 <style scoped>
   .box{

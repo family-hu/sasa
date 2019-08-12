@@ -1,15 +1,26 @@
 <template>
   <div>
-    <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
-      <order-item v-for="item in orderList" :key="item.orderId.value" :orderItem="item" @cancelOrder="cancelOrder" @click.native="toDetail(item)" ></order-item>
-      <!-- 没有更多提示 -->
-      <bottomloadMore v-if="loaded && orderList.length > 2"></bottomloadMore>
-    </div>
-    <div class="empty" v-if="empty">
-        <img :src="consultationEmpty">
-        <div>您还没有服务包订单呢</div>
-        <a href="javascript:void(0);" @click="goDoctorMore">去购买</a>
-    </div>
+    <mt-navbar fixed v-model="selected">
+      <mt-tab-item id="1" @click.native="changeTab('-1')">全部</mt-tab-item>
+      <mt-tab-item id="2" @click.native="changeTab('5')">待付款</mt-tab-item>
+      <mt-tab-item id="3" @click.native="changeTab('0')">待服务</mt-tab-item>
+      <mt-tab-item id="5" @click.native="changeTab('3')">已完成</mt-tab-item>
+      <mt-tab-item id="6" @click.native="changeTab('4')">已取消</mt-tab-item>
+    </mt-navbar>
+    <mt-tab-container v-model="selected" style="padding-top:44px">
+      <div id="1" style="width:100%">
+        <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
+          <order-item v-for="item in orderList" :key="item.orderId.value" :orderItem="item" @cancelOrder="cancelOrder" @click.native="toDetail(item)" ></order-item>
+          <!-- 没有更多提示 -->
+          <bottomloadMore v-if="loaded && orderList.length > 2"></bottomloadMore>
+        </div>
+        <div class="empty" v-if="empty">
+            <img :src="consultationEmpty">
+            <div>您还没有服务包订单呢</div>
+            <a href="javascript:void(0);" @click="goDoctorMore">去购买</a>
+        </div>
+      </div>
+    </mt-tab-container>
   </div>
 </template>
 
@@ -23,6 +34,7 @@ export default {
     return {
       orderList: [],
       loading: false,
+      selected: '1',
       orgId: this.$route.query.orgId,
       page: 1,
       empty: false,
@@ -58,7 +70,9 @@ export default {
         this.requestOrderList();
       }
     },
-
+    changeTab() {
+      // this.requestOrderList();
+    },
     requestOrderList() {
       this.$indicator.open();
       this.loading = true;
@@ -135,5 +149,9 @@ li {
   padding: 0;
   list-style: none;
   margin: 0;
+}
+/deep/.mint-navbar .mint-tab-item{
+  margin: 0 14px;
+  padding: 14px 0;
 }
 </style>

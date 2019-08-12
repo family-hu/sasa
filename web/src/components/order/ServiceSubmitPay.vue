@@ -138,14 +138,15 @@
   }
 
   .btn{
-    border-radius: 4px;
+    border-radius: 20px;
     text-align: center;
-    font-size:12px;
-    color: white;
-    background-color: rgba(0,147,255,1);
+    font-size: 14px;
+    color: #fff;
+    background-color: #0076ff;
     height: 40px;
-    margin: 20px 10%;
-    width: 80%;
+    margin: 20px 5%;
+    width: 90%;
     border: 1px solid transparent;
+    font-weight: 600;
   }
 </style>

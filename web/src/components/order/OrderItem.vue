@@ -3,11 +3,10 @@
       <div v-if="orderItem">
           <div class="main">
             <div class="flex-b title">
-              <div class="order_num">{{orderItem.createTime}}</div>
-              <div class="order_num" v-if="getPrice && getPrice != ''">
-                订单金额：
-                <span class="price">{{getPrice}}</span>
-              </div>
+              <div class="order_name">{{goodsName}}</div>
+              <div v-if="statusName == '已取消' || statusName == '已完成'" class="state">{{statusName}}</div>
+              <div v-if="statusName == '已受理' || statusName == '问诊中'" class="state state1">{{statusName}}</div>
+              <div v-if="statusName == '等待受理' || statusName == '待支付'" class="state state2">{{statusName}}</div>
             </div>
             <div class="box">
               <img :src="docImg" alt="">
@@ -17,13 +16,14 @@
               </div>
             </div>
             <div class="flex-b" style="padding:10px 0">
-              <div v-if="statusName == '已取消' || statusName == '已完成'" class="state">{{statusName}}</div>
-              <div v-if="statusName == '等待受理' || statusName == '已受理' || statusName == '问诊中'" class="state state1">{{statusName}}</div>
-              <div v-if="statusName == '待支付'" class="state state2">{{statusName}}</div>
+              <div class="order_num" v-if="getPrice && getPrice != ''">
+                订单金额：{{getPrice}}
+              </div>
               <div class="btn_box">
                 <a class="btn_border" href="javascript:void(0);" v-if="statusName == '待支付'" @click.stop="cancelOrder">取消订单</a>
                 <a class="btn_background" href="javascript:void(0);" v-if="statusName == '待支付'" @click.stop="goPay">去支付</a>
                 <a class="btn_border" href="javascript:void(0);" v-if="statusName == '已完成' && status" @click.stop="goEvaluation">发布评价</a>
+                <a class="btn_border" href="javascript:void(0);" v-if="statusName == '已完成' && !status" @click.stop="goEvaluationQuery">查看评价</a>
                 <a class="btn_background" href="javascript:void(0);" v-if="statusName == '已受理' || statusName == '问诊中'" @click.stop="getImhelper">私信</a>
               </div>
             </div>
@@ -49,6 +49,15 @@ export default {
 
   computed: {
     ...mapGetters(["loginData"]),
+    goodsName() {
+      let goodsSnapInfo = this.orderItem.goodsSnapObj;
+      if (goodsSnapInfo) {
+        if(goodsSnapInfo.goodsTypeName == '在线咨询'){
+          return '图文问诊'
+        }
+        return goodsSnapInfo.goodsTypeName
+      }
+    },
     showMenu() {
       if (this.orderItem.cancelStatus.value != "0") return false; //已取消
       if (this.orderItem.isEnd.value == "1") return false; //归档了
@@ -68,7 +77,7 @@ export default {
     },
     // 是否显示评价按钮
     status() {
-      if (this.orderItem.status.value == "5"){
+      if (this.orderItem.status.value == "5"){ // 5 代表已评价
         return false;
       }else{
         return true;
@@ -167,19 +176,13 @@ export default {
       return "";
     },
 
-    docName() {
-      let goodsSnapInfo = this.orderItem.goodsSnapObj;
-      if (goodsSnapInfo) {
-        let acceptUser = goodsSnapInfo.acceptUserObj;
-        if (acceptUser) {
-          return acceptUser.userName;
-        }
-      }
-      return "";
-    }
   },
 
   methods: {
+    //查看评价
+    goEvaluationQuery() {
+      this.$emit("child", this.orderItem.evaId.value);
+    },
     //评价
     goEvaluation() {
       let doctorDetail = {
@@ -286,10 +289,14 @@ export default {
   margin-top: 10px;
 }
 .title {
-  padding: 10px 0;
+  padding-top: 10px;
+}
+.order_name{
+  color: rgba(4, 11, 28, 1);
+  font-size: 13px;
 }
 .order_num {
-  color: rgba(4, 11, 28, 0.4);
+  color: rgba(4, 11, 28, 1);
   font-size: 13px;
 }
 .price {
@@ -301,7 +308,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 11px 0;
-  border-bottom: 1px solid rgba(238, 238, 238, 0.6);
+  border-bottom: 1px solid rgba(4, 11, 28, .1);
 }
 .box img {
   width: 56px;
@@ -347,7 +354,7 @@ export default {
   height: 26px;
   line-height: 26px;
   text-align: center;
-  border-radius: 2px;
+  border-radius: 13px;
   font-size: 13px;
 }
 .btn_border {

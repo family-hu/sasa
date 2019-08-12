@@ -69,8 +69,8 @@ export var shoppingConfig = {
     } catch (e) {}
     return data;
   },
-  // abUrl: "http://47.92.159.136:8020/"  //商城正式环境
-  abUrl: "http://47.92.25.25:8020/" //商城本地测试环境测试地址
+  abUrl: "http://47.92.159.136:8020/"  //商城正式环境
+  // abUrl: "http://47.92.25.25:8020/" //商城本地测试环境测试地址
 };
 
 export var shoppingConfigPay = {
@@ -81,8 +81,8 @@ export var shoppingConfigPay = {
     } catch (e) {}
     return data;
   },
-  // abUrl: "http://47.92.159.136:8088/"  //商城财务正式环境
-  abUrl: "http://47.92.25.25:8088/" //商城财务本地测试环境测试地址
+  abUrl: "http://47.92.159.136:8088/"  //商城财务正式环境
+  // abUrl: "http://47.92.25.25:8088/" //商城财务本地测试环境测试地址
 };
 
 function getVer() {
