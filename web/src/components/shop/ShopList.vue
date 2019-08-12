@@ -11,7 +11,7 @@
       <div class="empty" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无相关结果</div>
-      </div>=
+      </div>
     </div>
 </template>
 

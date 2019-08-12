@@ -19,7 +19,7 @@
                 <div class="flex_left">
                   <img :src="headImg" alt="">
                   <div>
-                    <p class="user_name">{{userName}}<span>给您推荐一位名医</span></p>
+                    <p class="user_name"><span class="name">{{userName}}</span><span>给您推荐一位名医</span></p>
                     <p class="txt">长按识别二维码</p>
                   </div>
                 </div>
@@ -104,6 +104,10 @@ export default {
         name = userObj.userName;
       } else {
         name = userObj.nickName;
+      }
+      let nowLength = name.length;
+      if (nowLength > 5) {
+        name = name.substr(0, 5) + '...';
       }
       return name;
     },
@@ -425,7 +429,17 @@ export default {
 .user_name{
   font-size: 13px;
   color: #040B1C;
-  font-weight: 500
+  font-weight: 500;
+  display: flex;
+}
+.user_name .name{
+  display: block;
+  width: 50px;
+  height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  white-space: nowrap;
 }
 .user_name span{
   font-weight: 400;

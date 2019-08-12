@@ -54,7 +54,7 @@ export default {
       this.$router.push({
         path: "orderDetail",
         query:{
-          orderId: orderDetail.servId,
+          orderId: orderDetail.servId.value,
           userId: this.loginData.userObj.userId.value
         }
       });
