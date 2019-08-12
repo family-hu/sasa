@@ -105,6 +105,10 @@ export default {
       } else {
         name = userObj.nickName;
       }
+      let nowLength = name.length;
+      if (nowLength > 4) {
+        name = name.substr(0, 4) + '...';
+      }
       return name;
     },
     doctorName() {
