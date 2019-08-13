@@ -52,6 +52,13 @@ const actions = {
     }).catch(err);
   },
 
+  //服务包订单详情
+  servOrderInfoGet:({ commit }, request) => {
+    return axios.post("servOrderInfoGet.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
+
   //取消服务包订单
   servOrderAudit: ({ commit }, request) => {
     return axios.post("servOrderAudit.mo", request, config).then(value => {

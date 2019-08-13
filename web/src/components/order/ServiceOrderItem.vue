@@ -8,24 +8,16 @@
     <div class="box" @click="goDetail">
       <img :src="servImgUrl" alt="">
       <div class="text">
-        <div style="display:flex;align-items: center;margin-bottom:5px">
-           <p class="order_name">{{ orderItem.docName}}</p>
-           <span>{{ deptName }}</span>
-           <span>{{ orderItem.titlesName }}</span>
-        </div>
-        <p class="order_time">{{ orderItem.subscribe_day }} {{ orderItem.subscribe_am | maText }}{{ orderItem.subscribe_work_time }}</p>
+        <p class="order_name">{{orderItem.servName}}</p>
+        <p class="order_num">¥{{orderItem.price}}</p>
       </div>
     </div>
     <div class="flex-b" style="height:56px">
-      <div class="total">订单金额：<span>¥{{orderItem.price.value}}</span></div>
-      <div class="btn_box" v-if="orderItem.status.value == '0'">
-        <a href="javascript:void(0);" class="btn_border" @click.stop="cancelOrder">取消订单</a>
-      </div>
-      <div class="btn_box" v-if="orderItem.status.value == '5'">
-        <a href="javascript:void(0);" class="btn_background" @click.stop="goPay">去支付</a>
-      </div>
-      <div class="btn_box" v-if="orderItem.status.value == '2'">
-        <a href="javascript:void(0);" class="btn_background" @click.stop="documentDetail">诊疗详情</a>
+      <div class="total">订单金额：<span>¥{{orderItem.price}}</span></div>
+      <div class="btn_box">
+        <a href="javascript:void(0);" class="btn_border" v-if="isShowCancel" @click.stop="cancelOrder">取消订单</a>
+        <a href="javascript:void(0);" v-if="isShowPay" class="btn_background" @click.stop="goPay">去支付</a>
+        <a href="javascript:void(0);" class="btn_background" v-if="isShowContact" @click.stop="contact">联系医生</a>
       </div>
     </div>
 
@@ -153,6 +145,15 @@
       },
 
       methods: {
+        //服务包详情
+        goDetail() {
+          this.$router.push({
+            path: "serviceOrderDetail",
+            query:{
+              orderId: this.orderItem.orderId.value,
+            }
+          })
+        },
         goPay() {
           this.$router.push({
             path: "serviceSubmitPay",
@@ -185,52 +186,81 @@
 </script>
 
 <style scoped>
-  .namecs{
-    font-size:18px;
-    font-weight:bold;
-    color:#222222;
-  }
-
-  .singleLine {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-
-  .titlecs{
-    font-size:15px;
-    font-weight:normal;
-    color:#222222;
-  }
-
-  .money{
-    font-size:15px;
-    font-weight:500;
-    color: #222222;
-    margin-right: 16px;
-    float: right;
-  }
-
-  .btn1{
-    border-radius: 4px;
-    text-align: center;
-    font-size:12px;
-    font-weight: 400;
-    color: rgba(0,147,255,1);
-    border: 1px solid rgba(0,147,255,1);
-    background-color:white;
-    height: 29px;
-    float: right;
-    margin-right: 13px;
-    padding: 0 5px;
-  }
-
-  .state{
-    font-size:15px;
-    font-weight:bold;
-    color:#FF4343;
-    float: right;
-  }
+.main {
+  background: #fff;
+  padding: 0 16px;
+  margin-top: 10px;
+}
+.title {
+  padding-top: 10px;
+}
+.order_num {
+  color: rgba(4, 11, 28, 0.5);
+  font-size: 13px;
+}
+.state {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(4, 11, 28, 0.5);
+}
+.state1 {
+  color: #ff0a0a;
+}
+.box {
+  display: flex;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(4, 11, 28, 0.1);
+}
+.box img {
+  width: 81px;
+  height: 60px;
+}
+.text {
+  margin-left: 10px;
+}
+.order_name {
+  font-size: 17px;
+  color: #040b1c;
+  font-weight: 600;
+}
+.text span {
+  font-size: 13px;
+  margin-left: 10px;
+  color: rgba(4, 11, 28, 0.5);
+}
+.order_time {
+  color: #040b1c;
+  font-size: 13px;
+}
+.total {
+  font-size: 13px;
+  color: #040b1c;
+}
+.btn_box {
+  background: #fff;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: -16px;
+}
+.btn_box a {
+  display: block;
+  margin-right: 16px;
+  width: 72px;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  font-size: 13px;
+  border-radius: 13px;
+}
+.btn_border {
+  border: 1px solid #0076ff;
+  color: #0076ff;
+  background: #fff;
+}
+.btn_background {
+  background: #0076ff;
+  color: #fff;
+  border: 1px solid transparent;
+}
 </style>

@@ -1,9 +1,10 @@
 <template>
     <div>
       <img width="100%" height="122px" :src="orgPubImg" v-if="orgId">
-      <img width="30px" height="30px" class="icon" :src="orgImg" v-if="orgId">
-      <p class="org" v-if="orgId">{{ orgInfo.orgNames }}</p>
-
+      <div class="org">
+        <img class="icon" :src="orgImg" v-if="orgId">
+        <p v-if="orgId">{{ orgInfo.orgNames }}</p>
+      </div>
       <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <news-item v-for="item in newsList" :key="item.newsId.value" :newsItem="item" @click.native="toDetail(item)" ></news-item>
       </ul>
@@ -107,24 +108,23 @@
   ul,li{ padding:0;list-style:none; margin: 0}
 
   .org{
-    color: white;
+    color: #fff;
     font-weight: 400;
     font-size: 15px;
     position: absolute;
     line-height: 23px;
     text-shadow: 2px 2px 10px black;
-    left:55px;
-    top: 50px;
+    left:16px;
+    top: 60px;
+    display: flex;
+    align-items: center;
   }
 
   .icon{
     width: 32px;
     height: 32px;
-    left: 16px;
     border-radius: 50%;
-    overflow: hidden;
-    position: absolute;
-    top: 60px;
+    margin-right: 5px;
   }
 
 </style>

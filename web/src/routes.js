@@ -39,6 +39,7 @@ const ChatPayOk = () => import('./components/chat/ChatPayOk.vue');
 const OrderSubmitPay = () => import('./components/order/OrderSubmitPay.vue');
 const OrderList = () => import('./components/order/OrderList.vue');
 const ServiceOrderList = () => import('./components/order/ServiceOrderList.vue');
+const ServiceOrderDetail = () => import('./components/order/ServiceOrderDetail.vue');
 const AppointOrderList = () => import('./components/order/AppointOrderList.vue');
 const OrderDetail = () => import('./components/order/OrderDetail.vue');
 const AppointSubmit = () => import('./components/order/AppointSubmit.vue');
@@ -149,6 +150,7 @@ export const routes = [
 
 
   //order
+    {path: "/serviceOrderDetail", component: ServiceOrderDetail, meta: {title: "服务包详情", keepAlive: false}},
     {path: "/orderSubmitPay", component: OrderSubmitPay, meta: {title: "订单提交", keepAlive: false}},
     {path: "/orderList", component: OrderList, meta: {title: "问诊订单", keepAlive: false}},
     {path: "/serviceOrderList", component: ServiceOrderList, meta: {title: '服务包订单', keepAlive: false}},
