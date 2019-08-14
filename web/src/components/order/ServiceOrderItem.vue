@@ -17,37 +17,9 @@
       <div class="btn_box">
         <a href="javascript:void(0);" class="btn_border" v-if="isShowCancel" @click.stop="cancelOrder">取消订单</a>
         <a href="javascript:void(0);" v-if="isShowPay" class="btn_background" @click.stop="goPay">去支付</a>
-        <a href="javascript:void(0);" class="btn_background" v-if="isShowContact" @click.stop="contact">联系医生</a>
+        <!-- <a href="javascript:void(0);" class="btn_background" v-if="isShowContact" @click.stop="contact">联系医生</a> -->
       </div>
     </div>
-
-    <!-- <div style="padding: 12px 16px;">
-      <span class="titlecs">{{ orderItem.orgNames }}</span>
-      <span class="state">{{ typeName }}</span>
-    </div>
-
-    <hr style="margin: 0px 16px;" class="full-line" size="1 ">
-
-    <div style="padding: 12px 16px; display: flex;">
-      <img width="80px" height="80px" :src="servImgUrl">
-
-      <div style="margin-left:10px">
-        <div class="namecs singleLine">{{ orderItem.servName }}</div>
-        <div class="titlecs singleLine" style="margin-top: 3px;">服务人: {{ serverUser }}</div>
-        <div class="titlecs singleLine" style="margin-top: 3px;">就诊人: {{ orderItem.sickName }}</div>
-      </div>
-
-    </div>
-
-    <div class="money">服务包：<strong>¥{{ orderItem.price }}</strong></div>
-
-    <div style="display: inline-block;padding-top: 10px;padding-bottom: 10px;width: 100%">
-      <button type="button" class="btn1" v-if="isShowContact" @click.stop="contact">联系医生</button>
-      <button type="button" class="btn1" v-if="isShowCancel" @click.stop="cancelOrder">取消订单</button>
-      <button type="button" class="btn1" v-if="isShowPay" @click.stop="goPay">去支付</button>
-    </div>
-
-    <div style="height: 10px; background: #f7f7f7"></div> -->
   </div>
 </template>
 
@@ -154,6 +126,7 @@
             }
           })
         },
+        //去支付
         goPay() {
           this.$router.push({
             path: "serviceSubmitPay",
@@ -170,7 +143,7 @@
           let request = {orderId: this.orderItem.orderId.value, status: -1};
           this.$emit("cancelOrder", request);
         },
-
+        //联系医生
         contact() {
           let doctor = this.orderItem.acceptUserObj;
           if(!doctor) return;

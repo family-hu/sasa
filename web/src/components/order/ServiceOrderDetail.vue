@@ -17,7 +17,8 @@
         <div class="appointment_msg box">
           <h3>预约信息</h3>
           <p>体检人：<span class="detail_txt">{{userName}}</span></p>
-          <!-- <span>手机号：<span class="detail_txt">{{serviceItem.phone}}</span></p> -->
+          <p>手机号：<span class="detail_txt">{{serviceItem.userPhone}}</span></p>
+          <p>身份证：<span class="detail_txt">{{userCard}}</span></p>
         </div>
         <div class="appointment_msg box">
           <h3>订单信息</h3>
@@ -57,12 +58,21 @@ export default {
 
   computed: {
     ...mapGetters(["loginData"]),
-    userName() {
-      let clientUserObj = this.serviceItem.clientUserObj;
-      if(clientUserObj){
-        return clientUserObj.userName
+    //身份证
+    userCard(){
+      let userCard = this.serviceItem.userCard;
+      if(userCard){
+        let cardNo = userCard.substr(3,11);
+        return userCard.replace(cardNo,'***********');
       }
-      return this.serviceItem.sickName
+    },
+    userName() {
+      let sickName = this.serviceItem.sickName;
+      let clientUserObj = this.serviceItem.clientUserObj;
+      if(sickName){
+        return sickName
+      }
+      return clientUserObj.userName
     },
     servImgUrl() {
       if (this.serviceItem.servImgUrl) return this.serviceItem.servImgUrl;

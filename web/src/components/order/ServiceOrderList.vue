@@ -1,11 +1,12 @@
 <template>
   <div>
+    <!-- 待支付 1 待确认2 已取消3 服务中4  已完成5 服务中或待确认的订单6 服务中或已完成的订单7 -->
     <mt-navbar fixed v-model="selected">
-      <mt-tab-item id="1" @click.native="changeTab('-1')">全部</mt-tab-item>
-      <mt-tab-item id="2" @click.native="changeTab('5')">待付款</mt-tab-item>
-      <mt-tab-item id="3" @click.native="changeTab('0')">待服务</mt-tab-item>
-      <mt-tab-item id="5" @click.native="changeTab('3')">已完成</mt-tab-item>
-      <mt-tab-item id="6" @click.native="changeTab('4')">已取消</mt-tab-item>
+      <mt-tab-item id="1" @click.native="changeTab('0')">全部</mt-tab-item>
+      <mt-tab-item id="2" @click.native="changeTab('1')">待付款</mt-tab-item>
+      <mt-tab-item id="3" @click.native="changeTab('6')">待服务</mt-tab-item>
+      <mt-tab-item id="5" @click.native="changeTab('7')">已完成</mt-tab-item>
+      <mt-tab-item id="6" @click.native="changeTab('3')">已取消</mt-tab-item>
     </mt-navbar>
     <mt-tab-container v-model="selected" style="padding-top:44px">
       <div id="1" style="width:100%">
@@ -16,8 +17,9 @@
         </div>
         <div class="empty" v-if="empty">
             <img :src="consultationEmpty">
-            <div>您还没有服务包订单呢</div>
-            <a href="javascript:void(0);" @click="goDoctorMore">去购买</a>
+            <div v-if="status == '0'">您还没有服务包订单呢</div>
+            <a v-if="status == '0'" href="javascript:void(0);" @click="goDoctorMore">去购买</a>
+            <div v-else>您还没有相关订单呢</div>
         </div>
       </div>
     </mt-tab-container>
@@ -59,27 +61,29 @@ export default {
     goDoctorMore() {
        this.$router.push({path: "doctorOneList", query:{orgId: this.orgId}});
     },
-    toDetail(orderDetail) {
-      // let json = JSON.stringify(orderDetail);
-      // sessionStorage.setItem("orderDetail", json);
-      // this.$router.push("/orderDetail");
-    },
-
+    //加载更多
     loadMore() {
       if (!this.loaded) {
-        this.requestOrderList();
+        this.page++;
+        this.requestOrderList(this.status);
       }
     },
-    changeTab() {
-      // this.requestOrderList();
+    //tab切换
+    changeTab(status) {
+      this.empty = false;
+      this.page = 1;
+      this.orderList = [];
+      this.requestOrderList(status);
     },
-    requestOrderList() {
+    //获取订单
+    requestOrderList(status) {
       this.$indicator.open();
+      this.status = status;
       this.loading = true;
       let request = {
         planStatus: 0,
-        status: 0,
-        pageNum: 1,
+        status: status,
+        pageNum: this.page,
         pageSize: 10,
         orgId: this.orgId
       };
@@ -87,7 +91,6 @@ export default {
       this.$store
         .dispatch("servOrderList", request)
         .then(data => {
-          vm.page++;
           if (data.orderList.length > 0) {
             for (let i = 0; i < data.orderList.length; i++) {
               vm.orderList.push(data.orderList[i]);
@@ -109,6 +112,7 @@ export default {
           this.$indicator.close();
         });
     },
+    //取消订单
     cancelOrder(request) {
       let vm = this;
       this.$indicator.open();

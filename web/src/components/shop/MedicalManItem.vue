@@ -30,9 +30,19 @@ import * as types from "../../constant/ConstantConfig.js";
 export default {
   data() {
     return {
-      title: this.$route.query.title,
+      title: this.$route.query.title,//区分编辑或新增
+      //商城
       msgList: this.$route.query.msgList,
       idList: this.$route.query.idList,
+      packDetailsId: this.$route.query.packDetailsId,
+      serviceCompanyId: this.$route.query.serviceCompanyId,
+      //来源
+      from: this.$route.query.from,
+      //服务包
+      orgId: this.$route.query.orgId,
+      acceptUser: this.$route.query.acceptUser,
+      servId: this.$route.query.servId,
+      busiId: this.$route.query.busiId,
       radio:'0',
       userName:'',
       phone:'',
@@ -98,7 +108,14 @@ export default {
           this.$router.push({
             path: "medicalManList",
             query:{
-              idList: this.idList
+              idList: this.idList,
+              packDetailsId: this.packDetailsId,
+              serviceCompanyId: this.serviceCompanyId,
+              from: this.from,
+              orgId: this.orgId,
+              acceptUser: this.acceptUser,
+              servId: this.servId,
+              busiId: this.busiId
             }
           })
         }else{
@@ -124,7 +141,14 @@ export default {
           this.$router.push({
             path: "medicalManList",
             query:{
-              idList: this.idList
+              idList: this.idList,
+              packDetailsId: this.packDetailsId,
+              serviceCompanyId: this.serviceCompanyId,
+              from: this.from,
+              orgId: this.orgId,
+              acceptUser: this.acceptUser,
+              servId: this.servId,
+              busiId: this.busiId
             }
           })
         }else{
