@@ -121,18 +121,18 @@ export default {
       adList: [],
       newsList: [],
       doctorList: [],
-      orgId: this.$route.query.orgId,//   1023720023400685568   "890429085795262464"
+      orgId: this.$route.query.orgId, //   1023720023400685568   "890429085795262464"
       orgNames: this.$route.query.orgNames,
       hotDataList: [],
       serviceList: [],
-      serviceListLength:'',
+      serviceListLength: "",
       deptList: [],
       loading: false,
       display: false,
       show: false,
       page: 1,
-      loaded: false ,//是否加载完成
-      barFixed: false, //是否固定导航
+      loaded: false, //是否加载完成
+      barFixed: false //是否固定导航
     };
   },
 
@@ -143,9 +143,8 @@ export default {
     appHeader: Header
   },
 
-
   computed: {
-    ...mapGetters(["loginData"]),
+    ...mapGetters(["loginData"])
   },
 
   mounted() {
@@ -153,28 +152,32 @@ export default {
     //调用分享
     setTimeout(() => {
       this.wxShareCallback();
-    }, 1000)
+    }, 1000);
   },
 
   methods: {
     wxShareCallback() {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
-          title: document.title, // 分享标题
-          desc: '有个医院推荐给你', // 分享描述
-          link: shareUrl, // 分享链接
-          imgUrl: 'http://yun.sinoylb.com/static/img/share@2x.png', // 分享图标
-      }
+        title: document.title, // 分享标题
+        desc: "有个医院推荐给你", // 分享描述
+        link: shareUrl, // 分享链接
+        imgUrl: "http://yun.sinoylb.com/static/img/share@2x.png" // 分享图标
+      };
       this.wxapi.wxShare(shareUrl, dataForWeixin);
     },
     // 推广中心
     goPromotion() {
-      window.location.href = 'http://gzh.1010psy.com/promotionCenter?initUserId=' + this.loginData.userObj.userId.value + '&orgId=' + this.orgId
+      window.location.href =
+        "http://gzh.1010psy.com/promotionCenter?initUserId=" +
+        this.loginData.userObj.userId.value +
+        "&orgId=" +
+        this.orgId;
     },
     //banner 跳转
     targetUrl(item) {
-      if(item.url == '' || item.url == undefined || item.url == null){
-        return false
+      if (item.url == "" || item.url == undefined || item.url == null) {
+        return false;
       }
       window.location.href = item.url;
     },
@@ -182,16 +185,19 @@ export default {
     featuresDepart(item) {
       this.$router.push({
         path: "featuresDepartment",
-        query: { deptId: item.deptId.value, orgId: this.orgId,title: document.title }
+        query: {
+          deptId: item.deptId.value,
+          orgId: this.orgId,
+          title: document.title
+        }
       });
     },
-    getSeachVal(){
+    getSeachVal() {
       let val = this.$refs.getVal.value;
       this.$router.push({
         path: "doctorOneList",
         query: { drName: val, orgId: this.orgId }
       });
-
     },
     goUp() {
       this.display = !this.display;
@@ -205,37 +211,50 @@ export default {
     goDoctor(item) {
       this.$router.push({
         path: "doctorOneList",
-        query: { deptId: item.dictId.value, orgId: this.orgId ,dictName: item.dictName}
+        query: {
+          deptId: item.dictId.value,
+          orgId: this.orgId,
+          dictName: item.dictName
+        }
       });
     },
     //商城
-    goShop(){
-      this.$emit("child", 'shopping');
+    goShop() {
+      this.$emit("child", "shopping");
     },
     //医生列表更多
     goDoctorMore() {
-       this.$router.push({path: "doctorOneList", query:{orgId: this.orgId}});
+      this.$router.push({
+        path: "doctorOneList",
+        query: { orgId: this.orgId }
+      });
     },
     //资讯更多
     goTab() {
       // this.$emit("goTab", index);
-      this.$router.push({path: "newsList", query:{ orgId: this.orgId}});
+      this.$router.push({ path: "newsList", query: { orgId: this.orgId } });
     },
 
     //资讯详情
     toNewsDetail(newsDetail) {
-      window.location.href = types.NEWS_DETAIL + newsDetail.newsId.value;
+      // window.location.href = types.NEWS_DETAIL + newsDetail.newsId.value;
+      this.$router.push({
+        path: "newsDetail",
+        query: {
+          newsId: newsDetail.newsId.value
+        }
+      });
     },
     //健康服务--套餐列表
     getPackagesList() {
       let vm = this;
       const request = {
-        pageParam:{
+        pageParam: {
           pageSize: 4,
-          pageNum: 1,
+          pageNum: 1
         },
-        packages:{
-          orgId: this.orgId, //'1087171373522001920'
+        packages: {
+          orgId: this.orgId //'1087171373522001920'
         }
       };
       this.$store
@@ -271,31 +290,33 @@ export default {
     requestServiceList() {
       let request = {
         orgId: this.orgId,
-        deptType : 1030101
+        deptType: 1030101
       };
       let vm = this;
-      this.$store.dispatch("getDeptList", request).then(dataList => {
-        for(let i = 0; i < dataList.length; i++){
+      this.$store
+        .dispatch("getDeptList", request)
+        .then(dataList => {
+          for (let i = 0; i < dataList.length; i++) {
             // dataList[i].desp = '肿瘤康复科，是无锡地区癌症患者和热衷于癌症康复事业的医务工作者及社会各界爱心人士的群体，是特色科室';
             let nowLength = dataList[i].desp.length;
             if (nowLength > 46) {
-              dataList[i].desp = dataList[i].desp.substr(0, 46) + '...';
+              dataList[i].desp = dataList[i].desp.substr(0, 46) + "...";
             }
             vm.deptList.push(dataList[i]);
-        }
-      })
-      .catch(error => {
+          }
+        })
+        .catch(error => {
           vm.$toast(error.message);
-      });
+        });
     },
     //健康资讯
     requestNewsList() {
       let request = {
         orgId: this.orgId,
         tpId: 0,
-        type:'1051',
-        authodId:0,
-        newsStyle:0,
+        type: "1051",
+        authodId: 0,
+        newsStyle: 0,
         pageNum: this.page,
         pageSize: 2
       };
@@ -432,7 +453,7 @@ export default {
           this.loading = false;
           this.$toast(e.message);
         });
-    },
+    }
     // 监听滚动事件
     // handleScroll(e){
     //   let offsetTop = e.target.scrollTop;
@@ -442,21 +463,20 @@ export default {
     //     this.barFixed = false;
     //   }
     // },
-
   },
 
   created() {
-    this.orgAdvList();//banner图
-    this.requestNewsList();//健康资讯
+    this.orgAdvList(); //banner图
+    this.requestNewsList(); //健康资讯
     this.requestDoctorList();
     this.requestTypeList();
     this.requestServiceList();
     this.getPackagesList(); //健康服务
     console.log("this.orgId", this.orgId);
-    if(this.orgId){
-      localStorage.setItem('orgId',this.orgId);
+    if (this.orgId) {
+      localStorage.setItem("orgId", this.orgId);
     }
-  },
+  }
 
   // destroyed () {
   //   window.removeEventListener('scroll', this.handleScroll)
@@ -466,92 +486,98 @@ export default {
 
 <style scoped>
 ul,
-li , h3 ,p {
+li,
+h3,
+p {
   padding: 0;
   list-style: none;
   margin: 0;
 }
-.boxFixedTop{
+.boxFixedTop {
   position: relative;
   top: 136px;
   z-index: 100;
 }
 /* element-ui card */
-/deep/ .el-carousel__item--card{
+/deep/ .el-carousel__item--card {
   /* border:1px solid red; */
   background: #fff;
 }
-/deep/ .el-carousel__item--card.is-active{
-  z-index:2;
+/deep/ .el-carousel__item--card.is-active {
+  z-index: 2;
   left: -20%;
   width: 91%;
 }
-/deep/.is-active>.carousel_text{
-  display: block ;
+/deep/.is-active > .carousel_text {
+  display: block;
 }
-/deep/ .el-carousel__button{
+/deep/ .el-carousel__button {
   width: 5px;
   height: 5px;
   border-radius: 50%;
 }
 /* element-ui card ---- end*/
 
-/deep/ ::-webkit-input-placeholder { /* WebKit browsers */
-    color:    #999;
+/deep/ ::-webkit-input-placeholder {
+  /* WebKit browsers */
+  color: #999;
 }
-/deep/ :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-   color:    #999;
+/deep/ :-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
+  color: #999;
 }
-/deep/ ::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color:    #999;
+/deep/ ::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
+  color: #999;
 }
-/deep/ :-ms-input-placeholder { /* Internet Explorer 10+ */
-   color:    #999;
+/deep/ :-ms-input-placeholder {
+  /* Internet Explorer 10+ */
+  color: #999;
 }
-.cell_box{
+.cell_box {
   background: rgba(255, 255, 255, 1);
   overflow: hidden;
   padding: 0 16px;
   /* width: 100%; */
   margin-left: -20px;
 }
-.carousel_text{
+.carousel_text {
   display: none;
 }
-.carousel_box{
+.carousel_box {
   padding: 0 18px;
 }
-.carousel_text h3{
+.carousel_text h3 {
   color: #000;
   font-size: 18px;
   font-weight: 500;
   margin-top: 10px;
   margin-bottom: 0;
 }
-.carousel_text p{
-  color: #7A8093;
+.carousel_text p {
+  color: #7a8093;
   font-size: 14px;
   font-weight: 400;
   margin-top: 10px;
 }
-.seach_cell{
+.seach_cell {
   background: #f7f7f7;
   padding: 10px 0;
 }
-.input-box{
+.input-box {
   width: 90%;
   height: 30px;
   border-radius: 15px;
   box-shadow: 0px 4px 15px 0px rgba(153, 153, 153, 0.24);
   background: #fff;
   text-align: center;
-  margin: 0 auto
+  margin: 0 auto;
 }
-.input-box img{
+.input-box img {
   width: 16px;
   height: 18px;
   position: relative;
-  top:4px;
+  top: 4px;
 }
 .title {
   padding: 14px 16px;
@@ -576,12 +602,12 @@ li , h3 ,p {
 .more {
   float: right;
   font-size: 13px;
-  color: #7A8093;
+  color: #7a8093;
   text-decoration: none;
   font-weight: 400;
   margin-top: 3px;
 }
-.more img{
+.more img {
   width: 10px;
   height: 10px;
 }
@@ -592,12 +618,12 @@ li , h3 ,p {
 .box {
   /* display: flex; */
   overflow: hidden;
-  transition: transform .3s;
+  transition: transform 0.3s;
 }
-.hide{
+.hide {
   height: 160px;
 }
-.show{
+.show {
   height: auto;
 }
 .box dl {
@@ -620,33 +646,33 @@ li , h3 ,p {
   overflow: hidden;
   height: 18px;
 }
-.boxFixed{
+.boxFixed {
   position: fixed;
   top: 0;
   z-index: 200;
   background: #fff;
   width: 100%;
 }
-.upDown{
+.upDown {
   height: 44px;
   line-height: 44px;
-  border-top:1px solid #eee;
+  border-top: 1px solid #eee;
   text-align: center;
   color: #666;
   font-size: 14px;
   background: #fff;
   margin: 0 20px;
 }
-.upDown img{
+.upDown img {
   width: 10px;
   height: 10px;
   margin-left: 5px;
-  transition: transform .3s;
+  transition: transform 0.3s;
 }
-.on{
+.on {
   transform: rotateZ(180deg);
 }
-.btn-box{
+.btn-box {
   width: 100%;
   background: #fff;
   margin: 10px 0;
@@ -655,7 +681,7 @@ li , h3 ,p {
   justify-content: space-between;
   box-sizing: border-box;
 }
-.btn-box img{
+.btn-box img {
   width: 42%;
   max-height: 73px;
 }

@@ -73,6 +73,18 @@ export var shoppingConfig = {
   abUrl: "http://47.92.25.25:8020/" //商城本地测试环境测试地址
 };
 
+export var orgConfig = {
+  responseType: 'text',
+  transformResponse: data => {
+    try {
+      data = LosslessJSON.parse(data);
+    } catch (e) {}
+    return data;
+  },
+  // abUrl: "http://47.92.159.136:8011/"  //商城正式环境
+  abUrl: "http://47.92.25.25:8011/" //商城本地测试环境测试地址
+};
+
 export var shoppingConfigPay = {
   responseType: 'text',
   transformResponse: data => {
