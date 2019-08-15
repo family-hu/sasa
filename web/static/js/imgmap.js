@@ -100,4 +100,7 @@ export default {
   noticeMsg: "./static/img/notice_msg.png",
   //家庭医生
   familyDoc: "./static/img/family_doc.png",
+
+  //资讯详情默认图片
+  newsImg: './static/img/news_default.png'
 }
