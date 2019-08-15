@@ -26,7 +26,14 @@ const actions = {
 
   //获取资讯详情
   newsDetail:({ commit }, request) => {
-    return axios.post("/news/detail", request, orgConfig).then(value => {
+    return axios.post("news/detail", request, orgConfig).then(value => {
+      return value.data;
+    }).catch(err);
+  },
+
+  //资讯详情分享二维码
+  newsShare: ({ commit }, request) => {
+    return axios.post("news/share", request, orgConfig).then(value => {
       return value.data;
     }).catch(err);
   },

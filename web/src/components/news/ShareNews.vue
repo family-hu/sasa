@@ -16,7 +16,7 @@
               </div>
               <div class="bottom_box flex-b">
                 <div class="flex_left">
-                  <img :src="headImg" alt="">
+                  <img class="head_img" :src="headImg" alt="">
                   <div>
                     <p class="user_name">{{userName}}<span>给您推荐一篇好文</span></p>
                     <p class="txt">长按识别二维码</p>
@@ -235,13 +235,19 @@ export default {
     },
     //获取医生二维码
     getnewsCode() {
-      let request = { docid: [this.drId] };
-      let vm = this;
+      let request = {
+        newsId: this.newsId,
+        title: this.newsDetail.title,
+        contentWords: this.newsDetail.contentWords,
+        photoUrl: this.newsDetail.photoUrl,
+        orgId: this.newsDetail.orgId
+      };
       this.$store
-        .dispatch("doctorCode", request)
+        .dispatch("newsShare", request)
         .then(data => {
-          if(data.docList){
-            vm.newsCode = data.docList[0].codeimage;
+          if(data.rtnCode == '1'){
+            this.newsCode = data.data;
+            console.log(this.newsCode);
           }
         })
         .catch(error => {
@@ -255,7 +261,7 @@ export default {
       this.myUtils.wxLogin();
     }else{
       this.getNewsDetail();
-      // this.getnewsCode();
+      this.getnewsCode();
     }
     //初始化复制
     let clipboard = new Clipboard('.copyBtn');
@@ -405,7 +411,7 @@ export default {
   bottom: 10%;
   width: 90%;
 }
-.bottom_box img{
+.head_img{
   width: 40px;
   height: 40px;
   margin-right: 10px;
