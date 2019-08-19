@@ -334,10 +334,17 @@ export default {
   mounted() {
     //滚动到底部
     window.addEventListener("scroll", this.scrollToBottom);
-    this.wxapi.wxShare();
   },
-  beforeDestroy() {
-    // console.log('页面变为销毁前前前');
+  //加载前获取当前URL，解决iOS重定向路由
+  beforeRouteEnter (to, from , next) {
+    console.log('beforeRouteEnter',from);
+    next( vm => {
+      if (!window.localStorage.getItem( 'isReload' )) {
+        window.localStorage.setItem( 'isReload' , window.location.href)
+        // 微信分享需要重新设置URL
+        window.location.href = window.location.href
+      }
+    })
   },
   destroyed() {
     this.conn.close();
@@ -349,6 +356,16 @@ export default {
     window.removeEventListener("visibilitychange", this.changeListennr);
   },
   methods: {
+    wxShareCallback(data) {
+      let shareUrl =  window.location.href.split("#")[0];
+      let dataForWeixin = {
+        title: data.userName +'  '+ data.departmentName, // 分享标题
+        desc: '好友' + this.loginData.userObj.userName + "给你推荐了" + this.doctorDetail.orgNames + '的一位名医', // 分享描述
+        link: 'http://yun.sinoylb.com/doctorDetail?userId=' + this.selToID, // 分享链接
+        imgUrl: data.photoUrl ? data.photoUrl : 'http://yun.sinoylb.com/static/img/share@2x.png', // 分享图标 医生头像
+      }
+      this.wxapi.wxShare(shareUrl, dataForWeixin);
+    },
     // 利用 _this.oRecordInfo.useWxRecord 来决定是否为假按钮 值可根据情况修改
     touchmoveDefault: function(e) {
       e.preventDefault();
@@ -829,6 +846,10 @@ export default {
             } else {
               this.docDownLine = true;
             }
+            //调用分享
+            setTimeout(() => {
+              this.wxShareCallback(vm.doctorDetail);
+            }, 1000);
           }
         })
         .catch(error => {

@@ -1,11 +1,13 @@
 <template>
-    <div v-if="newsDetail">
+    <div v-if="newsDetail != ''">
       <div class="main">
         <div class="title">{{newsDetail.title}}</div>
         <div class="title_box">
           <img :src="orgImg" alt="">
-          <p class="title_name">{{newsDetail.orgName}}</p>
-          <p class="title_time">{{newsDetail.timePublish}}</p>
+          <div>
+            <p class="title_name">{{newsDetail.orgName}}</p>
+            <div class="title_time">{{newsDetail.timePublish}}</div>
+          </div>
         </div>
         <div class="center" v-html="newsDetail.content">
           {{newsDetail.content}}
@@ -13,7 +15,7 @@
       </div>
       <div class="news_share" @click="share"></div>
       <!-- 没有更多提示 -->
-      <bottomloadMore></bottomloadMore>
+      <bottomloadMore v-if="show"></bottomloadMore>
     </div>
 </template>
 
@@ -25,7 +27,8 @@ export default {
   data() {
     return {
       newsDetail: {},
-      newsId: this.$route.query.newsId
+      newsId: this.$route.query.newsId,
+      show: false
     };
   },
   components: {
@@ -37,8 +40,38 @@ export default {
       return imgMap.orgImg;
     }
   },
+  mounted() {
+    //调用分享
+    setTimeout(() => {
+      this.wxShareCallback(this.newsDetail);
+    }, 1000);
+  },
+  //加载前获取当前URL，解决iOS重定向路由
+  beforeRouteEnter (to, from , next) {
+    console.log('beforeRouteEnter');
+    next( vm => {
+      if (!window.localStorage.getItem( 'isReload' )) {
+        window.localStorage.setItem( 'isReload' , window.location.href)
+        // 微信分享需要重新设置URL
+        window.location.href = window.location.href
+      }
+    })
+  },
   methods: {
-    //分享资讯
+    //分享
+    wxShareCallback(data) {
+      let shareUrl = window.location.href.split("#")[0];
+      let dataForWeixin = {
+        title: data.title, // 分享标题
+        desc: data.contentWords, // 分享描述
+        link: shareUrl, // 分享链接
+        imgUrl: data.photoUrl
+          ? data.photoUrl
+          : "http://yun.sinoylb.com/static/img/share@2x.png" // 分享图标
+      };
+      this.wxapi.wxShare(shareUrl, dataForWeixin);
+    },
+    //分享资讯海报
     share() {
       this.$router.push({
         path: "shareNews",
@@ -68,6 +101,9 @@ export default {
   },
   created() {
     this.getNewsDetail();
+    setTimeout(() => {
+      this.show = true;
+    }, 2000);
   }
 };
 </script>
@@ -96,12 +132,12 @@ export default {
   margin-left: 5px;
   font-size: 13px;
   color: #0076ff;
-  width: 150px;
+  /* width: 150px;
   height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-all;
-  white-space: nowrap;
+  white-space: nowrap; */
 }
 .title_time {
   color: #b3b3b3;
