@@ -45,14 +45,15 @@ export default {
   }
 };
 </script>
-
+<style>
+  .list .image[lazy="loading"] {
+    width: 40px;
+    height: 122px;
+    margin: 0 auto;
+    color: #333;
+  }
+</style>
 <style scoped>
-.image[lazy="loading"] {
-  width: 40px;
-  height: 122px;
-  margin: 0 auto;
-  color: #ccc;
-}
 .box {
   width: 44%;
   min-height: 122px;

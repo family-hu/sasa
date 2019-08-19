@@ -183,17 +183,18 @@ export default {
   }
 };
 </script>
-
+<style>
+.image[lazy="loading"] {
+  width: 50px;
+  height: 175px;
+  margin: 0 auto;
+  color: #333;
+}
+</style>
 <style scoped>
 .empty{
   top: 346px;
   padding: 20px 40px;
-}
-.image[lazy="loading"] {
-  width: 40px;
-  height: 175px;
-  margin: 0 auto;
-  color: #ccc;
 }
 .page-tabbar {
   overflow: hidden;

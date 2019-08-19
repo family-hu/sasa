@@ -61,6 +61,7 @@
         },
 
         requestNewsList() {
+          this.$indicator.open();
           this.loading = true;
           let request = {
             orgId:this.orgId,
@@ -87,6 +88,9 @@
             vm.loading = false;
             vm.loaded = true;
             this.$toast(error.message);
+          })
+          .finally(() => {
+            this.$indicator.close();
           });
         },
 

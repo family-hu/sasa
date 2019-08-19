@@ -28,7 +28,7 @@
             <!-- <del class="old" v-if="crossLinePrice != '0' || crossLinePrice != '0.00'">门市价:¥{{crossLinePrice}}</del> -->
           </div>
           <!-- <div class="point">{{shopScore}}分</div> -->
-          <div v-if="!browse">
+          <div v-if="!browse" style="height: 26px;">
             <div v-if="moneyComm > 0" class="share_tip" @click="shareGet"><img src="../../../static/img/price.png" alt="">分享赚¥{{moneyComm}}</div>
             <div v-else class="share_tip" @click="shareGet"><img src="../../../static/img/price.png" alt="">分享</div>
           </div>
@@ -276,7 +276,7 @@ export default {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
         title: data.name, // 分享标题
-        desc: data.highLight ? data.highLight : "好友给你推荐了" + data.name, // 分享描述
+        desc: '好友' + this.loginData.userObj.userName + "给你推荐了" + this.orgNames + '的医疗服务' + data.name, // 分享描述
         link: shareUrl, // 分享链接
         imgUrl: data.imagePath
           ? data.imagePath
@@ -619,7 +619,7 @@ export default {
   width: 40px;
   height: 281px;
   margin: 0 auto;
-  color: #ccc;
+  color: #333;
 }
 .head_bar {
   width: 100%;

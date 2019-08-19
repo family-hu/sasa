@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
 export default {
@@ -101,12 +102,14 @@ export default {
       serviceDetail: [],
       selected: "overview",
       codeShade: false,
-      docCode: ""
+      docCode: "",
+      userName: ''
       // activeName: '1'
     };
   },
 
   computed: {
+    ...mapGetters(["loginData"]),
     servImgUrl() {
       if (this.serviceDetail.servImgUrl) return this.serviceDetail.servImgUrl;
       return imgMap.orgPubImg;
@@ -164,13 +167,24 @@ export default {
       this.wxShareCallback(this.serviceDetail);
     }, 1000);
   },
+  //加载前获取当前URL，解决iOS重定向路由
+  beforeRouteEnter (to, from , next) {
+    console.log('beforeRouteEnter');
+    next( vm => {
+      if (!window.localStorage.getItem( 'isReload' )) {
+        window.localStorage.setItem( 'isReload' , window.location.href)
+        // 微信分享需要重新设置URL
+        window.location.href = window.location.href
+      }
+    })
+  },
   methods: {
     //分享
     wxShareCallback(data) {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
         title: data.servName, // 分享标题
-        desc: "好友给你推荐了" + data.servName, // 分享描述
+        desc: '好友' + this.loginData.userObj.userName + "给你推荐了" + this.orgNames + '的服务包' + data.servName, // 分享描述
         link: shareUrl, // 分享链接
         imgUrl: data.servImgUrl
           ? data.servImgUrl

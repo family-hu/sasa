@@ -7,7 +7,7 @@
       <div v-if="hospitalList.length > 0">
         <focus-hospital-item v-for="hospital in hospitalList" :key="hospital.orgId.value" :hospitalDetail="hospital" @click.native="toHospital(hospital)"></focus-hospital-item>
         <!-- 没有更多提示 -->
-        <bottomloadMore v-if="loaded && hospitalList.length > 6"></bottomloadMore>
+        <bottomloadMore v-if="hospitalList.length > 6"></bottomloadMore>
       </div>
     </div>
 </template>
