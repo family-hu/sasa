@@ -95,6 +95,8 @@ const ShopPackageReport = () => import('./components/shop/ShopPackageReport.vue'
 //资讯
 const NewsList = () => import('./components/news/NewsList.vue');
 const NewsDetail = () => import('./components/news/NewsDetail.vue');
+const ShareNews = () => import('./components/news/ShareNews.vue');
+
 
 //心理咨询
 const ConsultationMain = () => import('./components/consultation/ConsultationMain.vue');
@@ -190,7 +192,8 @@ export const routes = [
 
   //news
     {path: "/newsList", component: NewsList, meta: {title: "资讯列表", keepAlive: false}},
-    {path: "/newsDetail", component: NewsDetail, meta: {title: "咨询详情", keepAlive: false}},
+    {path: "/newsDetail", component: NewsDetail, meta: {title: "资讯详情", keepAlive: false}},
+    {path: "/shareNews", component: ShareNews, meta: {title: "分享资讯", keepAlive: false}},
 
   //user
     {path: "/mine", component: Mine, meta: {title: "我的", keepAlive: false}},

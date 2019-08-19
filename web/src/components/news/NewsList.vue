@@ -45,7 +45,13 @@
 
       methods:{
         toDetail(newsDetail) {
-          window.location.href = types.NEWS_DETAIL + newsDetail.newsId.value;
+          // window.location.href = types.NEWS_DETAIL + newsDetail.newsId.value;
+          this.$router.push({
+            path: "newsDetail",
+            query: {
+              newsId: newsDetail.newsId.value
+            }
+          });
         },
 
         loadMore() {
@@ -55,6 +61,7 @@
         },
 
         requestNewsList() {
+          this.$indicator.open();
           this.loading = true;
           let request = {
             orgId:this.orgId,
@@ -81,6 +88,9 @@
             vm.loading = false;
             vm.loaded = true;
             this.$toast(error.message);
+          })
+          .finally(() => {
+            this.$indicator.close();
           });
         },
 
@@ -115,14 +125,14 @@
     line-height: 23px;
     text-shadow: 2px 2px 10px black;
     left:16px;
-    top: 60px;
+    top: 44px;
     display: flex;
     align-items: center;
   }
 
   .icon{
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     margin-right: 5px;
   }
