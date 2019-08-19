@@ -1,9 +1,9 @@
 <template>
     <div>
       <div class="head_bg">
-        <div class="orderStatusTxt">{{statusName}} <span v-if="statusName == '等待服务'">医生将在24小时内联系您，请耐心等待</span></div>
+        <div class="orderStatusTxt">{{statusName}} <span v-if="statusName == '服务中'">医生将在24小时内联系您，请耐心等待</span></div>
       </div>
-       <div class="main">
+      <div class="main">
         <div class="box flex-b" @click="goDocDetail" v-if="serviceItem">
           <div class="name_box">
             <img class="img" :src="servImgUrl" alt="">
@@ -16,7 +16,7 @@
         </div>
         <div class="appointment_msg box">
           <h3>预约信息</h3>
-          <p>体检人：<span class="detail_txt">{{userName}}</span></p>
+          <p>体检人：<span class="detail_txt">{{serviceUserName}}</span></p>
           <p>手机号：<span class="detail_txt">{{serviceItem.userPhone}}</span></p>
           <p>身份证：<span class="detail_txt">{{userCard}}</span></p>
         </div>
@@ -27,14 +27,31 @@
           <p>订单总价：<span class="detail_txt">¥{{serviceItem.price}}</span></p>
         </div>
       </div>
-      <!-- <div class="btn_box">
-        <a class="btn btn_border" href="javascript:void(0);" v-if="statusName == '待支付'" @click="cancelOrder">取消订单</a>
-        <a class="btn btn_background" href="javascript:void(0);" v-if="statusName == '待支付'" @click="goPay">去支付</a>
-        <a class="btn btn_border" href="javascript:void(0);" v-if="statusName == '已完成' && status" @click="goEvaluation">发布评价</a>
-        <a class="btn btn_border" href="javascript:void(0);" v-if="statusName == '已完成' && !status" @click="goEvaluationQuery">查看评价</a>
-        <a class="btn btn_background" href="javascript:void(0);" v-if="statusName == '已受理' || statusName == '问诊中'" @click="getImhelper">私信</a>
-      </div> -->
-
+      <div class="btn_box">
+        <a class="btn btn_border" v-if="statusName == '待支付'" href="javascript:void(0);"  @click="cancelOrder">取消订单</a>
+        <a class="btn btn_background" v-if="statusName == '待支付'" href="javascript:void(0);"  @click="goPay">去支付</a>
+        <a class="btn btn_border"  v-if="statusName == '已完成' && status == '4'" href="javascript:void(0);"  @click="goEvaluation">发布评价</a>
+        <a class="btn btn_border"  v-if="statusName == '已完成' && status == '5'" href="javascript:void(0);"  @click="goEvaluationQuery">查看评价</a>
+      </div>
+       <!-- 底部查看评价 -->
+      <mt-popup v-model="popupVisible" position="bottom" style="width:100%">
+        <div class="evaluation_box">
+          <p>我的评价</p>
+          <div class="flex_box">
+            <div class="evaluation_title">服务态度</div>
+            <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">医生专业</div>
+            <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">回复时效</div>
+            <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="evaluation_text">{{evaInfo.comment}}</div>
+        </div>
+      </mt-popup>
     </div>
 </template>
 
@@ -46,7 +63,13 @@ export default {
   data() {
     return {
       serviceItem: [],
-      orderId: this.$route.query.orderId
+      evaInfo: {},
+      orderId: this.$route.query.orderId,
+      rateScore1: 5,
+      rateScore2: 5,
+      rateScore3: 5,
+      popupVisible: false,
+      status: null
     };
   },
   filters: {
@@ -59,20 +82,21 @@ export default {
   computed: {
     ...mapGetters(["loginData"]),
     //身份证
-    userCard(){
+    userCard() {
       let userCard = this.serviceItem.userCard;
-      if(userCard){
-        let cardNo = userCard.substr(3,11);
-        return userCard.replace(cardNo,'***********');
+      if (userCard) {
+        let cardNo = userCard.substr(3, 11);
+        return userCard.replace(cardNo, "***********");
       }
     },
-    userName() {
+    serviceUserName() {
       let sickName = this.serviceItem.sickName;
-      let clientUserObj = this.serviceItem.clientUserObj;
-      if(sickName){
-        return sickName
+      let serviceName = this.serviceItem.clientUserObj;
+      if (serviceName) {
+        return serviceName.userName;
+      } else {
+        return sickName;
       }
-      return clientUserObj.userName
     },
     servImgUrl() {
       if (this.serviceItem.servImgUrl) return this.serviceItem.servImgUrl;
@@ -80,10 +104,10 @@ export default {
     },
     getPrice() {
       let price = this.serviceItem.price;
-      if(price){
-        return price.value
+      if (price) {
+        return price.value;
       }
-      return ''
+      return "";
     },
     titlesName() {
       let title = "";
@@ -100,20 +124,101 @@ export default {
       return title;
     },
     statusName() {
-      if(this.serviceItem.status){
+      if (this.serviceItem.status) {
         let status = this.serviceItem.status.value;
-        if (status == "1") return "待付款";
-        if (status == "2") return "待确认";
-        if (status == "3") return "已取消";
-        if (status == "6") return "等待服务";
-        if (status == "4") return "已完成";
-        return "";
+        let isEnd = this.serviceItem.isEnd.value;
+        this.status = status;
+        if (status == "4" || status == "5") {
+          return "已完成";
+        }
+        if (isEnd == "0") {
+          if (status == "1") return "待支付";
+          if (status == "2") return "待确认";
+          if (status == "3") return "服务中";
+        } else {
+          return "已取消";
+        }
       }
-
     }
   },
 
   methods: {
+    //评价
+    goEvaluation() {
+      let doctorDetail = {
+        photoUrl: this.serviceItem.acceptUserObj.photoUrl,
+        name: this.serviceItem.acceptUserObj.userName,
+        desp: this.serviceItem.acceptUserObj.departmentName + this.serviceItem.acceptUserObj.titlesName
+      }
+      this.$router.push({
+        path: "evaluationOrder",
+        query: {
+          servId: this.serviceItem.servId.value, //业务编号
+          orgId: this.serviceItem.orgObj.orgId.value, //机构
+          docId: this.serviceItem.acceptUserObj.userId.value, //被评价人
+          doctorDetail: JSON.stringify(doctorDetail)
+        }
+      });
+    },
+    //查看评价
+    goEvaluationQuery(){
+      let request = {
+        evaId: this.serviceItem.evaId.value
+      };
+      this.$store
+        .dispatch("evaInfoGet", request)
+        .then(data => {
+          if(data){
+            this.evaInfo = data.evaObj;
+            let evaDetList = data.evaObj.evaDetList
+            for(let i = 0; i < evaDetList.length; i++){
+              if(evaDetList[i].evaTypeName == '服务态度'){
+                this.rateScore1 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '医生专业'){
+                this.rateScore2 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '回复时效'){
+                this.rateScore3 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }
+            }
+            this.popupVisible = true;
+          }else{
+            this.$toast('暂无评价');
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
+    },
+    //去支付
+    goPay() {
+      this.$router.push({
+        path: "serviceSubmitPay",
+        query: {
+          servId: this.serviceItem.servId.value,
+          busiId: this.serviceItem.orderId.value,
+          price: this.serviceItem.price,
+          orgId: this.serviceItem.orgObj.orgId.value
+        }
+      });
+    },
+    //取消订单
+    cancelOrder() {
+      let vm = this;
+      this.$indicator.open();
+      let request = { orderId: this.orderId, status: -1 };
+      this.$store
+        .dispatch("servOrderAudit", request)
+        .then(() => {
+          this.$toast("取消成功");
+          vm.servOrderInfoGet(request);
+        })
+        .catch(e => {
+          this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
+        });
+    },
     //医生主页
     goDocDetail() {
       this.$router.push({
@@ -130,7 +235,7 @@ export default {
       this.$store
         .dispatch("servOrderInfoGet", request)
         .then(data => {
-          this.serviceItem = data.servOrderObj
+          this.serviceItem = data.servOrderObj;
         })
         .catch(error => {
           this.$toast(error.message);
@@ -138,7 +243,7 @@ export default {
         .finally(() => {
           this.$indicator.close();
         });
-    },
+    }
   },
 
   created() {
@@ -147,6 +252,11 @@ export default {
 };
 </script>
 
+<style>
+  .el-rate__icon{
+    font-size: 22px;
+  }
+</style>
 <style scoped>
 .orderStatusTxt {
   color: #fff;
@@ -215,7 +325,7 @@ export default {
 .box .detail_txt {
   color: #040b1c;
 }
-.detail_txt span{
+.detail_txt span {
   margin: 0 5px;
 }
 .name_box {
@@ -343,16 +453,6 @@ export default {
   font-size: 13px;
   text-align: center;
 }
-.pay_btn {
-  background: #0093ff;
-  color: #fff;
-  border: 1px solid transparent;
-}
-.cancel_btn {
-  border: 1px solid #b3b3b3;
-  color: #666;
-  background: #fff;
-}
 .btn_border {
   border: 1px solid #0093ff;
   color: #0093ff;
@@ -362,5 +462,31 @@ export default {
   background: #0093ff;
   color: #fff;
   border: 1px solid transparent;
+}
+.evaluation_box{
+  text-align: center
+}
+.evaluation_box p{
+  color: #040B1C;
+  font-size: 14px;
+  margin: 16px;
+}
+.evaluation_text{
+  margin-top: 20px;
+  padding: 15px 0;
+  border-top:1px solid #E6E6E6;
+  font-size: 15px;
+  color: #040B1C;
+}
+.flex_box{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom:16px;
+}
+.evaluation_title{
+  font-size: 14px;
+  color: #040B1C;
+  margin-right:10px;
 }
 </style>

@@ -27,7 +27,18 @@
     <mt-popup v-model="popupVisible" position="bottom">
       <div class="evaluation_box">
         <p>我的评价</p>
-        <el-rate v-model="rateScore" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+        <div class="flex_box">
+          <div class="evaluation_title">服务态度</div>
+          <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+        </div>
+        <div class="flex_box">
+          <div class="evaluation_title">医生专业</div>
+          <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+        </div>
+        <div class="flex_box">
+          <div class="evaluation_title">回复时效</div>
+          <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+        </div>
         <div class="evaluation_text">{{evaInfo.comment}}</div>
       </div>
     </mt-popup>
@@ -50,7 +61,9 @@ export default {
       loading: false,
       empty: false,
       popupVisible: false,
-      rateScore: 5,
+      rateScore1: 5,
+      rateScore2: 5,
+      rateScore3: 5,
       page: 1,
       status: null,
       loaded: false //是否加载完成
@@ -84,7 +97,16 @@ export default {
         .then(data => {
           if(data){
             this.evaInfo = data.evaObj;
-            this.rateScore = data.evaObj.score ? parseInt(data.evaObj.score.value) : 5;
+            let evaDetList = data.evaObj.evaDetList
+            for(let i = 0; i < evaDetList.length; i++){
+              if(evaDetList[i].evaTypeName == '服务态度'){
+                this.rateScore1 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '医生专业'){
+                this.rateScore2 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '回复时效'){
+                this.rateScore3 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }
+            }
             this.popupVisible = true;
           }else{
             this.$toast('暂无评价');
@@ -191,7 +213,11 @@ export default {
   }
 };
 </script>
-
+<style>
+  .el-rate__icon{
+    font-size: 22px;
+  }
+</style>
 <style scoped>
 ul,
 li {
@@ -220,5 +246,16 @@ li {
   border-top:1px solid #E6E6E6;
   font-size: 15px;
   color: #040B1C;
+}
+.flex_box{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom:16px;
+}
+.evaluation_title{
+  font-size: 14px;
+  color: #040B1C;
+  margin-right:10px;
 }
 </style>

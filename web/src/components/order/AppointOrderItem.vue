@@ -19,37 +19,13 @@
     </div>
     <div class="flex-b" style="height:56px">
       <div class="total">订单金额：<span>¥{{orderItem.price.value}}</span></div>
-      <div class="btn_box" v-if="orderItem.status.value == '0'">
-        <a href="javascript:void(0);" class="btn_border" @click.stop="cancelOrder">取消订单</a>
+      <div class="btn_box">
+        <!-- <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn_border" @click.stop="cancelOrder">取消订单</a> -->
+        <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn_background" @click.stop="goPay">去支付</a>
+        <a href="javascript:void(0);" v-if="statusName == '已完成'" class="btn_background" @click.stop="documentDetail">诊疗详情</a>
       </div>
-      <div class="btn_box" v-if="orderItem.status.value == '5'">
-        <a href="javascript:void(0);" class="btn_background" @click.stop="goPay">去支付</a>
-      </div>
-      <div class="btn_box" v-if="orderItem.status.value == '2'">
-        <a href="javascript:void(0);" class="btn_background" @click.stop="documentDetail">诊疗详情</a>
-      </div>
-      <!-- <div class="btn_box" v-if="orderList.orderStatus == '1'">
-        <a class="btn_border" href="javascript:void(0);" @click="goTel">电话预约</a>
-        <a class="btn_background" href="javascript:void(0);" @click="goServiceVoucher">查看券</a>
-      </div>
-      <div class="btn_box" v-if="orderList.orderStatus == '11'">
-        <a class="btn_border" href="javascript:void(0);" @click="goShopAddComments">去评价</a>
-        <a class="btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
-      </div>
-      <div class="btn_box" v-if="orderList.orderStatus == '12'">
-        <a class="btn_border" href="javascript:void(0);" @click="goShopQueryComments">查看评价</a>
-        <a class="btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
-      </div> -->
     </div>
-
-      <!-- <div style="display: inline-block;padding-top: 10px;padding-bottom: 10px;width: 100%">
-        <button type="button" class="btn1" v-if="orderItem.status.value == '2'" @click.stop="documentDetail">诊疗详情</button>
-        <button type="button" class="btn1" v-if="orderItem.status.value == '0'" @click.stop="cancelOrder">取消订单</button>
-        <button type="button" class="btn1" v-if="orderItem.status.value == '5'" @click.stop="goPay">去支付</button>
-      </div>
-
-      <div style="height: 10px; background: #f7f7f7"></div> -->
-    </div>
+  </div>
 </template>
 
 <script>
@@ -81,13 +57,14 @@ export default {
       return imgUrl;
     },
     statusName() {
+      //0待确定 1已预约 2已完成 3已过期 4已取消 5待支付
       let status = this.orderItem.status.value;
       if (status == "0") return "待确认";
       if (status == "1") return "已预约";
       if (status == "2") return "已完成";
       if (status == "3") return "已过期";
       if (status == "4") return "已取消";
-      if (status == "5") return "未付款";
+      if (status == "5") return "待付款";
       return "";
     },
 

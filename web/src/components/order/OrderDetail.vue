@@ -38,10 +38,21 @@
         <a class="btn btn_background" href="javascript:void(0);" v-if="statusName == '已受理' || statusName == '问诊中'" @click="getImhelper">私信</a>
       </div>
       <!-- 底部查看评价 -->
-      <mt-popup v-model="popupVisible" position="bottom">
+      <mt-popup v-model="popupVisible" position="bottom" style="width:100%">
         <div class="evaluation_box">
           <p>我的评价</p>
-          <el-rate v-model="rateScore" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          <div class="flex_box">
+            <div class="evaluation_title">服务态度</div>
+            <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">医生专业</div>
+            <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">回复时效</div>
+            <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
           <div class="evaluation_text">{{evaInfo.comment}}</div>
         </div>
       </mt-popup>
@@ -59,7 +70,9 @@ export default {
       userId: this.$route.query.userId,
       orderDetail: [], //订单详情
       popupVisible: false,
-      rateScore: 5,
+      rateScore1: 5,
+      rateScore2: 5,
+      rateScore3: 5,
       evaInfo: {},
       helperId: '',
       groupId: ''
@@ -302,7 +315,16 @@ export default {
         .then(data => {
           if(data){
             this.evaInfo = data.evaObj;
-            this.rateScore = data.evaObj.score ? parseInt(data.evaObj.score.value) : 5;
+            let evaDetList = data.evaObj.evaDetList
+            for(let i = 0; i < evaDetList.length; i++){
+              if(evaDetList[i].evaTypeName == '服务态度'){
+                this.rateScore1 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '医生专业'){
+                this.rateScore2 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '回复时效'){
+                this.rateScore3 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }
+            }
             this.popupVisible = true;
           }else{
             this.$toast('暂无评价');
@@ -341,6 +363,11 @@ export default {
 };
 </script>
 
+<style>
+  .el-rate__icon{
+    font-size: 22px;
+  }
+</style>
 <style scoped>
 .orderStatusTxt {
   color: #fff;
@@ -374,7 +401,7 @@ export default {
 .evaluation_box p {
   color: #040b1c;
   font-size: 14px;
-  margin-bottom: 16px;
+  margin: 16px;
 }
 .evaluation_text {
   margin-top: 20px;
@@ -382,6 +409,17 @@ export default {
   border-top: 1px solid #e6e6e6;
   font-size: 15px;
   color: #040b1c;
+}
+.flex_box{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom:16px;
+}
+.evaluation_title{
+  font-size: 14px;
+  color: #040B1C;
+  margin-right:10px;
 }
 .main {
   padding: 10px 10px 51px 10px;
@@ -533,16 +571,6 @@ export default {
   border-radius: 13px;
   font-size: 13px;
   text-align: center;
-}
-.pay_btn {
-  background: #0093ff;
-  color: #fff;
-  border: 1px solid transparent;
-}
-.cancel_btn {
-  border: 1px solid #b3b3b3;
-  color: #666;
-  background: #fff;
 }
 .btn_border {
   border: 1px solid #0093ff;

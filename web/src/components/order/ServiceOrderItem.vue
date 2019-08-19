@@ -15,8 +15,10 @@
     <div class="flex-b" style="height:56px">
       <div class="total">订单金额：<span>¥{{orderItem.price}}</span></div>
       <div class="btn_box">
-        <a href="javascript:void(0);" class="btn_border" v-if="isShowCancel" @click.stop="cancelOrder">取消订单</a>
-        <a href="javascript:void(0);" v-if="isShowPay" class="btn_background" @click.stop="goPay">去支付</a>
+        <a href="javascript:void(0);" class="btn_border" v-if="statusName == '待付款'" @click.stop="cancelOrder">取消订单</a>
+        <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn_background" @click.stop="goPay">去支付</a>
+        <a class="btn btn_border" v-if="statusName == '已完成' && status == '4'" href="javascript:void(0);"  @click="goEvaluation">发布评价</a>
+        <a class="btn btn_border" v-if="statusName == '已完成' && status == '5'" href="javascript:void(0);"  @click="goEvaluationQuery">查看评价</a>
         <!-- <a href="javascript:void(0);" class="btn_background" v-if="isShowContact" @click.stop="contact">联系医生</a> -->
       </div>
     </div>
@@ -24,138 +26,179 @@
 </template>
 
 <script>
-  import imgMap from '../../../static/js/imgmap.js';
-  import * as types from '../../constant/ConstantConfig.js';
-    export default {
-      props: ['orderItem'],
-      computed: {
-        servImgUrl() {
-          if (this.orderItem.servImgUrl) return this.orderItem.servImgUrl;
-          if (this.orderItem.servType.value == types.PACK_PERSON) {
-            return imgMap.packPerson;
-          } else if (this.orderItem.servType.value == types.PACK_TEAM) {
-            return imgMap.packTeam;
-          }
-          return imgMap.packDept;
-        },
-
-        statusName() {
-          let status = this.orderItem.status.value;
-          let isEnd = this.orderItem.isEnd.value;
-          if(status == types.ORDER_COMPLETE_UNCOMMENT || status == types.ORDER_COMPLETE_COMMENT) {
-            return "已完成";
-          }
-          if(isEnd == "0") {
-            if (status == types.ORDER_UNPAID) return "未付款";
-            if (status == types.ORDER_UNCONFIRM) return "待确认";
-            if (status == types.ORDER_ADVICING) return "服务中";
-          } else {
-            return "已取消";
-          }
-        },
-
-        isShowPay() {
-          let status = this.orderItem.status.value;
-          let isEnd = this.orderItem.isEnd.value;
-          if(isEnd == "0" && status == types.ORDER_UNPAID) return true;
-          return false;
-        },
-
-        isShowCancel() {
-          let status = this.orderItem.status.value;
-          let isEnd = this.orderItem.isEnd.value;
-          if(isEnd == "0" && status == types.ORDER_UNCONFIRM) return true;
-          return false;
-        },
-
-        isShowContact() {
-          let status = this.orderItem.status.value;
-          let isEnd = this.orderItem.isEnd.value;
-          if(isEnd == "0" && status == types.ORDER_ADVICING) return true;
-          return false;
-        },
-
-        deptName() {
-          if (this.orderItem.department && this.orderItem.department.value == types.COUNTRY_ALL_DEPART) {  //乡村全科
-            if (this.orderItem.deptDesp) {
-              return this.orderItem.deptDesp;
-            } else {
-              if (this.orderItem.departmentName) {
-                return this.orderItem.departmentName;
-              }
-            }
-          } else {
-            if (this.orderItem.departmentName) {
-              return this.orderItem.departmentName;
-            }
-          }
-          return '';
-        },
-        serverUser() {
-          let doctor = this.orderItem.acceptUserObj;
-          if(doctor) {
-            let strDoctor = doctor.userName;
-            if (doctor.department && doctor.department.value == types.COUNTRY_ALL_DEPART) {  //乡村全科
-              if (doctor.deptDesp) {
-                strDoctor += doctor.deptDesp;
-              } else {
-                if (doctor.departmentName) {
-                  strDoctor += doctor.departmentName;
-                }
-              }
-            } else {
-              if (doctor.departmentName) {
-                strDoctor += doctor.departmentName;
-              }
-            }
-            if(doctor.titlesName) {
-              strDoctor += doctor.titlesName;
-            }
-            return strDoctor;
-          }
-       }
-      },
-
-      methods: {
-        //服务包详情
-        goDetail() {
-          this.$router.push({
-            path: "serviceOrderDetail",
-            query:{
-              orderId: this.orderItem.orderId.value,
-            }
-          })
-        },
-        //去支付
-        goPay() {
-          this.$router.push({
-            path: "serviceSubmitPay",
-            query:{
-              busiId: this.orderItem.orderId.value,
-              price: this.orderItem.price,
-              orgId: this.orderItem.orgId.value
-            }
-          })
-        },
-
-        //取消订单
-        cancelOrder() {
-          let request = {orderId: this.orderItem.orderId.value, status: -1};
-          this.$emit("cancelOrder", request);
-        },
-        //联系医生
-        contact() {
-          let doctor = this.orderItem.acceptUserObj;
-          if(!doctor) return;
-          this.$router.push({
-            path: "chat",
-            query: {docId: doctor.userId.value, drName: doctor.userName, friendHeadUrl: doctor.photoUrl, gender: doctor.gender.value}
-          })
-        }
-
+import imgMap from "../../../static/js/imgmap.js";
+import * as types from "../../constant/ConstantConfig.js";
+export default {
+  data() {
+    return {
+      status: null
+    };
+  },
+  props: ["orderItem"],
+  computed: {
+    servImgUrl() {
+      if (this.orderItem.servImgUrl) return this.orderItem.servImgUrl;
+      if (this.orderItem.servType.value == types.PACK_PERSON) {
+        return imgMap.packPerson;
+      } else if (this.orderItem.servType.value == types.PACK_TEAM) {
+        return imgMap.packTeam;
       }
+      return imgMap.packDept;
+    },
 
+    statusName() {
+      let status = this.orderItem.status.value;
+      let isEnd = this.orderItem.isEnd.value;
+      this.status = status;
+      if (status == "4" || status == "5") {
+        return "已完成";
+      }
+      if (isEnd == "0") {
+        if (status == "1") return "待付款";
+        if (status == "2") return "待确认";
+        if (status == "3") return "服务中";
+      } else {
+        return "已取消";
+      }
+    },
+
+    isShowPay() {
+      let status = this.orderItem.status.value;
+      let isEnd = this.orderItem.isEnd.value;
+      if (isEnd == "0" && status == types.ORDER_UNPAID) return true;
+      return false;
+    },
+
+    isShowCancel() {
+      let status = this.orderItem.status.value;
+      let isEnd = this.orderItem.isEnd.value;
+      if (isEnd == "0" && status == types.ORDER_UNCONFIRM) return true;
+      return false;
+    },
+
+    isShowContact() {
+      let status = this.orderItem.status.value;
+      let isEnd = this.orderItem.isEnd.value;
+      if (isEnd == "0" && status == types.ORDER_ADVICING) return true;
+      return false;
+    },
+
+    deptName() {
+      if (
+        this.orderItem.department &&
+        this.orderItem.department.value == types.COUNTRY_ALL_DEPART
+      ) {
+        //乡村全科
+        if (this.orderItem.deptDesp) {
+          return this.orderItem.deptDesp;
+        } else {
+          if (this.orderItem.departmentName) {
+            return this.orderItem.departmentName;
+          }
+        }
+      } else {
+        if (this.orderItem.departmentName) {
+          return this.orderItem.departmentName;
+        }
+      }
+      return "";
+    },
+    serverUser() {
+      let doctor = this.orderItem.acceptUserObj;
+      if (doctor) {
+        let strDoctor = doctor.userName;
+        if (
+          doctor.department &&
+          doctor.department.value == types.COUNTRY_ALL_DEPART
+        ) {
+          //乡村全科
+          if (doctor.deptDesp) {
+            strDoctor += doctor.deptDesp;
+          } else {
+            if (doctor.departmentName) {
+              strDoctor += doctor.departmentName;
+            }
+          }
+        } else {
+          if (doctor.departmentName) {
+            strDoctor += doctor.departmentName;
+          }
+        }
+        if (doctor.titlesName) {
+          strDoctor += doctor.titlesName;
+        }
+        return strDoctor;
+      }
     }
+  },
+
+  methods: {
+    //评价
+    goEvaluation() {
+      let doctorDetail = {
+        photoUrl: this.orderItem.acceptUserObj.photoUrl,
+        name: this.orderItem.acceptUserObj.userName,
+        desp:
+          this.orderItem.acceptUserObj.departmentName +
+          this.orderItem.acceptUserObj.titlesName
+      };
+      this.$router.push({
+        path: "evaluationOrder",
+        query: {
+          servId: this.orderItem.servId.value, //业务编号
+          orgId: this.orderItem.orgId.value, //机构
+          docId: this.orderItem.acceptUserObj.userId.value, //被评价人
+          doctorDetail: JSON.stringify(doctorDetail)
+        }
+      });
+    },
+    //查看评价
+    goEvaluationQuery() {
+      this.$emit("child", this.orderItem.evaId.value);
+    },
+    //服务包详情
+    goDetail() {
+      this.$router.push({
+        path: "serviceOrderDetail",
+        query: {
+          orderId: this.orderItem.orderId.value
+        }
+      });
+    },
+    //去支付
+    goPay() {
+      this.$router.push({
+        path: "serviceSubmitPay",
+        query: {
+          servId: this.orderItem.servId.value,
+          busiId: this.orderItem.orderId.value,
+          price: this.orderItem.price,
+          orgId: this.orderItem.orgId.value
+        }
+      });
+    },
+
+    //取消订单
+    cancelOrder() {
+      let request = { orderId: this.orderItem.orderId.value, status: -1 };
+      this.$emit("cancelOrder", request);
+    },
+    //联系医生
+    contact() {
+      let doctor = this.orderItem.acceptUserObj;
+      if (!doctor) return;
+      this.$router.push({
+        path: "chat",
+        query: {
+          docId: doctor.userId.value,
+          drName: doctor.userName,
+          friendHeadUrl: doctor.photoUrl,
+          gender: doctor.gender.value
+        }
+      });
+    }
+  }
+};
 </script>
 
 <style scoped>

@@ -27,14 +27,30 @@
           <p>订单总价：<span class="detail_txt">¥{{getPrice}}</span></p>
         </div>
       </div>
-      <!-- <div class="btn_box">
-        <a class="btn btn_border" href="javascript:void(0);" v-if="statusName == '待支付'" @click="cancelOrder">取消订单</a>
-        <a class="btn btn_background" href="javascript:void(0);" v-if="statusName == '待支付'" @click="goPay">去支付</a>
-        <a class="btn btn_border" href="javascript:void(0);" v-if="statusName == '已完成' && status" @click="goEvaluation">发布评价</a>
-        <a class="btn btn_border" href="javascript:void(0);" v-if="statusName == '已完成' && !status" @click="goEvaluationQuery">查看评价</a>
-        <a class="btn btn_background" href="javascript:void(0);" v-if="statusName == '已受理' || statusName == '问诊中'" @click="getImhelper">私信</a>
-      </div> -->
-
+      <div class="btn_box">
+        <!-- <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn btn_border" @click.stop="cancelOrder">取消订单</a> -->
+        <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn btn_background" @click.stop="goPay">去支付</a>
+        <a href="javascript:void(0);" v-if="statusName == '已完成'" class="btn btn_background" @click.stop="documentDetail">诊疗详情</a>
+      </div>
+      <!-- 底部查看评价 -->
+      <mt-popup v-model="popupVisible" position="bottom">
+        <div class="evaluation_box">
+          <p>我的评价</p>
+          <div class="flex_box">
+            <div class="evaluation_title">服务态度</div>
+            <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">医生专业</div>
+            <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">回复时效</div>
+            <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="evaluation_text">{{evaInfo.comment}}</div>
+        </div>
+      </mt-popup>
     </div>
 </template>
 
@@ -46,6 +62,11 @@ export default {
   data() {
     return {
       appointItem: [],
+      evaInfo: {},
+      popupVisible: false,
+      rateScore1: 5,
+      rateScore2: 5,
+      rateScore3: 5,
       orderId: this.$route.query.orderId
     };
   },
@@ -112,12 +133,51 @@ export default {
       if (status == "2") return "已完成";
       if (status == "3") return "已过期";
       if (status == "4") return "已取消";
-      if (status == "5") return "未付款";
+      if (status == "5") return "待付款";
       return "";
     }
   },
 
   methods: {
+    //跳转诊疗详情
+    documentDetail() {
+      this.$router.push({
+        path: "documentDetail",
+        query: { orderId: this.appointItem.orderid.value }
+      });
+    },
+    //去支付
+    goPay() {
+      const item = this.createItem();
+      sessionStorage.setItem("appointItem", JSON.stringify(item));
+      this.$router.push({
+        path: "appointSubmit",
+        query: { orderId: item.orderId }
+      });
+    },
+    //取消订单
+    cancelOrder() {
+      let vm = this;
+      this.$indicator.open();
+      let request = { orderId: this.appointItem.orderid.value, opType: 1 };
+      this.$store
+        .dispatch("docorderstepop", request)
+        .then(data => {
+          if(data.rtnCode == 1){
+            this.$toast("取消成功");
+            this.getOrderDetail();
+          }else{
+            this.$toast("取消失败");
+          }
+
+        })
+        .catch(e => {
+          this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
+        });
+    },
     //医生主页
     goDocDetail() {
       this.$router.push({
@@ -127,32 +187,70 @@ export default {
         }
       });
     },
+    createItem() {
+      let item = {
+        subscribeMa: this.appointItem.subscribe_am,
+        date: this.appointItem.subscribe_day,
+        price: this.appointItem.price,
+        workTime: this.appointItem.subscribe_work_time
+      };
+      item.hospital = this.appointItem.hospital;
+      item.userName = this.appointItem.docName;
+      item.titlesName = this.appointItem.titlesName;
+      item.department = this.appointItem.department;
+      item.departmentName = this.appointItem.departmentName;
+      item.deptDesp = this.appointItem.deptDesp;
+      item.docid = this.appointItem.docid;
+      item.orgId = this.appointItem.orgId;
+      item.orderId = this.appointItem.orderid.value;
+      item.subscribeName = this.appointItem.subscribeName;
+      item.phone = this.appointItem.phone;
+      item.status = this.appointItem.status.value;
+      item.timeCreate = this.appointItem.timeCreate;
+      return item;
+    },
+    goPay() {
+      const item = this.createItem();
+      sessionStorage.setItem("appointItem", JSON.stringify(item));
+      this.$router.push({
+        path: "appointSubmit",
+        query: { orderId: item.orderId }
+      });
+    },
+    getOrderDetail() {
+      let vm = this;
+      if (this.orderId) {
+        this.$indicator.open();
+        let request = { orderId: this.orderId };
+        this.$store
+          .dispatch("userOderInfo", request)
+          .then(data => {
+            if(data){
+              vm.appointItem = data;
+            }
+
+          })
+          .catch(error => {
+            this.$toast(error.message);
+          })
+          .finally(() => {
+            this.$indicator.close();
+          });
+      }
+    }
   },
 
   created() {
-    let vm = this;
-    if (this.orderId) {
-      this.$indicator.open();
-      let request = { orderId: this.orderId };
-      this.$store
-        .dispatch("userOderInfo", request)
-        .then(data => {
-          if(data){
-            vm.appointItem = data;
-          }
-
-        })
-        .catch(error => {
-          this.$toast(error.message);
-        })
-        .finally(() => {
-          this.$indicator.close();
-        });
-    }
+    this.getOrderDetail();
   }
 };
 </script>
 
+<style>
+  .el-rate__icon{
+    font-size: 22px;
+  }
+</style>
 <style scoped>
 .orderStatusTxt {
   color: #fff;
@@ -349,16 +447,6 @@ export default {
   font-size: 13px;
   text-align: center;
 }
-.pay_btn {
-  background: #0093ff;
-  color: #fff;
-  border: 1px solid transparent;
-}
-.cancel_btn {
-  border: 1px solid #b3b3b3;
-  color: #666;
-  background: #fff;
-}
 .btn_border {
   border: 1px solid #0093ff;
   color: #0093ff;
@@ -368,5 +456,31 @@ export default {
   background: #0093ff;
   color: #fff;
   border: 1px solid transparent;
+}
+.evaluation_box{
+  text-align: center
+}
+.evaluation_box p{
+  color: #040B1C;
+  font-size: 14px;
+  margin: 16px;
+}
+.evaluation_text{
+  margin-top: 20px;
+  padding: 15px 0;
+  border-top:1px solid #E6E6E6;
+  font-size: 15px;
+  color: #040B1C;
+}
+.flex_box{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom:16px;
+}
+.evaluation_title{
+  font-size: 14px;
+  color: #040B1C;
+  margin-right:10px;
 }
 </style>
