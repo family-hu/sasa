@@ -1,11 +1,14 @@
 <template>
   <div>
-    <ul v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
+    <div v-if="orderList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="50" infinite-scroll-immediate-check="false">
       <order-item v-for="item in orderList" :key="item.servId.value" :orderItem="item" @cancelOrder="cancelOrder" @click.native="toDetail(item)" ></order-item>
-    </ul>
-    <div class="empty" v-if="orderList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无问诊订单</div>
+      <!-- 没有更多提示 -->
+      <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
+    </div>
+    <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>您还没有问诊订单呢</div>
+        <a href="javascript:void(0);" @click="goDoctorMore">去问诊</a>
     </div>
   </div>
 </template>
@@ -13,6 +16,7 @@
 <script>
 import { mapGetters } from "vuex";
 import OrderItem from "./OrderItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import * as types from "../../constant/ConstantConfig.js";
 import imgMap from '../../../static/js/imgmap.js';
 export default {
@@ -21,13 +25,15 @@ export default {
       orderList: [],
       orgId: this.$route.query.orgId,
       loading: false,
+      empty: false,
       page: 1,
       loaded: false //是否加载完成
     };
   },
 
   components: {
-    orderItem: OrderItem
+    orderItem: OrderItem,
+    bottomloadMore : BottomloadMore
   },
 
   computed: {
@@ -38,13 +44,17 @@ export default {
   },
 
   methods: {
+    //医生列表
+    goDoctorMore() {
+       this.$router.push({path: "doctorOneList", query:{orgId: this.orgId}});
+    },
     toDetail(orderDetail) {
       // let json = JSON.stringify(orderDetail);
       // sessionStorage.setItem("orderDetail", json);
       this.$router.push({
         path: "orderDetail",
         query:{
-          orderId: orderDetail.servId,
+          orderId: orderDetail.servId.value,
           userId: this.loginData.userObj.userId.value
         }
       });
@@ -57,6 +67,7 @@ export default {
     },
 
     requestOrderList() {
+      this.$indicator.open();
       this.loading = true;
       let userId = this.loginData.userObj.userId.value;
       let request = {
@@ -72,13 +83,14 @@ export default {
         .dispatch("orderList", request)
         .then(orderList => {
           vm.page++;
-          if (orderList) {
+          if (orderList.length > 0) {
             for (let i = 0; i < orderList.length; i++) {
               vm.orderList.push(orderList[i]);
             }
             vm.loaded = orderList.length != 10;
           } else {
             vm.loaded = true;
+            vm.empty = true;
           }
           vm.loading = false;
         })
@@ -86,6 +98,9 @@ export default {
           vm.loading = false;
           vm.loaded = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     cancelOrder(request) {
@@ -128,9 +143,5 @@ li {
   padding: 0;
   list-style: none;
   margin: 0;
-}
-.empty {
-  padding: 50px 40px;
-  text-align: center;
 }
 </style>

@@ -1,17 +1,20 @@
 <template>
     <div>
-      <ul v-if="topicList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+      <div v-if="topicList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <topic-item v-for="(item,index) in topicList" :key="index"  :topicItem="item" :group="group" @click.native="toDetail(index,item)" ></topic-item>
-      </ul>
-      <div class="empty"  v-if="topicList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无话题</div>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && topicList.length > 2"></bottomloadMore>
+      </div>
+      <div class="empty"  v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无话题</div>
       </div>
     </div>
 </template>
 <script>
   import { mapGetters } from "vuex";
   import TopicItem from './TopicItem.vue';
+  import BottomloadMore from "../../customComponents/BottomloadMore.vue";
   import imgMap from '../../../static/js/imgmap.js';
     export default {
       data() {
@@ -22,6 +25,7 @@
           group: true,
           loading: false,
           page: 1,
+          empty: false,
           loaded: false,   //是否加载完成
         }
       },
@@ -37,7 +41,8 @@
       },
 
       components: {
-        topicItem: TopicItem
+        topicItem: TopicItem,
+        bottomloadMore : BottomloadMore
       },
 
       methods:{
@@ -62,6 +67,7 @@
         },
         //话题列表
         requestTopicList() {
+          this.$indicator.open();
           this.loading = true;
           let request = {
             userid: this.loginData.userObj.userId.value,
@@ -73,12 +79,14 @@
           this.$store
             .dispatch("bbssubjectlist", request)
             .then(data => {
-              if(data){
+              if(data.data.length > 0){
                 for(let i = 0; i < data.data.length; i++){
                   vm.topicList.push(data.data[i]);
                 }
                 vm.loaded = vm.topicList.length == data.total;
                 vm.loading = false;
+              }else{
+                this.empty = true;
               }
 
             })
@@ -86,6 +94,9 @@
               vm.loading = false;
               vm.loaded = true;
               vm.$toast(error.message);
+            })
+            .finally(() => {
+              this.$indicator.close();
             });
         }
 
@@ -103,6 +114,9 @@
 </script>
 
 <style scoped>
+  .empty{
+    top:228px;
+  }
   ul,li{ padding:0;list-style:none; margin: 0}
 
   .org{
@@ -124,9 +138,5 @@
     overflow: hidden;
     position: absolute;
     top: 60px;
-  }
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
   }
 </style>

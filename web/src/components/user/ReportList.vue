@@ -4,8 +4,8 @@
       <report-item v-for="(item,index) in reportList" :key="index" :reportItem="item"  @click.native="goDetail(item)"></report-item>
     </ul>
     <div class="empty" v-if="reportList.length == 0">
-      <img :src="consultationEmpty" width="144px" height="136px">
-      <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无相关记录</div>
+      <img :src="consultationEmpty">
+      <div>暂无相关记录</div>
     </div>
   </div>
 </template>
@@ -70,8 +70,4 @@
 
 <style scoped>
   ul,li{ padding:0;list-style:none; margin: 0;}
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
-  }
 </style>

@@ -356,7 +356,7 @@ export default {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
           title: data.userName +'  '+ data.departmentName, // 分享标题
-          desc: data.despSkill ? data.despSkill : '好友给你推荐了一位名医', // 分享描述
+          desc: '好友' + this.loginData.userObj.userName + "给你推荐了" + this.doctorDetail.orgNames + '的一位名医', // 分享描述
           link: shareUrl, // 分享链接
           imgUrl: data.photoUrl ? data.photoUrl : 'http://yun.sinoylb.com/static/img/share@2x.png', // 分享图标 医生头像
       }

@@ -3,9 +3,9 @@
         <div v-if="orgMsgList.length > 0">
           <org-msg-item v-for="(message,index) in orgMsgList" :key="index" :index="index" :orgMsgList="message" @click.native="toDetail(message)"></org-msg-item>
         </div>
-        <div class="empty" v-if="orgMsgList.length == 0">
-          <img :src="consultationEmpty" width="144px" height="136px">
-          <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无消息记录</div>
+        <div class="empty" v-if="empty">
+          <img :src="consultationEmpty">
+          <div>暂无消息记录</div>
         </div>
     </div>
 </template>
@@ -19,6 +19,7 @@ export default {
     return {
       orgMsgList: [],
       orgId: this.$route.query.orgId,
+      empty: false
     };
   },
 
@@ -46,6 +47,7 @@ export default {
       });
     },
     requestMsgList() {
+      this.$indicator.open();
       let vm = this;
       const request = {
         orgId: this.orgId,
@@ -54,14 +56,19 @@ export default {
       this.$store
         .dispatch("sysOrgModeList", request)
         .then(data => {
-          if (data.mesList) {
+          if (data.mesList.length > 0) {
             for (let i = 0; i < data.mesList.length; i++) {
               vm.orgMsgList.push(data.mesList[i]);
             }
+          }else{
+            this.empty = true;
           }
         })
         .catch(error => {
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     }
   },
@@ -73,9 +80,8 @@ export default {
 </script>
 
 <style scoped>
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
+  .page-wrap{
+    overflow: auto
   }
 </style>
 

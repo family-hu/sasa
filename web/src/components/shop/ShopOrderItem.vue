@@ -1,31 +1,26 @@
 <template>
-    <div>
-      <div v-if="orderList">
-          <div class="main">
-            <div class="flex-b title">
-              <div class="order_num">订单编号：{{orderList.orderId.value}}</div>
-              <div class="state" v-if="orderList.orderStatusTxt">{{orderList.orderStatusTxt}}</div>
-            </div>
-            <div class="box" @click="goOrderDetail" >
-              <img :src="orderList.picUrl" alt="">
-              <div class="text">
-                <p style="margin-bottom:5px">{{orderList.prodName}}</p>
-                <p>¥{{orderList.moneyPay.value}}</p>
-              </div>
-            </div>
-            <div class="flex-b" style="padding:5px 0">
-              <div class="total">总计：<span>¥{{orderList.moneyPay.value}}</span></div>
-              <div class="btn_box">
-                <a class="btn_border" href="javascript:void(0);" @click="goTel" v-if="orderList.orderStatus == '1'">电话预约</a>
-                <a class="btn_background" href="javascript:void(0);" @click="goServiceVoucher" v-if="orderList.orderStatus == '1'">查看券</a>
-                <a class="btn_border" href="javascript:void(0);" @click="goShopAddComments" v-if="orderList.orderStatus == '11'">评价</a>
-                <a class="btn_background" href="javascript:void(0);" @click="goShopReport" v-if="orderList.orderStatus == '11'">查看报告</a>
-              </div>
-            </div>
-          </div>
-      </div>
-
+  <div class="main">
+    <div class="flex-b title">
+      <div class="order_num">订单编号：{{orderList.orderId.value}}</div>
+      <div class="state" v-if="orderList.orderStatusTxt">{{orderList.orderStatusTxt}}</div>
     </div>
+    <div class="box" @click="goOrderDetail" >
+      <img :src="orderList.picUrl" alt="">
+      <div class="text">
+        <p style="margin-bottom:5px">{{orderList.prodName}}</p>
+        <p>¥{{orderList.moneyPay.value}}</p>
+      </div>
+    </div>
+    <div class="flex-b" style="padding:5px 0">
+      <div class="total">总计：<span>¥{{orderList.moneyPay.value}}</span></div>
+      <div class="btn_box">
+        <a class="btn_border" href="javascript:void(0);" @click="goTel" v-if="orderList.orderStatus == '1'">电话预约</a>
+        <a class="btn_background" href="javascript:void(0);" @click="goServiceVoucher" v-if="orderList.orderStatus == '1'">查看券</a>
+        <a class="btn_border" href="javascript:void(0);" @click="goShopAddComments" v-if="orderList.orderStatus == '11'">评价</a>
+        <a class="btn_background" href="javascript:void(0);" @click="goShopReport" v-if="orderList.orderStatus == '11'">查看报告</a>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -33,26 +28,29 @@ import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
 export default {
   data() {
-    return {
-    };
+    return {};
   },
   props: {
-    orderList:{}
+    orderList: {}
   },
   components: {},
 
-  computed: {
-
-  },
+  computed: {},
 
   mounted() {},
 
   methods: {
     goTel() {
-      this.$toast('电话预约，敬请期待～');
+      this.$toast("电话预约，敬请期待～");
     },
+    //查看报告
     goShopReport() {
-      this.$toast('查看报告，敬请期待～');
+      this.$router.push({
+        path: "shopPackageReport",
+        query: {
+          reportImg: this.orderList.consumeList[0].serviceInfo
+        }
+      });
     },
     //查看卷
     goServiceVoucher() {
@@ -81,12 +79,10 @@ export default {
           orderId: this.orderList.orderId.value
         }
       });
-    },
+    }
   },
 
-  created() {
-
-  }
+  created() {}
 };
 </script>
 

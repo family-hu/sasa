@@ -28,7 +28,7 @@
             <!-- <del class="old" v-if="crossLinePrice != '0' || crossLinePrice != '0.00'">门市价:¥{{crossLinePrice}}</del> -->
           </div>
           <!-- <div class="point">{{shopScore}}分</div> -->
-          <div v-if="!browse">
+          <div v-if="!browse" style="height: 26px;">
             <div v-if="moneyComm > 0" class="share_tip" @click="shareGet"><img src="../../../static/img/price.png" alt="">分享赚¥{{moneyComm}}</div>
             <div v-else class="share_tip" @click="shareGet"><img src="../../../static/img/price.png" alt="">分享</div>
           </div>
@@ -45,12 +45,13 @@
         </div>
       </div>
       <div class="detail_addres">
-        <h3>{{companyList.name}}</h3>
-        <a :href="'tel:'+companyList.phone" class="right_img"><img src="../../../static/img/shop_tel_big.png" alt=""></a>
-        <div class="tel"><img src="../../../static/img/shop_time.png" alt="">营业时间：{{companyList.workingHours}}</div>
+        <div class="flex-b" style="margin-bottom:8px;">
+          <h3>{{companyList.name}}</h3>
+          <a :href="'tel:'+companyList.phone" class="right_img"><img src="../../../static/img/shop_tel_big.png" alt=""></a>
+        </div>
+        <div class="tel">营业时间：{{companyList.workingHours}}</div>
         <div class="tel addres">
-          <img src="../../../static/img/shop_position.png" alt="">
-          <div>{{companyList.detailsAddr}}</div>
+          <div>地址：{{companyList.detailsAddr}}</div>
           <!-- <div>{{companyList.detailsAddr}}<br/><span class="distance">距您1.00km</span></div> -->
         </div>
       </div>
@@ -110,8 +111,11 @@
             <div class="physical" v-html="shopList.precautions">{{shopList.precautions}}</div>
             <!-- <img class="physical" src="/static/img/physical@2x.png" alt=""> -->
           </div>
-          </div>
         </div>
+        <!-- 没有更多提示 -->
+        <bottomloadMore></bottomloadMore>
+      </div>
+
       <div class="btn_box" v-if="!browse">
         <a href="tel:13723261797" class="service"><img src="../../../static/img/shop_service.png" alt=""><P>客服</P></a>
         <a class="appointment" @click="appointment" href="javascript:void(0);">立即预约</a>
@@ -135,6 +139,7 @@ import { mapGetters } from "vuex";
 import { MessageBox } from "mint-ui";
 import imgMap from "../../../static/js/imgmap.js";
 import ShopItemDetail from "../shop/ShopItemDetail.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import * as types from "../../constant/ConstantConfig.js";
 import { faces } from "../../../static/js/face.js";
 export default {
@@ -174,11 +179,12 @@ export default {
       jvUserId: null,
       ifRegist: null,
       browse: this.$route.query.browse, //预览
-      commentListLen:'0'
+      commentListLen: "0"
     };
   },
   components: {
-    shopItemDetail: ShopItemDetail
+    shopItemDetail: ShopItemDetail,
+    bottomloadMore : BottomloadMore
   },
 
   computed: {
@@ -189,10 +195,10 @@ export default {
       }
     },
     userImg() {
-      return imgMap.defaultAva
+      return imgMap.defaultAva;
     },
     goodsRate() {
-      return 100
+      return 100;
       // if(this.commentList.length > 0){
       //   let len = this.commentList.length;
       //   let score = 0;
@@ -207,17 +213,17 @@ export default {
   },
 
   mounted() {
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener("scroll", this.handleScroll);
 
-    if(this.browse == 'true'){ //预览
-      return false
-    }else{
+    if (this.browse == "true") {
+      //预览
+      return false;
+    } else {
       //调用分享
       setTimeout(() => {
         this.wxShareCallback(this.shopList);
       }, 1000);
     }
-
   },
   //加载前获取当前URL，解决iOS重定向路由
   beforeRouteEnter(to, from, next) {
@@ -270,7 +276,7 @@ export default {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
         title: data.name, // 分享标题
-        desc: data.highLight ? data.highLight : "好友给你推荐了" + data.name, // 分享描述
+        desc: '好友' + this.loginData.userObj.userName + "给你推荐了" + this.orgNames + '的医疗服务' + data.name, // 分享描述
         link: shareUrl, // 分享链接
         imgUrl: data.imagePath
           ? data.imagePath
@@ -430,9 +436,12 @@ export default {
         });
     },
     // 监听滚动事件
-    handleScroll () {
-      let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-      let offsetTop = document.querySelector('#fixedBar').offsetTop;
+    handleScroll() {
+      let scrollTop =
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop;
+      let offsetTop = document.querySelector("#fixedBar").offsetTop;
       if (scrollTop > offsetTop) {
         this.barFixed = true;
         this.showBar = false;
@@ -580,9 +589,10 @@ export default {
     this.getServiceCompany();
     this.getPackagesProductList();
     this.getCommentList();
-    if(this.browse == 'true'){ //预览
+    if (this.browse == "true") {
+      //预览
       return false;
-    }else{
+    } else {
       if (!this.loginData.tid) {
         this.myUtils.wxLogin();
       } else {
@@ -595,7 +605,6 @@ export default {
         this.getJvFinProdSalesInfo();
       }
     }
-
   },
 
   destroyed() {
@@ -606,13 +615,13 @@ export default {
 
 
 <style>
-.image[lazy=loading] {
+.image[lazy="loading"] {
   width: 40px;
   height: 281px;
   margin: 0 auto;
-  color: #ccc
+  color: #333;
 }
-.head_bar{
+.head_bar {
   width: 100%;
   height: 43px;
   border-bottom: 1px solid #eee;
@@ -622,12 +631,12 @@ export default {
   top: 0;
   z-index: 600;
 }
-.head_bar img{
+.head_bar img {
   width: 20px;
   height: 20px;
   margin-right: 5px;
 }
-.head_bar span{
+.head_bar span {
   max-width: 150px;
   word-break: break-all;
   text-overflow: ellipsis;
@@ -636,7 +645,7 @@ export default {
   -webkit-line-clamp: 1;
   overflow: hidden;
 }
-.flex_box{
+.flex_box {
   display: flex;
   align-items: center;
 }
@@ -650,7 +659,7 @@ export default {
 }
 .mint-msgbox-title::after {
   content: "";
-  background: #0093ff;
+  background: #0076ff;
   position: absolute;
   bottom: -10px;
   left: 20px;
@@ -669,10 +678,10 @@ export default {
 }
 </style>
 <style scoped>
-.barFixed{
+.barFixed {
   position: fixed;
   top: 0;
-  width:100%;
+  width: 100%;
 }
 @keyframes dialog-fade-in {
   0% {
@@ -756,11 +765,12 @@ export default {
   height: 26px;
   line-height: 26px;
   text-align: center;
+  font-size: 12px;
   padding: 0 5px;
-  background: #0076ff;
+  background-color: rgba(0, 118, 255, 0.1);
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
-  color: #fff;
+  color: rgba(0, 118, 255, 1);
   position: absolute;
   right: 0;
 }
@@ -840,19 +850,19 @@ p {
   font-weight: 400;
 }
 .point {
-  color: #0093ff;
+  color: #0076ff;
   font-size: 14px;
   font-weight: 400;
 }
 .package_name {
-  color: #333;
-  font-size: 14px;
-  font-size: 400;
+  color: #040b1c;
+  font-size: 17px;
+  font-size: 500;
   margin-top: 4px;
 }
 .package_explain {
-  font-size: 12px;
-  color: #7a8093;
+  font-size: 13px;
+  color: rgba(4, 11, 28, 0.5);
   font-weight: 400;
   margin-top: 3px;
 }
@@ -864,11 +874,11 @@ p {
   min-width: 45px;
   height: 16px;
   line-height: 16px;
-  border: 1px solid #0093ff;
+  border: 1px solid #0076ff;
   border-radius: 2px;
   margin-right: 3px;
   margin-bottom: 5px;
-  color: #0093ff;
+  color: #0076ff;
   font-size: 11px;
   font-weight: 400;
   text-align: center;
@@ -883,7 +893,7 @@ p {
 .tag_box {
   flex: 1;
   padding-left: 16px;
-  color: #666666;
+  color: #040b1c;
   font-size: 12px;
 }
 .tag_box img {
@@ -900,26 +910,20 @@ p {
   margin-top: 10px;
 }
 .detail_addres h3 {
-  color: #0093ff;
-  font-size: 20px;
+  color: #040b1c;
+  font-size: 16px;
   font-weight: 500;
 }
-.right_img {
-  display: block;
-  position: absolute;
-  right: 16px;
-  top: 56px;
-}
 .right_img img {
-  width: 34px;
-  height: 34px;
+  width: 18px;
+  height: 16px;
 }
 .tel {
-  color: #000;
+  color: rgba(4, 11, 28, 0.75);
   font-size: 13px;
   font-weight: 400;
-  margin-top: 10px;
-  width: 80%;
+  margin-top: 5px;
+  width: 100%;
 }
 .tel img {
   width: 15px;
@@ -958,18 +962,18 @@ p {
   flex: 1;
   padding: 10px 0;
   font-size: 14px;
-  color: #000;
+  color: #666;
   font-weight: 500;
   text-align: center;
 }
 .tab_box li a {
-  color: #000;
+  color: #666;
 }
 .tab_box li.on {
-  border-bottom: 2px solid #0093ff;
+  border-bottom: 2px solid #0076ff;
 }
 .tab_box li.on a {
-  color: #0093ff;
+  color: #0076ff;
 }
 .package_item {
   background: #fff;
@@ -1018,18 +1022,17 @@ p {
   margin-left: 4px;
 }
 .title span {
-  border-left: 2px solid #0093ff;
-  font-size: 14px;
+  border-left: 8px solid #0076ff;
+  font-size: 16px;
   color: #000;
   font-weight: 500;
-  height: 14px;
+  height: 16px;
   padding-left: 3px;
   display: block;
   line-height: 14px;
 }
 .item_box {
   background: #fff;
-  padding-top: 16px;
 }
 .item_box h3 {
   height: 20px;
@@ -1041,35 +1044,8 @@ p {
   line-height: 20px;
   margin: 0 auto;
 }
-.item_list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid rgba(216, 216, 216, 0.6);
-}
-.item_list li:last-child {
-  border: none;
-}
-.item_list li span {
-  color: #666;
-  font-size: 13px;
-}
-.item_name {
-  font-size: 15px;
-  color: #000;
-}
-.item_detail {
-  font-size: 13px;
-  color: #666;
-  margin-top: 8px;
-}
-.shop_detail_icon img {
-  width: 18px;
-  height: 18px;
-}
 .more {
-  color: #0093ff;
+  color: #0076ff;
   font-size: 12px;
   padding: 18px 16px 0 16px;
 }
@@ -1147,12 +1123,12 @@ p {
   height: 53px;
   line-height: 53px;
   text-align: center;
-  background: #0093ff;
+  background: #0076ff;
   font-size: 16px;
   color: #fff;
   font-weight: 500;
 }
-.physical{
+.physical {
   width: 100%;
   height: auto;
 }

@@ -176,11 +176,11 @@
       <div class="dialog_box" :class=" show ? 'dialog-fade-in' : 'dialog-fade-out'">
         <p class="evaluation_title">请对本次服务进行评价</p>
         <div class="rate_box">
-          <el-rate v-model="evaluationScore" show-text text-color="#FF7A00" :colors="['#FF7A00','#FF7A00','#FF7A00']"></el-rate>
+          <el-rate v-model="evaluationScore" show-text text-color="#FF7A00" :colors="['#FF7A00','#FF7A00','#FF7A00']" :texts="['非常不满意，特别失望','不满意，有点失望','一般，还需改善','满意，仍可改善','非常满意，完美']"></el-rate>
         </div>
-        <div class="evaluation_tag">
+        <!-- <div class="evaluation_tag">
           <span v-on:click="addClass(index,$event)" v-bind:class="{ on:index==current}" v-for="(item,index) in tagList" :key="index">{{item}}</span>
-        </div>
+        </div> -->
         <div class="evaluation_btn" @click="submitEvaInfo">提交评价</div>
       </div>
     </div>
@@ -334,12 +334,20 @@ export default {
   mounted() {
     //滚动到底部
     window.addEventListener("scroll", this.scrollToBottom);
-    this.wxapi.wxShare();
   },
-  beforeDestroy() {
-    // console.log('页面变为销毁前前前');
+  //加载前获取当前URL，解决iOS重定向路由
+  beforeRouteEnter (to, from , next) {
+    console.log('beforeRouteEnter',from);
+    next( vm => {
+      if (!window.localStorage.getItem( 'isReload' )) {
+        window.localStorage.setItem( 'isReload' , window.location.href)
+        // 微信分享需要重新设置URL
+        window.location.href = window.location.href
+      }
+    })
   },
   destroyed() {
+    this.conn.close();
     // console.log('页面变为销毁');
     window.removeEventListener("scroll", this.scrollToBottom);
     //销毁定时器
@@ -348,6 +356,16 @@ export default {
     window.removeEventListener("visibilitychange", this.changeListennr);
   },
   methods: {
+    wxShareCallback(data) {
+      let shareUrl =  window.location.href.split("#")[0];
+      let dataForWeixin = {
+        title: data.userName +'  '+ data.departmentName, // 分享标题
+        desc: '好友' + this.loginData.userObj.userName + "给你推荐了" + this.doctorDetail.orgNames + '的一位名医', // 分享描述
+        link: 'http://yun.sinoylb.com/doctorDetail?userId=' + this.selToID, // 分享链接
+        imgUrl: data.photoUrl ? data.photoUrl : 'http://yun.sinoylb.com/static/img/share@2x.png', // 分享图标 医生头像
+      }
+      this.wxapi.wxShare(shareUrl, dataForWeixin);
+    },
     // 利用 _this.oRecordInfo.useWxRecord 来决定是否为假按钮 值可根据情况修改
     touchmoveDefault: function(e) {
       e.preventDefault();
@@ -828,6 +846,10 @@ export default {
             } else {
               this.docDownLine = true;
             }
+            //调用分享
+            setTimeout(() => {
+              this.wxShareCallback(vm.doctorDetail);
+            }, 1000);
           }
         })
         .catch(error => {
@@ -922,7 +944,7 @@ export default {
         userFrom: this.loginData.userObj.userId.value, //评价人
         userTo: this.selToID, //被评价人
         score: this.evaluationScore, //评分
-        comment: this.tagList[this.current] //评语
+        comment: ''//this.tagList[this.current] //评语
       };
       let vm = this;
       this.$store
@@ -1217,7 +1239,7 @@ export default {
         }, //收到位置消息
         onError: function(message) {
           console.log("监听失败回调", message);
-          // window.location.reload();
+          window.location.reload();
         }, //失败回调
         onTextMessage: function(message) {
           // 在此接收和处理消息，根据message.type区分消息来源，私聊或群组或聊天室
@@ -2156,6 +2178,7 @@ export default {
 }
 .rate_box {
   text-align: center;
+  margin-bottom: 25px;
 }
 .el-rate {
   height: auto;

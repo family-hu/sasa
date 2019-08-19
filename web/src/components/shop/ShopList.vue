@@ -2,19 +2,22 @@
     <div>
       <!-- 体检套餐list -->
       <div class="cell_box" style="padding-top:20px" v-if="serviceList.length > 0">
-        <ul v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+        <div v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
           <health-service-item v-for="(item , index) in serviceList" :key="index" :healthServiceItem="item" :orgId="orgId"></health-service-item>
-        </ul>
+        </div>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && serviceList.length > 5"></bottomloadMore>
       </div>
-      <div class="empty" v-else>
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无相关结果</div>
+      <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无相关结果</div>
       </div>
     </div>
 </template>
 
 <script>
 import HealthServiceItem from "../service/HealthServiceItem.vue";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
 export default {
@@ -25,12 +28,14 @@ export default {
       serviceList:[],
       loading: false,
       page: 1,
+      empty: false,
       loaded: false ,//是否加载完成
     };
   },
 
   components: {
     healthServiceItem: HealthServiceItem,
+    bottomloadMore : BottomloadMore
   },
 
 
@@ -54,6 +59,7 @@ export default {
 
     //健康服务--套餐列表
     getPackagesList() {
+      this.$indicator.open();
       this.loading = true;
       const request = {
         pageParam:{
@@ -65,18 +71,23 @@ export default {
       this.$store
         .dispatch("groupPackagesList", request)
         .then(data => {
-          if (data.data) {
+          if (data.data.list.length > 0) {
             for(let i = 0; i < data.data.list.length; i++){
               this.serviceList.push(data.data.list[i]);
             }
             this.loaded = (this.serviceList.length >= data.data.total.value);
             this.loading = false;
+          }else{
+            this.empty = true
           }
         })
         .catch(error => {
           this.loading = false;
           this.loaded = true;
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
 
@@ -91,10 +102,6 @@ export default {
 </script>
 
 <style scoped>
-.empty {
-  padding: 50px 40px;
-  text-align: center;
-}
 ul,
 li , h3 ,p {
   padding: 0;

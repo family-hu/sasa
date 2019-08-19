@@ -52,6 +52,7 @@ const EvaluationOrder = () => import('./components/order/EvaluationOrder.vue');
 const Mine = () => import('./components/user/Mine.vue');
 const UserDetail = () => import('./components/user/UserDetail.vue');
 const PatientReport = () => import('./components/user/PatientReport.vue');
+const CouponsList = () => import('./components/user/CouponsList.vue');
 
 //首页
 const Main = () => import('./components/Main.vue');
@@ -69,7 +70,7 @@ const FeaturesDepartment = () => import('./components/service/FeaturesDepartment
 //体检商品详情
 const HealthServiceDetail = () => import('./components/service/HealthServiceDetail.vue');
 
-//选择加项 shop
+// shop
 const AddItem = () => import('./components/shop/AddItem.vue');
 const ConfirmOrder = () => import('./components/shop/ConfirmOrder.vue');
 const MedicalManList = () => import('./components/shop/MedicalManList.vue');
@@ -83,14 +84,18 @@ const ShopOrderDetail = () => import('./components/shop/ShopOrderDetail.vue');
 const ShopPackageDetail = () => import('./components/shop/ShopPackageDetail.vue');
 const ShopCommentList = () => import('./components/shop/ShopCommentList.vue');
 const ShopList = () => import('./components/shop/ShopList.vue');
+const ShopPackageReport = () => import('./components/shop/ShopPackageReport.vue');
+
 
 //自定义组件
-const CustomPopup = () => import('./customComponents/CustomPopup.vue');
-
+// const CustomPopup = () => import('./customComponents/CustomPopup.vue');
+// const BottomloadMore = () => import('./customComponents/BottomloadMore.vue');
 
 //资讯
 const NewsList = () => import('./components/news/NewsList.vue');
 const NewsDetail = () => import('./components/news/NewsDetail.vue');
+const ShareNews = () => import('./components/news/ShareNews.vue');
+
 
 //心理咨询
 const ConsultationMain = () => import('./components/consultation/ConsultationMain.vue');
@@ -179,18 +184,20 @@ export const routes = [
     { path: "/shopPackageDetail", component: ShopPackageDetail, meta: { title: "套餐内容", keepAlive: false } },
     { path: "/shopCommentList", component: ShopCommentList, meta: { title: "用户评价", keepAlive: false } },
     { path: "/shopList", component: ShopList, meta: { title: "健康服务列表", keepAlive: false } },
+    { path: "/shopPackageReport", component: ShopPackageReport, meta: { title: "报告单", keepAlive: false } },
 
-  //底部弹出层
-  { path: "/CustomPopup", component: CustomPopup, meta: { title: "", keepAlive: false } },
+
 
   //news
     {path: "/newsList", component: NewsList, meta: {title: "资讯列表", keepAlive: false}},
-    {path: "/newsDetail", component: NewsDetail, meta: {title: "咨询详情", keepAlive: false}},
+    {path: "/newsDetail", component: NewsDetail, meta: {title: "资讯详情", keepAlive: false}},
+    {path: "/shareNews", component: ShareNews, meta: {title: "分享资讯", keepAlive: false}},
 
   //user
     {path: "/mine", component: Mine, meta: {title: "我的", keepAlive: false}},
     {path: "/userDetail", component: UserDetail, meta: {title: "个人信息", keepAlive: false}},
     {path: "/patientReport", component: PatientReport, meta: {title: '信息完善', keepAlive: false}},
+    {path: "/couponsList", component: CouponsList, meta: {title: '优惠券', keepAlive: false}},
 
 
   //consultation  咨询

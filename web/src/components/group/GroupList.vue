@@ -1,11 +1,13 @@
 <template>
     <div>
-      <ul v-if="topicList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
+      <div v-if="topicList.length > 0" v-infinite-scroll="loadMore" infinite-scroll-disabled="loading" infinite-scroll-distance="10" infinite-scroll-immediate-check="false">
         <topic-item v-for="(item,index) in topicList" :key="index"  :topicItem="item" :group="group" @click.native="toDetail(index,item)" ></topic-item>
-      </ul>
-      <div class="empty" v-if="topicList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无关注小组</div>
+        <!-- 没有更多提示 -->
+        <bottomloadMore v-if="loaded && topicList.length > 3"></bottomloadMore>
+      </div>
+      <div class="empty" v-if="empty">
+        <img :src="consultationEmpty">
+        <div>暂无关注小组</div>
         <!-- <p class="empty">{{groupTotal}}个小组等你来玩，<br/> 立即选择加入吧！</p> -->
         <!-- <div class="hot_group">
           <h3>热门小组</h3>
@@ -19,6 +21,7 @@
   import { mapGetters } from "vuex";
   import TopicItem from './TopicItem.vue';
   import GroupItem from './GroupItem.vue';
+  import BottomloadMore from "../../customComponents/BottomloadMore.vue";
   import imgMap from '../../../static/js/imgmap.js';
     export default {
       data() {
@@ -32,6 +35,7 @@
           group: false,
           groupTotal: [],
           loading: false,
+          empty: false,
           loaded: false,   //是否加载完成
         }
       },
@@ -46,7 +50,8 @@
 
       components: {
         topicItem: TopicItem,
-        groupItem: GroupItem
+        groupItem: GroupItem,
+        bottomloadMore : BottomloadMore
       },
 
       methods:{
@@ -90,6 +95,7 @@
         },
         //话题列表
         requestTopicList() {
+          this.$indicator.open();
           this.loading = true;
           let request = {
             orgId: this.orgId,
@@ -102,19 +108,25 @@
           this.$store
             .dispatch("bbssubjectlist", request)
             .then(data => {
-              if(data){
+              if(data.data.length > 0){
                 for(let i = 0; i < data.data.length; i++){
                   vm.topicList.push(data.data[i]);
                 }
                 vm.loaded = vm.topicList.length == data.total;
                 vm.loading = false;
+              }else{
+                this.empty = true;
               }
 
             })
             .catch(error => {
+              this.empty = true;
               vm.loading = false;
               vm.loaded = true;
               vm.$toast(error.message);
+            })
+            .finally(() => {
+              this.$indicator.close();
             });
         }
 
@@ -133,13 +145,7 @@
 
 <style scoped>
   .empty{
-    padding: 40px 0;
-    text-align: center;
-    /* background: #fff;
-    font-size: 14px;
-    line-height: 21px;
-    color:rgba(4,11,28,.4);
-    margin-bottom: 10px; */
+    top:44px
   }
   .hot_group{
     background: #fff;

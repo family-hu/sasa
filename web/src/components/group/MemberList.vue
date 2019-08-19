@@ -2,9 +2,9 @@
     <div>
       <div class="main_list">
         <h3 class="ser_title">服务团队（{{docNum}}）</h3>
-        <div class="doc_list" v-for="(item,index) in docList" :key="index">
-          <img @click="goDocdetail(item)" v-if="item.headImg" :src="item.headImg" alt="">
-          <img @click="goDocdetail(item)" v-else :src="docImgUrl" alt="">
+        <div class="doc_list" v-for="(item,index) in docList" :key="index" @click="goDocdetail(item)">
+          <img v-if="item.headImg" :src="item.headImg" alt="">
+          <img v-else :src="docImgUrl" alt="">
           <div>
             <p class="doc_name">{{item.nick}}<span v-if="item.teamleader">队长</span></p>
             <p class="doc_desp">{{item.departmentName}} | {{item.titlesName}}</p>
@@ -19,8 +19,8 @@
       </div>
 
       <!-- <div class="empty"  v-if="memberList.length == 0">
-        <img :src="consultationEmpty" width="144px" height="136px">
-        <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无成员</div>
+        <img :src="consultationEmpty">
+        <div>暂无成员</div>
       </div> -->
     </div>
 </template>
@@ -128,10 +128,6 @@
 </script>
 
 <style scoped>
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
-  }
   .ser_title{
     font-size: 16px;
     color: #040B1C;

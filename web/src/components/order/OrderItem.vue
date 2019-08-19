@@ -182,12 +182,18 @@ export default {
   methods: {
     //评价
     goEvaluation() {
+      let doctorDetail = {
+        photoUrl: this.docImg,
+        name: this.acceptName,
+        desp: this.deptName + this.titlesName
+      }
       this.$router.push({
         path: "evaluationOrder",
         query: {
           servId: this.orderItem.servId.value, //业务编号
           orgId: this.orderItem.orgId.value, //机构
           docId: this.orderItem.goodsSnapObj.acceptUserObj.userId.value, //被评价人
+          doctorDetail: JSON.stringify(doctorDetail)
         }
       });
     },

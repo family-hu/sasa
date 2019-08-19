@@ -5,25 +5,26 @@
       <slot>
          <div class="bg_box" id="imageWrapper" v-if="imageWrapper">
           <div class="center_box" ref="center">
-            <img class="doc_img" :src="docImg"  alt="">
+            <div class="doc_img">
+              <img style="width:100%" :src="newsImg" crossOrigin="anonymous" :onerror="defaultImg" alt="">
+            </div>
             <div class="text_box">
               <div class="item_box">
-                <div class="doc_name">{{doctorName}}<span class="doc_title">{{doctorTitle}}</span></div>
-                <div class="doc_title">{{deptName}}</div>
-                <div class="doc_desp">{{diseaseList}}</div>
+                <div class="doc_name">{{newsTitle}}</div>
+                <div class="doc_desp">{{contentWords}}</div>
               </div>
               <div class="dovline">
                 <div class="line"></div>
               </div>
               <div class="bottom_box flex-b">
                 <div class="flex_left">
-                  <img :src="headImg" alt="">
+                  <img class="head_img" :src="headImg" alt="">
                   <div>
-                    <p class="user_name">{{userName}}<span>给您推荐一位名医</span></p>
+                    <p class="user_name">{{userName}}<span>给您推荐一篇好文</span></p>
                     <p class="txt">长按识别二维码</p>
                   </div>
                 </div>
-                <div class="code"><img :src="docCode" alt=""></div>
+                <div class="code"><img :src="newsCode" alt="" crossOrigin="anonymous"></div>
               </div>
             </div>
           </div>
@@ -55,31 +56,31 @@
           <div class="flex_box">
             <div style="display:flex">
               <span class="title">复制以下链接，转发该医生</span>
-              <button class="copyBtn" :data-clipboard-text = "shareDoc" type="text">复制地址</button>
+              <button class="copyBtn" :data-clipboard-text = "shareNews" type="text">复制地址</button>
             </div>
-            <div class="desp_txt">http://yun.sinoylb.com/doctorD...</div>
+            <div class="desp_txt">http://yun.sinoylb.com/newsDeta...</div>
           </div>
         </span>
       </div>
-      <div class="doc_Btn" @click="shareDoctorDetail">医生主页</div>
+      <div class="doc_Btn" @click="shareNewsDetail">返回</div>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import Clipboard from 'clipboard';
-import html2canvas from 'html2canvas';
+import Clipboard from "clipboard";
+import html2canvas from "html2canvas";
 import * as type from "../../constant/ConstantConfig.js";
 import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
     return {
-      drId: this.$route.query.drId,
-      dataURL: '',
-      doctorDetail: [],
-      shareDoc: window.location.href.split("#")[0],
-      docCode: '',
+      newsId: this.$route.query.newsId,
+      dataURL: "",
+      newsDetail: [],
+      shareNews: window.location.href.split("#")[0],
+      newsCode: "",
       show: false,
       imageWrapper: true
     };
@@ -87,6 +88,7 @@ export default {
   components: {},
   computed: {
     ...mapGetters(["loginData"]),
+    //用户头像
     headImg() {
       let img;
       let userObj = this.loginData.userObj;
@@ -97,6 +99,31 @@ export default {
       }
       return img;
     },
+    //资讯标题
+    newsTitle() {
+      let title = this.newsDetail.title;
+      if (title) {
+        let len = title.length;
+        if (len > 28) {
+          return title.substr(0, 28) + "...";
+        } else {
+          return title;
+        }
+      }
+    },
+    //资讯描述
+    contentWords() {
+      let words = this.newsDetail.contentWords;
+      if (words) {
+        let len = words.length;
+        if (len > 40) {
+          return words.substr(0, 40) + "...";
+        } else {
+          return words;
+        }
+      }
+    },
+    //用户名称
     userName() {
       let name;
       let userObj = this.loginData.userObj;
@@ -107,72 +134,42 @@ export default {
       }
       let nowLength = name.length;
       if (nowLength > 4) {
-        name = name.substr(0, 4) + '...';
+        name = name.substr(0, 4) + "...";
       }
       return name;
     },
-    doctorName() {
-      if (this.doctorDetail.userName) return this.doctorDetail.userName;
-      if (this.doctorDetail.nickName) return this.doctorDetail.nickName;
-      return "";
-    },
-    deptName() {
-      if (!this.doctorDetail.userId) return "";
-      let title = this.doctorDetail.orgNames;
-      let departmentName = this.doctorDetail.departmentName;
-      if (departmentName) {
-        title += "       " + departmentName;
-      }
-      return title;
-    },
-    //医生标签
-    doctorTitle() {
-      if (!this.doctorDetail.userId) return "";
-      let title = this.doctorDetail.titlesName;;
-      let officeTypeName = this.doctorDetail.officeTypeName;
-      if (officeTypeName && officeTypeName == "无级别") officeTypeName = "";
-      if (officeTypeName) {
-        title += " | " + officeTypeName;
-      }
-      return title;
-    },
-    //擅长疾病
-    diseaseList() {
-      if (this.doctorDetail.despSkill) return this.doctorDetail.despSkill;
-      return '';
-    },
-    //医生头像
-    docImg() {
-      let imgUrl = '';
-      if (this.doctorDetail.photoUrl) {
-        imgUrl = this.doctorDetail.photoUrl;
-      } else {
-        if (this.doctorDetail.gender) {
-          let gender = this.doctorDetail.gender.value;
-          if (gender == "0") {
-            imgUrl = imgMap.docRectFeMale;
-          } else {
-            imgUrl = imgMap.docRectMale;
-          }
-        }else{
-          imgUrl = imgMap.docRectMale
+    //资讯图片
+    newsImg() {
+      let imgUrl = "";
+      if (this.newsDetail.photoUrl) {
+        let img = this.newsDetail.photoUrl.indexOf("&");
+        if (img != -1) {
+          imgUrl = this.newsDetail.photoUrl.slice(0, img);
+        } else {
+          imgUrl = this.newsDetail.photoUrl;
         }
+      } else {
+        imgUrl = imgMap.newsImg;
       }
       return imgUrl;
+    },
+    //默认图片
+    defaultImg() {
+      return imgMap.newsImg
     }
   },
+
   mounted() {
-    //分享医生
-    this.shareDoc = 'http://yun.sinoylb.com/doctorDetail?userId=' + this.drId;
+    //分享资讯
+    // this.shareNews = 'http://yun.sinoylb.com/newsDetail?newsId=' + this.newsId;
     //调用分享
     setTimeout(() => {
-      this.wxShareCallback(this.doctorDetail);
+      this.wxShareCallback(this.newsDetail);
     }, 1000);
     setTimeout(() => {
       //页面生成图片
       this.toImage();
-    }, 1000);
-
+    }, 2000);
   },
   //加载前获取当前URL，解决iOS重定向路由
   beforeRouteEnter(to, from, next) {
@@ -186,25 +183,29 @@ export default {
   },
   methods: {
     toImage() {
-      let imageWrapper =  document.getElementById("imageWrapper");
-        html2canvas(imageWrapper,{
-            backgroundColor: null,
-            useCORS: true, //开启跨域配置
-            allowTaint: true,//允许跨域图片
-        }).then((canvas) => {
-            let dataURL = canvas.toDataURL('image/jpeg', 1.0);
-            this.dataURL = dataURL;
-        });
+      let that = this;
+      let imageWrapper = document.getElementById("imageWrapper");
+      html2canvas(imageWrapper, {
+        scale:'2',
+        backgroundColor: null,
+        useCORS: true, //开启跨域配置
+        allowTaint: true //允许跨域图片
+      }).then(canvas => {
+        let dataURL = canvas.toDataURL("image/png");
+        that.dataURL = dataURL;
+        if (that.dataURL) {
+          //隐藏html页面
+          that.imageWrapper = false;
+        }
+      });
     },
     wxShareCallback(data) {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
-        title: data.userName + "  " + data.departmentName, // 分享标题
-        desc: data.despSkill ? data.despSkill : "好友给你推荐了一位名医", // 分享描述
-        link: shareUrl, // 分享链接
-        imgUrl: data.photoUrl
-          ? data.photoUrl
-          : "http://yun.sinoylb.com/static/img/share@2x.png" // 分享图标 医生头像
+        title: data.title, // 分享标题
+        desc: data.contentWords ? data.contentWords : "给您推荐一篇好文", // 分享描述
+        link: 'http://yun.sinoylb.com/newsDetail?newsId=' + this.newsId, // 分享链接
+        imgUrl: this.newsImg // 分享图标 医生头像
       };
       this.wxapi.wxShare(shareUrl, dataForWeixin);
     },
@@ -220,40 +221,53 @@ export default {
 
     //分享
     share() {
-      this.show = true
+      this.show = true;
     },
-    shareDoctorDetail() {
+    shareNewsDetail() {
       this.$router.push({
-        path: "doctorDetail",
+        path: "newsDetail",
         query: {
-          userId: this.drId
+          newsId: this.newsId
         }
       });
     },
-    //获取医生详情
-    expertDetail() {
-      let request = { userIds: [this.drId] };
-      let vm = this;
+    //获取资讯详情
+    getNewsDetail() {
+      this.$indicator.open();
+      let request = {
+        newsId: this.newsId
+      };
       this.$store
-        .dispatch("expertDetailGet", request)
-        .then(doctorList => {
-          if (doctorList && doctorList.length > 0) {
-            vm.doctorDetail = doctorList[0];
+        .dispatch("newsDetail", request)
+        .then(data => {
+          this.newsDetail = data.data;
+          if (this.newsDetail) {
+            this.getnewsCode();
           }
         })
-        .catch(error => {
-          this.$toast(error.message);
+        .catch(e => {
+          this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //获取医生二维码
-    getDoctorCode() {
-      let request = { docid: [this.drId] };
-      let vm = this;
+    getnewsCode() {
+      let request = {
+        newsId: this.newsId,
+        title: this.newsDetail.title,
+        contentWords: this.newsDetail.contentWords,
+        photoUrl: this.newsDetail.photoUrl
+          ? this.newsDetail.photoUrl
+          : "http://yun.sinoylb.com//static/img/news_default.png",
+        orgId: this.newsDetail.orgId
+      };
       this.$store
-        .dispatch("doctorCode", request)
+        .dispatch("newsShare", request)
         .then(data => {
-          if(data.docList){
-            vm.docCode = data.docList[0].codeimage;
+          if (data.rtnCode == "1") {
+            this.newsCode = data.data;
           }
         })
         .catch(error => {
@@ -265,17 +279,11 @@ export default {
   created() {
     if (!this.loginData.tid) {
       this.myUtils.wxLogin();
-    }else{
-      this.expertDetail();
-      this.getDoctorCode();
+    } else {
+      this.getNewsDetail();
     }
     //初始化复制
-    let clipboard = new Clipboard('.copyBtn');
-
-    setTimeout(() => {
-      //隐藏html页面
-      this.imageWrapper = false;
-    }, 2500);
+    let clipboard = new Clipboard(".copyBtn");
   }
 };
 </script>
@@ -346,9 +354,22 @@ export default {
 .doc_img {
   width: 100%;
   height: 55%;
+  /* position: relative; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doc_img img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  /* position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+   */
 }
 .text_box {
-  padding: 5px 15px 0 15px;
+  padding: 10px 15px 0 15px;
   position: relative;
   width: 100%;
   height: 45%;
@@ -400,7 +421,7 @@ export default {
   font-size: 13px;
   color: rgba(4, 11, 28, 0.75);
 }
-.doc_desp{
+.doc_desp {
   font-size: 13px;
   color: rgba(4, 11, 28, 0.5);
   max-height: 38px;
@@ -412,39 +433,40 @@ export default {
   -webkit-line-clamp: 2;
   overflow: hidden; */
 }
-.bottom_box{
+.bottom_box {
   position: absolute;
   bottom: 10%;
   width: 90%;
 }
-.bottom_box img{
+.head_img {
   width: 40px;
   height: 40px;
   margin-right: 10px;
+  border-radius: 50%;
 }
-.flex_left{
+.flex_left {
   display: flex;
   align-items: center;
 }
-.user_name{
+.user_name {
   font-size: 13px;
-  color: #040B1C;
-  font-weight: 500
+  color: #040b1c;
+  font-weight: 500;
 }
-.user_name span{
+.user_name span {
   font-weight: 400;
-  color:rgba(4,11,28,.75);
+  color: rgba(4, 11, 28, 0.75);
   margin-left: 5px;
 }
-.txt{
-  color:rgba(4,11,28,.5);
+.txt {
+  color: rgba(4, 11, 28, 0.5);
   font-size: 13px;
 }
-.code{
+.code {
   width: 60px;
   height: 60px;
 }
-.code img{
+.code img {
   width: 60px;
   height: 60px;
 }
@@ -459,45 +481,45 @@ export default {
   font-size: 15px;
   text-align: center;
 }
-.bottom_btn span{
+.bottom_btn span {
   font-weight: 500;
 }
-.bottom_btn img{
+.bottom_btn img {
   width: 7px;
   height: 11px;
 }
-.dialog_box{
+.dialog_box {
   padding: 30px 16px 70px;
 }
-.dialog_box h3{
+.dialog_box h3 {
   font-weight: 600;
   font-size: 17px;
-  color: #040B1C;
+  color: #040b1c;
   width: 100%;
   text-align: center;
   margin-bottom: 25px;
 }
-.flex_item{
+.flex_item {
   display: flex;
   margin-bottom: 20px;
 }
-.flex_box{
+.flex_box {
   margin-left: 14px;
 }
-.flex_item .title{
+.flex_item .title {
   font-weight: 500;
   font-size: 16px;
-  color: #040B1C;
+  color: #040b1c;
 }
-.flex_item .tit_w{
-  width: 15%
+.flex_item .tit_w {
+  width: 15%;
 }
-.flex_box .desp_txt{
+.flex_box .desp_txt {
   font-size: 15px;
-  color:rgba(4,11,28,.5);
+  color: rgba(4, 11, 28, 0.5);
   margin-top: 5px;
 }
-.text_d{
+.text_d {
   padding-right: 50px;
   word-break: break-all;
   text-overflow: ellipsis;
@@ -506,7 +528,7 @@ export default {
   -webkit-line-clamp: 1;
   overflow: hidden;
 }
-.copyBtn{
+.copyBtn {
   width: 68px;
   height: 26px;
   line-height: 26px;
@@ -514,16 +536,16 @@ export default {
   border-radius: 15px;
   color: #fff;
   font-size: 12px;
-  border: 1px solid #0076FF;
-  color: #0076FF;
+  border: 1px solid #0076ff;
+  color: #0076ff;
   background: #fff;
   margin-left: 10px;
 }
-.doc_Btn{
+.doc_Btn {
   position: absolute;
   bottom: 20px;
   left: 50%;
-  margin-left:-125px;
+  margin-left: -125px;
   width: 250px;
   height: 44px;
   line-height: 44px;
@@ -532,9 +554,9 @@ export default {
   color: #fff;
   font-size: 16px;
   font-weight: 600;
-  background: #0076FF;
+  background: #0076ff;
 }
-.real_pic{
+.real_pic {
   width: 100%;
   height: 100%;
 }

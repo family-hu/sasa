@@ -10,7 +10,7 @@
                   <p class="item_name">{{item.name}}</p>
                   <div class="shop_detail_icon" v-if="item.description" @click="open(item,index)"><img src="../../../static/img/shop_detail_icon.png" alt=""></div>
                 </div>
-                <div style="margin-top:5px" v-for="(items,index) in item.projectList" :key="index">
+                <div class="title_box" style="margin-top:5px" v-for="(items,index) in item.projectList" :key="index">
                   <span class="item_span">{{items.name}}</span>
                   <span class="shop_icon" v-if="items.description" @click="openChild(items,index)"><img src="../../../static/img/shop_detail_icon.png" alt=""></span>
                 </div>
@@ -74,7 +74,6 @@ p {
 }
 .item_box {
   background: #fff;
-  padding-top: 16px;
 }
 .item_box h3 {
   height: 20px;
@@ -87,8 +86,9 @@ p {
   margin: 0 auto;
 }
 .item_list li {
-  padding: 16px;
-  border-bottom: 1px solid rgba(216, 216, 216, 0.6);
+  padding: 16px 0;
+  margin: 0 16px;
+  border-bottom: 1px solid rgba(230,230,230,1);
 }
 .item_list .title_box {
   display: flex;
@@ -100,7 +100,8 @@ p {
 }
 .item_name {
   font-size: 15px;
-  color: #000;
+  color: #040B1C;
+  font-weight:500;
 }
 .item_detail {
   font-size: 13px;
@@ -118,7 +119,7 @@ p {
   top: 3px;
 }
 .item_span {
-  color: #666;
-  font-size: 13px;
+  color:rgba(4,11,28,.75);
+  font-size: 14px;
 }
 </style>

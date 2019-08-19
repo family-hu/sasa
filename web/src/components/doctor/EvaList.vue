@@ -4,8 +4,8 @@
       <eva-item v-for="item in evaList" :key="item.evaId.value" :evaItem="item" ></eva-item>
     </ul>
     <div class="empty" v-if="evaList.length == 0">
-      <img :src="consultationEmpty" width="144px" height="136px">
-      <div style="font-size: 15px;margin-top: 10px;color:#b3b3b3">暂无评价</div>
+      <img :src="consultationEmpty">
+      <div>暂无评价</div>
     </div>
   </div>
 </template>
@@ -66,10 +66,6 @@
 
 <style scoped>
   ul,li{ padding:0;list-style:none; margin: 0}
-  .empty {
-    padding: 50px 40px;
-    text-align: center;
-  }
   .eva_box{
     padding: 0 16px;
     background: #fff;
