@@ -953,9 +953,9 @@ export default {
           if (data.rtnCode == 1) {
             this.$toast("评价成功");
           } else {
-            this.$toast(data.rtnMsg);
+            this.$toast('已评价');
           }
-          this.show = false;
+          vm.show = false;
         })
         .catch(error => {
           this.$toast(error.message);
