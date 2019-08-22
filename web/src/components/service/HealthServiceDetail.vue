@@ -1083,6 +1083,7 @@ p {
   font-size: 14px;
   color: rgba(34, 34, 34, 1);
   margin-top: 18px;
+  word-break: break-all;
 }
 .item_tag {
   margin-top: 15px;
