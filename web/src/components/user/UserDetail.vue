@@ -83,7 +83,7 @@ export default {
       userName: "",
       showSex: false,
       fileImg: null,
-      startDate: new Date('1900-1-1'),
+      startDate: new Date(Date.parse("1900-01-01")),
       endDate: new Date()
     };
   },
