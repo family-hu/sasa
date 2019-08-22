@@ -29,7 +29,7 @@
         </div>
         <div class="cell flex-b">
           <div>优惠券</div>
-          <div class="choose">请选择优惠券<img src="/static/img/arrow_right.png" alt=""></div>
+          <div class="choose" @click="coupons">请选择优惠券<img src="/static/img/arrow_right.png" alt=""></div>
         </div>
       </div>
       <div class="btn_box">

@@ -53,7 +53,7 @@ export default {
   methods: {
     //查看评价
     goShopQueryComments() {
-      this.$emit("child",this.orderList.prodId.value);
+      this.$emit("child",this.orderList.prodId.value,this.orderList.orderId.value);
     },
     //去支付
     goPay() {

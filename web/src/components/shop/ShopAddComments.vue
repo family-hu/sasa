@@ -66,9 +66,9 @@ export default {
         path: "healthServiceDetail",
         query: {
           packDetailsId: this.prodId,
-          serviceCompanyId: this.orderInfo.compayInfo.serviceCompanyId,
+          serviceCompanyId: this.orderInfo.compayInfo.serviceCompanyId.value,
           orgId: this.orderInfo.orgId.value,
-          orgNames: this.orderInfo.compayInfo.name
+          // orgNames: this.orderInfo.compayInfo.name
         }
       });
     },

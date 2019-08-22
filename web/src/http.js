@@ -25,8 +25,8 @@ export var financeConfig = {
     }
     return data;
   },
-  // abUrl: "/finance/"  //财务线上地址
-  abUrl: "http://aiyizfb8899.aiyi01.com/sk/"   //本地测试环境测试地址
+  abUrl: "/finance/"  //财务线上地址
+  // abUrl: "http://aiyizfb8899.aiyi01.com/sk/"   //本地测试环境测试地址
   // abUrl: "http://ylb1688.sinoylb.com/sk/"       //本地正式环境测试地址
   // abUrl: "http://16health.com/finance/" //本地正式环境测试地址
 };
