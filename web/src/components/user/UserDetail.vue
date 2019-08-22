@@ -232,6 +232,9 @@ export default {
   padding-bottom: 40px;
   background: #fff; /*解决ios自带按钮底部遮挡*/
 }
+.mint-actionsheet-listitem{
+  border-bottom: 1px solid rgba(216, 216, 216, .6)
+}
 </style>
 <style scoped>
 .main {
@@ -260,6 +263,7 @@ export default {
   font-size: 15px;
   color: #040b1c;
   position: relative;
+  line-height: 54px;
 }
 .file_box {
   position: absolute;

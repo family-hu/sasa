@@ -144,7 +144,9 @@ export default {
       this.$router.push({
         path: "medicalManList",
         query:{
-          idList: this.idList
+          idList: this.idList,
+          packDetailsId: this.packDetailsId,
+          serviceCompanyId: this.serviceCompanyId,
         }
       })
     },
@@ -163,14 +165,12 @@ export default {
         }
 
       }
-      // console.log(goodsList,'==goodsList');
       let packDetailsId = this.packDetailsId ? this.packDetailsId : localStorage.getItem('packDetailsId');
       let packId = {
         prodId: packDetailsId,
         prodType: '1'
       }
       goodsList.unshift(packId);
-
       const request = {
         compId: this.serviceCompanyId ? this.serviceCompanyId : localStorage.getItem('serviceCompanyId'),
         orderType: '2000107', //医疗服务
@@ -187,7 +187,6 @@ export default {
       };
       this.$store.dispatch("shopOrderCreate", request).then((data) => {
         if(data){
-          console.log(this.msgList,'===this.msgList');
           this.orderId = data.data.orderId.value;
           if(!this.msgList){
             this.getUserMsgSave();//保持用户信息
@@ -306,6 +305,7 @@ export default {
     if(this.packDetailsId){
       localStorage.setItem('packDetailsId',this.packDetailsId);
     }
+    console.log(JSON.stringify(this.serviceCompanyId),'==this.serviceCompanyId111');
     if(this.serviceCompanyId){
       localStorage.setItem('serviceCompanyId',this.serviceCompanyId);
     }

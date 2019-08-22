@@ -170,12 +170,6 @@ export default {
   flex: none;
   position: relative;
 }
-/deep/ .mint-tab-item-label{
-  color: inherit;
-  font-size: 14px;
-  line-height: 1;
-  font-weight: 500;
-}
 .mint-tab-item{
   color:rgba(4,11,28,.6);
 }

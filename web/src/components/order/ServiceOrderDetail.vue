@@ -1,39 +1,40 @@
 <template>
     <div>
       <div class="head_bg">
-        <div class="orderStatusTxt">{{statusName}} <span v-if="statusName == '已预约'">请按照预约时间到院进行就诊</span></div>
+        <div class="orderStatusTxt">{{statusName}} <span v-if="statusName == '服务中'">医生将在24小时内联系您，请耐心等待</span></div>
       </div>
-       <div class="main">
-        <div class="box flex-b" @click="goDocDetail" v-if="appointItem">
+      <div class="main">
+        <div class="box flex-b" @click="goDocDetail" v-if="serviceItem">
           <div class="name_box">
-            <img class="img" :src="docImg" alt="">
+            <img class="img" :src="servImgUrl" alt="">
             <div class="text">
-              <p class="prodName">{{appointItem.docName}}</p>
-              <p>{{departName}}<span style="margin-left:10px">{{ titlesName }}</span></p>
+              <p class="prodName">{{serviceItem.servName}}</p>
+              <p>¥{{serviceItem.price}}</p>
             </div>
           </div>
           <img class="more" src="/static/img/arrow_right_blue.png" alt="">
         </div>
         <div class="appointment_msg box">
           <h3>预约信息</h3>
-          <p>就诊人：<span class="detail_txt">{{appointItem.subscribeName}}</span></p>
-          <p>就诊时间：<span class="detail_txt">{{appointItem.subscribe_day}}<span>{{maText}}</span>{{appointItem.subscribe_work_time}}</span></p>
-          <p>手机号：<span class="detail_txt">{{appointItem.phone}}</span></p>
+          <p>体检人：<span class="detail_txt">{{serviceUserName}}</span></p>
+          <p>手机号：<span class="detail_txt">{{serviceItem.userPhone}}</span></p>
+          <p>身份证：<span class="detail_txt">{{userCard}}</span></p>
         </div>
         <div class="appointment_msg box">
           <h3>订单信息</h3>
           <p>订单号：<span class="detail_txt">{{orderId}}</span></p>
-          <p>下单时间：<span class="detail_txt">{{appointItem.timeCreate}}</span></p>
-          <p>订单总价：<span class="detail_txt">¥{{getPrice}}</span></p>
+          <p>下单时间：<span class="detail_txt">{{serviceItem.createTime}}</span></p>
+          <p>订单总价：<span class="detail_txt">¥{{serviceItem.price}}</span></p>
         </div>
       </div>
       <div class="btn_box">
-        <!-- <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn btn_border" @click.stop="cancelOrder">取消订单</a> -->
-        <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn btn_background" @click.stop="goPay">去支付</a>
-        <a href="javascript:void(0);" v-if="statusName == '已完成'" class="btn btn_background" @click.stop="documentDetail">诊疗详情</a>
+        <a class="btn btn_border" v-if="statusName == '待支付'" href="javascript:void(0);"  @click="cancelOrder">取消订单</a>
+        <a class="btn btn_background" v-if="statusName == '待支付'" href="javascript:void(0);"  @click="goPay">去支付</a>
+        <a class="btn btn_border"  v-if="statusName == '已完成' && status == '4'" href="javascript:void(0);"  @click="goEvaluation">发布评价</a>
+        <a class="btn btn_border"  v-if="statusName == '已完成' && status == '5'" href="javascript:void(0);"  @click="goEvaluationQuery">查看评价</a>
       </div>
-      <!-- 底部查看评价 -->
-      <mt-popup v-model="popupVisible" position="bottom">
+       <!-- 底部查看评价 -->
+      <mt-popup v-model="popupVisible" position="bottom" style="width:100%">
         <div class="evaluation_box">
           <p>我的评价</p>
           <div class="flex_box">
@@ -61,13 +62,14 @@ import { mapGetters } from "vuex";
 export default {
   data() {
     return {
-      appointItem: [],
+      serviceItem: [],
       evaInfo: {},
-      popupVisible: false,
+      orderId: this.$route.query.orderId,
       rateScore1: 5,
       rateScore2: 5,
       rateScore3: 5,
-      orderId: this.$route.query.orderId
+      popupVisible: false,
+      status: null
     };
   },
   filters: {
@@ -79,97 +81,136 @@ export default {
 
   computed: {
     ...mapGetters(["loginData"]),
-    maText() {
-      let subscribeMa = this.appointItem.subscribe_am;
-      if(subscribeMa){
-        if (subscribeMa.value == "0") return "上午";
+    //身份证
+    userCard() {
+      let userCard = this.serviceItem.userCard;
+      if (userCard) {
+        let cardNo = userCard.substr(3, 11);
+        return userCard.replace(cardNo, "***********");
       }
-      return "下午";
     },
-    docImg() {
-      let imgUrl = imgMap.docMale;
-      let appointItem = this.appointItem;
-      if(appointItem){
-        let photoUrl = appointItem.photoUrl;
-        if (photoUrl) {
-          imgUrl = photoUrl;
-        } else {
-          let gender = appointItem.gender;
-          if(gender){
-            if (gender.value == "0") {
-              imgUrl = imgMap.docFeMale;
-            }
-          }
-
-        }
+    serviceUserName() {
+      let sickName = this.serviceItem.sickName;
+      let serviceName = this.serviceItem.clientUserObj;
+      if (serviceName) {
+        return serviceName.userName;
+      } else {
+        return sickName;
       }
-      return imgUrl;
+    },
+    servImgUrl() {
+      if (this.serviceItem.servImgUrl) return this.serviceItem.servImgUrl;
+      return imgMap.packPerson;
     },
     getPrice() {
-      let price = this.appointItem.price;
-      if(price){
-        return price.value
+      let price = this.serviceItem.price;
+      if (price) {
+        return price.value;
       }
-      return ''
+      return "";
     },
     titlesName() {
       let title = "";
-      if (this.appointItem.titlesName) {
-        title = this.appointItem.titlesName;
+      if (this.serviceItem.titlesName) {
+        title = this.serviceItem.titlesName;
       }
       return title;
     },
     departName() {
       let title = "";
-      if (this.appointItem.departmentName) {
-        title = this.appointItem.departmentName;
+      if (this.serviceItem.departmentName) {
+        title = this.serviceItem.departmentName;
       }
       return title;
     },
     statusName() {
-      let status = this.appointItem.status;
-      if (status == "0") return "待确认";
-      if (status == "1") return "已预约";
-      if (status == "2") return "已完成";
-      if (status == "3") return "已过期";
-      if (status == "4") return "已取消";
-      if (status == "5") return "待付款";
-      return "";
+      if (this.serviceItem.status) {
+        let status = this.serviceItem.status.value;
+        let isEnd = this.serviceItem.isEnd.value;
+        this.status = status;
+        if (status == "4" || status == "5") {
+          return "已完成";
+        }
+        if (isEnd == "0") {
+          if (status == "1") return "待支付";
+          if (status == "2") return "待确认";
+          if (status == "3") return "服务中";
+        } else {
+          return "已取消";
+        }
+      }
     }
   },
 
   methods: {
-    //跳转诊疗详情
-    documentDetail() {
+    //评价
+    goEvaluation() {
+      let doctorDetail = {
+        photoUrl: this.serviceItem.acceptUserObj.photoUrl,
+        name: this.serviceItem.acceptUserObj.userName,
+        desp: this.serviceItem.acceptUserObj.departmentName + this.serviceItem.acceptUserObj.titlesName
+      }
       this.$router.push({
-        path: "documentDetail",
-        query: { orderId: this.appointItem.orderid.value }
+        path: "evaluationOrder",
+        query: {
+          servId: this.serviceItem.servId.value, //业务编号
+          orgId: this.serviceItem.orgObj.orgId.value, //机构
+          docId: this.serviceItem.acceptUserObj.userId.value, //被评价人
+          doctorDetail: JSON.stringify(doctorDetail)
+        }
       });
+    },
+    //查看评价
+    goEvaluationQuery(){
+      let request = {
+        evaId: this.serviceItem.evaId.value
+      };
+      this.$store
+        .dispatch("evaInfoGet", request)
+        .then(data => {
+          if(data){
+            this.evaInfo = data.evaObj;
+            let evaDetList = data.evaObj.evaDetList
+            for(let i = 0; i < evaDetList.length; i++){
+              if(evaDetList[i].evaTypeName == '服务态度'){
+                this.rateScore1 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '医生专业'){
+                this.rateScore2 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }else if(evaDetList[i].evaTypeName == '回复时效'){
+                this.rateScore3 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
+              }
+            }
+            this.popupVisible = true;
+          }else{
+            this.$toast('暂无评价');
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
     },
     //去支付
     goPay() {
-      const item = this.createItem();
-      sessionStorage.setItem("appointItem", JSON.stringify(item));
       this.$router.push({
-        path: "appointSubmit",
-        query: { orderId: item.orderId }
+        path: "serviceSubmitPay",
+        query: {
+          servId: this.serviceItem.servId.value,
+          busiId: this.serviceItem.orderId.value,
+          price: this.serviceItem.price,
+          orgId: this.serviceItem.orgObj.orgId.value
+        }
       });
     },
     //取消订单
     cancelOrder() {
       let vm = this;
       this.$indicator.open();
-      let request = { orderId: this.appointItem.orderid.value, opType: 1 };
+      let request = { orderId: this.orderId, status: -1 };
       this.$store
-        .dispatch("docorderstepop", request)
-        .then(data => {
-          if(data.rtnCode == 1){
-            this.$toast("取消成功");
-            this.getOrderDetail();
-          }else{
-            this.$toast("取消失败");
-          }
-
+        .dispatch("servOrderAudit", request)
+        .then(() => {
+          this.$toast("取消成功");
+          vm.servOrderInfoGet(request);
         })
         .catch(e => {
           this.$toast(e.message);
@@ -183,65 +224,30 @@ export default {
       this.$router.push({
         path: "doctorDetail",
         query: {
-          userId: this.appointItem.docid.value
+          userId: this.serviceItem.acceptUserObj.userId.value
         }
       });
     },
-    createItem() {
-      let item = {
-        subscribeMa: this.appointItem.subscribe_am,
-        date: this.appointItem.subscribe_day,
-        price: this.appointItem.price,
-        workTime: this.appointItem.subscribe_work_time
-      };
-      item.hospital = this.appointItem.hospital;
-      item.userName = this.appointItem.docName;
-      item.titlesName = this.appointItem.titlesName;
-      item.department = this.appointItem.department;
-      item.departmentName = this.appointItem.departmentName;
-      item.deptDesp = this.appointItem.deptDesp;
-      item.docid = this.appointItem.docid;
-      item.orgId = this.appointItem.orgId;
-      item.orderId = this.appointItem.orderid.value;
-      item.subscribeName = this.appointItem.subscribeName;
-      item.phone = this.appointItem.phone;
-      item.status = this.appointItem.status.value;
-      item.timeCreate = this.appointItem.timeCreate;
-      return item;
-    },
-    goPay() {
-      const item = this.createItem();
-      sessionStorage.setItem("appointItem", JSON.stringify(item));
-      this.$router.push({
-        path: "appointSubmit",
-        query: { orderId: item.orderId }
-      });
-    },
-    getOrderDetail() {
+    servOrderInfoGet() {
       let vm = this;
-      if (this.orderId) {
-        this.$indicator.open();
-        let request = { orderId: this.orderId };
-        this.$store
-          .dispatch("userOderInfo", request)
-          .then(data => {
-            if(data){
-              vm.appointItem = data;
-            }
-
-          })
-          .catch(error => {
-            this.$toast(error.message);
-          })
-          .finally(() => {
-            this.$indicator.close();
-          });
-      }
+      this.$indicator.open();
+      let request = { orderId: this.orderId };
+      this.$store
+        .dispatch("servOrderInfoGet", request)
+        .then(data => {
+          this.serviceItem = data.servOrderObj;
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
+        });
     }
   },
 
   created() {
-    this.getOrderDetail();
+    this.servOrderInfoGet();
   }
 };
 </script>
@@ -319,7 +325,7 @@ export default {
 .box .detail_txt {
   color: #040b1c;
 }
-.detail_txt span{
+.detail_txt span {
   margin: 0 5px;
 }
 .name_box {

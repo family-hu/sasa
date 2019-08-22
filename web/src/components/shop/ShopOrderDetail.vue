@@ -1,23 +1,26 @@
 <template>
     <div>
+      <div class="head_bg">
+        <div class="orderStatusTxt">{{orderInfo.orderStatusTxt}} <span v-if="orderInfo.orderStatus == '1'">请按照预约时间到院完成医疗服务</span></div>
+      </div>
       <div class="main">
         <div class="box flex-b" @click="goItemDetail" v-if="orderInfo">
           <div class="name_box">
             <img class="img" :src="orderInfo.picUrl" alt="">
             <div class="text">
-              <p style="margin-bottom:5px">{{orderInfo.prodName}}</p>
+              <p class="prodName">{{orderInfo.prodName}}</p>
               <p>¥{{moneyPay}}</p>
             </div>
           </div>
-          <img class="more" src="/static/img/arrow_right.png" alt="">
+          <img class="more" src="/static/img/arrow_right_blue.png" alt="">
         </div>
         <div class="appointment_msg box">
           <h3>预约信息</h3>
-          <p>体检人：{{consumeList.name}}</p>
-          <p>手机号：{{consumeList.mobile}}</p>
-          <p>身份证：{{cardId}}</p>
+          <p>体检人：<span class="detail_txt">{{consumeList.name}}</span></p>
+          <p>手机号：<span class="detail_txt">{{consumeList.mobile}}</span></p>
+          <p>身份证：<span class="detail_txt">{{cardId}}</span></p>
         </div>
-        <div class="detail_addres">
+        <div class="detail_addres box">
           <h3>商家信息</h3>
           <div class="flex-b" style="margin:10px 0 8px 0;">
             <h4>{{compayInfo.name}}</h4>
@@ -31,9 +34,9 @@
         </div>
         <div class="appointment_msg box" v-if="orderInfo">
           <h3>订单信息</h3>
-          <p>订单号：{{orderId}}</p>
-          <p>下单时间：{{orderInfo.timeCreate}}</p>
-          <p>总价：<span class="price">¥{{moneyPay}}</span></p>
+          <p>订单号：<span class="detail_txt">{{orderId}}</span></p>
+          <p>下单时间：<span class="detail_txt">{{orderInfo.timeCreate}}</span></p>
+          <p>订单总价：<span class="detail_txt">¥{{moneyPay}}</span></p>
         </div>
         <div class="appointment_msg box">
           <h3 class="title_physical">体检须知</h3>
@@ -56,10 +59,16 @@
           <p>1.妇科检查前请先排空膀胱，如果遇月经期请勿检查妇科，改期至月经干净后3天再体检</p>
           <p>2.没有性生活的女士禁止做妇科检查</p>
         </div>
+        <!-- 没有更多提示 -->
+        <bottomloadMore></bottomloadMore>
       </div>
       <div class="btn_box" v-if="orderInfo.orderStatus == '11'">
         <a class="btn btn_border" href="javascript:void(0);" @click="goShopAddComments">评价</a>
         <a class="btn btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
+      </div>
+      <div class="btn_box" v-if="orderInfo.orderStatus == '12'">
+        <a class="btn_border" href="javascript:void(0);" @click="goShopQueryComments">查看评价</a>
+        <a class="btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
       </div>
       <div class="btn_box" v-if="orderInfo.orderStatus == '1'">
         <a class="btn btn_border" href="javascript:void(0);" @click="goTel">电话预约</a>
@@ -69,12 +78,21 @@
         <a href="javascript:void(0);" class="btn cancel_btn" @click="cancelOrder">取消订单</a>
         <a href="javascript:void(0);" class="btn pay_btn" @click="goPay">去支付</a>
       </div>
+      <!-- 底部查看评价 -->
+      <mt-popup v-model="popupVisible" position="bottom">
+        <div class="evaluation_box">
+          <p>我的评价</p>
+          <el-rate v-model="rateScore" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          <div class="evaluation_text">{{commentInfo}}</div>
+        </div>
+      </mt-popup>
     </div>
 </template>
 
 <script>
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
+import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 export default {
   data() {
     return {
@@ -82,12 +100,15 @@ export default {
       orderInfo: [], //订单信息
       consumeList: [], //预约信息
       compayInfo: [], //商家信息
-      moneyPay:''
+      moneyPay:'',
+      popupVisible:false,
+      rateScore: 5,
+      commentInfo: null
     };
   },
 
   components: {
-
+    bottomloadMore : BottomloadMore
   },
 
 
@@ -106,6 +127,31 @@ export default {
   },
 
   methods: {
+    //查看评价
+    goShopQueryComments() {
+      const request = {
+        pageParam:{
+          pageNum: 1,
+          pageSize: 10
+        },
+        appraisal:{
+          resourceId: this.orderInfo.prodId.value, //套餐ID
+          userId: this.loginData.userObj.userId.value,
+          type:'2'
+        }
+
+      };
+      this.$store.dispatch("shoppingCommentList", request).then((data) => {
+        if(data.data.appraisalList.length > 0){
+          this.commentInfo = data.data.appraisalList[0].description;
+          this.rateScore = data.data.appraisalList[i].score.value ? parseInt(data.data.appraisalList[0].score.value) : 5;
+          this.popupVisible = true
+        }else{
+          this.$toast('暂无评价');
+        }
+      })
+    },
+    //电话预约
     goTel() {
       this.$toast('电话预约，敬请期待～');
     },
@@ -142,10 +188,11 @@ export default {
         path: "shopPayList",
         query: {
           totalPrice: this.orderInfo.moneyPay.value, //合计支付金额
-          userName: this.consumeList.name,
-          genderTxt : this.consumeList.genderTxt,
-          mobile : this.consumeList.mobile,
-          cardNo : this.consumeList.cardId,
+          // userName: this.consumeList.name,
+          // genderTxt : this.consumeList.genderTxt,
+          // mobile : this.consumeList.mobile,
+          // cardNo : this.consumeList.cardId,
+          packageName: this.orderInfo.prodName,
           orderId: this.orderId
         }
       });
@@ -164,6 +211,7 @@ export default {
     },
     //确认信息-订单详情
     getShopOrderDetail() {
+      this.$indicator.open();
       let request = {
         orderId: this.orderId
       };
@@ -181,6 +229,9 @@ export default {
         })
         .catch(e => {
           this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //取消订单
@@ -232,13 +283,69 @@ export default {
 </script>
 
 <style scoped>
+.orderStatusTxt{
+  color: #fff;
+  font-size: 17px;
+  font-weight: 500;
+  padding: 24px 0 0 27px;
+}
+.orderStatusTxt span{
+  color:rgba(255,255,255,.8);
+  font-size: 12px;
+  margin-left: 5px;
+}
+.text p{
+  font-size: 13px;
+  color:rgba(4,11,28,.5);
+}
+.text .prodName{
+  font-size: 17px;
+  margin-bottom: 5px;
+  color: #040B1C;
+  font-weight: 600
+}
+.mint-popup-bottom{
+  width: 100%;
+  padding: 16px;
+  background: #fff;
+}
+.evaluation_box{
+  text-align: center
+}
+.evaluation_box p{
+  color: #040B1C;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.evaluation_text{
+  margin-top: 20px;
+  padding: 15px 0;
+  border-top:1px solid #E6E6E6;
+  font-size: 15px;
+  color: #040B1C;
+}
 .main{
-  padding-bottom: 51px;
+  padding: 10px 10px 51px 10px;
+  margin-top: -30px;
+
+}
+.head_bg{
+  width: 100%;
+  height: 92px;
+  background:linear-gradient(180deg,rgba(0,106,255,1) 0%,rgba(0,147,255,1) 100%);
 }
 .box{
   padding: 12px 16px;
   background: #fff;
   margin-bottom: 10px;
+  border-radius:4px;
+}
+.box p{
+  color:rgba(4,11,28,.58);
+  font-size: 14px;
+}
+.box .detail_txt{
+  color: #040B1C
 }
 .name_box{
   display: flex;
@@ -255,13 +362,13 @@ export default {
   margin-left: 10px;
 }
 .more{
-  width: 8px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
 }
 .appointment_msg h3{
   font-size: 17px;
-  color: #000;
-  font-weight: 500;
+  color: #040B1C;
+  font-weight: 600;
   margin-bottom: 12px;
 }
 .appointment_msg h3.title_physical{
@@ -270,8 +377,20 @@ export default {
 .appointment_msg h4{
   font-size: 13px;
   font-weight: 500;
-  margin-bottom: 12px;
-  color: #222;
+  margin: 10px 0;
+  color: #0076FF;
+  padding-bottom: 8px;
+  border-bottom:1px solid #eee;
+  position: relative;
+}
+.appointment_msg h4::before{
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 20px;
+  height: 3px;
+  background: #0076FF
 }
 .appointment_msg p{
   font-size: 13px;
@@ -288,7 +407,7 @@ export default {
 .detail_addres h3 {
   color: #040b1c;
   font-size: 17px;
-  font-weight: 500;
+  font-weight: 600;
 }
 .detail_addres h4{
   color: #040b1c;
@@ -344,11 +463,11 @@ export default {
 }
 .btn{
   display: block;
-  width:70px;
-  height: 29px;
-  line-height: 29px;
+  width:71px;
+  height: 26px;
+  line-height: 26px;
   margin-right: 16px;
-  border-radius: 2px;
+  border-radius: 13px;
   font-size: 13px;
   text-align: center;
 }
