@@ -61,6 +61,7 @@ export default {
       rateScore1: 5,
       rateScore2: 5,
       rateScore3: 5,
+      status: '0',
       popupVisible: false,
       page: 1,
       empty: false,
