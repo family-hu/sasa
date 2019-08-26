@@ -80,11 +80,11 @@ export default {
 
   methods: {
     //查看评价
-    goShopQueryComments(prodId) {
-      this.getCommentList(prodId);
+    goShopQueryComments(prodId,orderId) {
+      this.getCommentList(prodId,orderId);
     },
     //评价
-    getCommentList(prodId) {
+    getCommentList(prodId,orderId) {
       const request = {
         pageParam:{
           pageNum: 1,
@@ -93,6 +93,7 @@ export default {
         appraisal:{
           resourceId: prodId, //套餐ID
           userId: this.loginData.userObj.userId.value,
+          orderId: orderId,
           type:'2'
         }
 
@@ -100,7 +101,7 @@ export default {
       this.$store.dispatch("shoppingCommentList", request).then((data) => {
         if(data.data.appraisalList.length > 0){
           this.commentInfo = data.data.appraisalList[0].description;
-          this.rateScore = data.data.appraisalList[i].score.value ? parseInt(data.data.appraisalList[0].score.value) : 5;
+          this.rateScore = data.data.appraisalList[0].score.value ? parseInt(data.data.appraisalList[0].score.value) : 5;
           this.popupVisible = true
         }else{
           this.$toast('暂无评价');
