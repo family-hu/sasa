@@ -108,12 +108,18 @@ export default {
   methods: {
     //优惠券
     coupons() {
+      if(this.servUserDesp){
+        sessionStorage.setItem('servUserDesp',this.servUserDesp);
+      }
       this.$router.push({
         path: "couponsList"
       });
     },
     // 常用联系人
     goFamliy() {
+      if(this.servUserDesp){
+        sessionStorage.setItem('servUserDesp',this.servUserDesp);
+      }
       this.$router.push({
         path: "medicalManList",
         query: {
@@ -188,8 +194,8 @@ export default {
         busiId: this.busiId,
         busiType: this.busiType,
         desp: "特色服务包",
-        money: this.price,
-        moneyRmb: this.price,
+        money: this.serviceDetail.price,
+        moneyRmb: this.serviceDetail.price,
         orgId: this.orgId,
         tradeMode: 8101104,
         userId: this.loginData.userObj.userId.value
@@ -198,15 +204,28 @@ export default {
         .dispatch("userConsume", request)
         .then(data => {
           //支付成功
-          let request = data.data;
-          if (request) {
-            request = eval("(" + request + ")");
-            vm.invokeWx(request);
+          if (data.rtnCode == "1") {
+            let request = data.data;
+            if (request) {
+              request = eval("(" + request + ")");
+              vm.invokeWx(request);
+            } else {
+              sessionStorage.removeItem('servUserDesp');
+              //支付成功
+              vm.$router.push({
+                path: "chatPayOk",
+                query: {
+                  docId: this.serviceDetail.acceptId.value,
+                  orgId: this.orgId
+                }
+              });
+            }
           } else {
-            this.$router.go(-2);
-            this.$toast("余额支付成功");
             this.$indicator.close();
+            this.$toast("网络异常，支付失败");
+            vm.$router.go(-1);
           }
+
         })
         .catch(e => {
           this.$toast(e.message);
@@ -222,9 +241,17 @@ export default {
           // 使用以上方式判断前端返回,微信团队郑重提示：
           //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
           // alert("支付成功");
-          vm.$router.go(-1);
+          sessionStorage.removeItem('servUserDesp');
+          //支付成功
+          vm.$router.push({
+            path: "chatPayOk",
+            query: {
+              docId: this.serviceDetail.acceptId.value,
+              orgId: this.orgId
+            }
+          });
         } else {
-          // alert("支付失败");
+          this.$toast("支付失败");
         }
       });
     },
@@ -255,6 +282,11 @@ export default {
 
   created() {
     this.servInfoGet();
+    //缓存病情表述
+    let servUserDesp = sessionStorage.getItem('servUserDesp');
+    if(servUserDesp){
+      this.servUserDesp = servUserDesp;
+    }
     let msgList = this.msgList ? JSON.parse(this.msgList) : '';
     if(!msgList){
       return false

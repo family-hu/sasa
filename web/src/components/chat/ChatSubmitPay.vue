@@ -160,7 +160,6 @@ export default {
               vm.$router.push({
                 path: "chatPayOk",
                 query: {
-                  totalPrice: vm.price,
                   docId: this.drId,
                   orgId: this.orgId
                 }
@@ -187,7 +186,6 @@ export default {
           vm.$router.push({
             path: "chatPayOk",
             query: {
-              totalPrice: vm.price,
               docId: this.drId,
               orgId: this.orgId
             }

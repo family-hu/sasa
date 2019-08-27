@@ -181,7 +181,7 @@ export default {
   methods: {
     //查看评价
     goEvaluationQuery() {
-      this.$emit("child", this.orderItem.evaId.value);
+      this.$emit("child", this.orderItem.evaId.value,this.orderItem.servId.value);
     },
     //评价
     goEvaluation() {
@@ -194,6 +194,7 @@ export default {
         path: "evaluationOrder",
         query: {
           servId: this.orderItem.servId.value, //业务编号
+          busiType: '2000104',
           orgId: this.orderItem.orgId.value, //机构
           docId: this.orderItem.goodsSnapObj.acceptUserObj.userId.value, //被评价人
           doctorDetail: JSON.stringify(doctorDetail)

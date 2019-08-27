@@ -41,17 +41,22 @@
       <mt-popup v-model="popupVisible" position="bottom" style="width:100%">
         <div class="evaluation_box">
           <p>我的评价</p>
-          <div class="flex_box">
-            <div class="evaluation_title">服务态度</div>
-            <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
-          </div>
-          <div class="flex_box">
-            <div class="evaluation_title">医生专业</div>
-            <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
-          </div>
-          <div class="flex_box">
-            <div class="evaluation_title">回复时效</div>
-            <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          <div style="padding-left:25px">
+            <div class="flex_box">
+              <div class="evaluation_title">服务态度</div>
+              <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+            </div>
+            <div class="flex_box">
+              <div class="evaluation_title">医生专业</div>
+              <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+            </div>
+            <div class="flex_box">
+              <div class="evaluation_title">回复时效</div>
+              <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+            </div>
+            <div class="evaluation_tag" v-if="tagList.length > 0">
+              <span  v-for="(item, index) in tagList" :key="index">{{item}}</span>
+            </div>
           </div>
           <div class="evaluation_text">{{evaInfo.comment}}</div>
         </div>
@@ -60,6 +65,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
 import BottomloadMore from "../../customComponents/BottomloadMore.vue";
@@ -69,6 +75,7 @@ export default {
       orderId: this.$route.query.orderId,
       userId: this.$route.query.userId,
       orderDetail: [], //订单详情
+      tagList: [],
       popupVisible: false,
       rateScore1: 5,
       rateScore2: 5,
@@ -84,6 +91,7 @@ export default {
   },
 
   computed: {
+    ...mapGetters(["loginData"]),
     // 是否显示评价按钮
     status() {
       if (this.orderDetail.status.value == "5"){ // 5 代表已评价
@@ -305,8 +313,27 @@ export default {
         }
       });
     },
-    //查看评价
     goEvaluationQuery() {
+      this.evaInfoGet();
+      this.drawDetList();
+    },
+    //查看画像
+    drawDetList(){
+      let request = {
+        busiId: this.orderDetail.servId.value //订单ID
+      };
+      this.$store.dispatch("drawDetList", request)
+        .then(data => {
+          for(let i = 0; i < data.drawTypeList.length; i++){
+            this.tagList.push(data.drawTypeList[i]);
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
+    },
+    //查看评价
+    evaInfoGet() {
       let request = {
         evaId: this.orderDetail.evaId.value
       };
@@ -365,7 +392,8 @@ export default {
 
 <style>
   .el-rate__icon{
-    font-size: 22px;
+    font-size: 24px;
+    margin-left: 10px;
   }
 </style>
 <style scoped>
@@ -395,31 +423,51 @@ export default {
   padding: 16px;
   background: #fff;
 }
-.evaluation_box {
-  text-align: center;
+.evaluation_box{
+  text-align: center
 }
-.evaluation_box p {
-  color: #040b1c;
+.evaluation_box p{
+  color: #040B1C;
   font-size: 14px;
   margin: 16px;
 }
-.evaluation_text {
+.evaluation_text{
   margin-top: 20px;
-  padding: 15px 0;
-  border-top: 1px solid #e6e6e6;
+  padding: 15px 25px;
+  border-top:1px solid #E6E6E6;
   font-size: 15px;
-  color: #040b1c;
+  color: #040B1C;
+  text-align:left;
 }
 .flex_box{
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-bottom:16px;
 }
 .evaluation_title{
   font-size: 14px;
   color: #040B1C;
-  margin-right:10px;
+  margin-right:14px;
+  position: relative;
+  top: 3px;
+}
+.evaluation_tag {
+  margin-top: 30px;
+  overflow: hidden;
+}
+.evaluation_tag span {
+  float: left;
+  border: 1px solid rgba(0, 118, 255, 0.4);
+  background: rgba(0, 118, 255, 0.1);
+  color: rgba(4, 11, 28, 0.8);
+  border-radius: 14px;
+  padding: 5px 10px;
+  margin-right: 25px;
+  margin-bottom:10px;
+  min-width: 80px;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 13px;
 }
 .main {
   padding: 10px 10px 51px 10px;

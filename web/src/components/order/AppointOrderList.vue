@@ -62,7 +62,7 @@ export default {
       rateScore2: 5,
       rateScore3: 5,
       page: 1,
-      status: null,
+      status: '-1',
       empty: false,
       loaded: false //是否加载完成
     };
@@ -99,9 +99,9 @@ export default {
             for(let i = 0; i < evaDetList.length; i++){
               if(evaDetList[i].evaTypeName == '服务态度'){
                 this.rateScore1 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
-              }else if(evaDetList[i].evaTypeName == '医生专业'){
+              }else if(evaDetList[i].evaTypeName == '专业水平'){
                 this.rateScore2 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
-              }else if(evaDetList[i].evaTypeName == '回复时效'){
+              }else if(evaDetList[i].evaTypeName == '服务效率'){
                 this.rateScore3 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
               }
             }

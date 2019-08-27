@@ -4,7 +4,7 @@
       <mt-tab-item id="1" @click.native="changeTab('-1')">全部</mt-tab-item>
       <mt-tab-item id="2" @click.native="changeTab('5')">待付款</mt-tab-item>
       <mt-tab-item id="3" @click.native="changeTab('0')">待受理</mt-tab-item>
-      <mt-tab-item id="4" @click.native="changeTab('1')">已受理</mt-tab-item>
+      <mt-tab-item id="4" @click.native="changeTab('2')">问诊中</mt-tab-item>
       <mt-tab-item id="5" @click.native="changeTab('3')">已完成</mt-tab-item>
       <mt-tab-item id="6" @click.native="changeTab('4')">已取消</mt-tab-item>
     </mt-navbar>
@@ -27,17 +27,22 @@
     <mt-popup v-model="popupVisible" position="bottom">
       <div class="evaluation_box">
         <p>我的评价</p>
-        <div class="flex_box">
-          <div class="evaluation_title">服务态度</div>
-          <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
-        </div>
-        <div class="flex_box">
-          <div class="evaluation_title">医生专业</div>
-          <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
-        </div>
-        <div class="flex_box">
-          <div class="evaluation_title">回复时效</div>
-          <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+        <div style="padding-left:25px">
+          <div class="flex_box">
+            <div class="evaluation_title">服务态度</div>
+            <el-rate v-model="rateScore1" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">医生专业</div>
+            <el-rate v-model="rateScore2" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="flex_box">
+            <div class="evaluation_title">回复时效</div>
+            <el-rate v-model="rateScore3" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
+          </div>
+          <div class="evaluation_tag" v-if="tagList.length > 0">
+            <span  v-for="(item, index) in tagList" :key="index">{{item}}</span>
+          </div>
         </div>
         <div class="evaluation_text">{{evaInfo.comment}}</div>
       </div>
@@ -57,6 +62,7 @@ export default {
       orderList: [],
       evaInfo: {},
       orgId: this.$route.query.orgId,
+      tagList: [],
       selected:'1',
       loading: false,
       empty: false,
@@ -84,8 +90,24 @@ export default {
 
   methods: {
     //查看评价
-    goEvaluationQuery(evaId) {
-      this.evaInfoGet(evaId)
+    goEvaluationQuery(evaId,busiId) {
+      this.evaInfoGet(evaId);
+      this.drawDetList(busiId);
+    },
+    //查看画像
+    drawDetList(busiId){
+      let request = {
+        busiId: busiId //订单ID
+      };
+      this.$store.dispatch("drawDetList", request)
+        .then(data => {
+          for(let i = 0; i < data.drawTypeList.length; i++){
+            this.tagList.push(data.drawTypeList[i]);
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
     },
     //查询评价
     evaInfoGet(evaId){
@@ -97,13 +119,13 @@ export default {
         .then(data => {
           if(data){
             this.evaInfo = data.evaObj;
-            let evaDetList = data.evaObj.evaDetList
+            let evaDetList = data.evaObj.evaDetList;
             for(let i = 0; i < evaDetList.length; i++){
               if(evaDetList[i].evaTypeName == '服务态度'){
                 this.rateScore1 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
-              }else if(evaDetList[i].evaTypeName == '医生专业'){
+              }else if(evaDetList[i].evaTypeName == '专业水平'){
                 this.rateScore2 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
-              }else if(evaDetList[i].evaTypeName == '回复时效'){
+              }else if(evaDetList[i].evaTypeName == '服务效率'){
                 this.rateScore3 = evaDetList[i].score ? parseInt(evaDetList[i].score) : 5;
               }
             }
@@ -215,7 +237,8 @@ export default {
 </script>
 <style>
   .el-rate__icon{
-    font-size: 22px;
+    font-size: 24px;
+    margin-left: 10px;
   }
 </style>
 <style scoped>
@@ -242,20 +265,40 @@ li {
 }
 .evaluation_text{
   margin-top: 20px;
-  padding: 15px 0;
+  padding: 15px 25px;
   border-top:1px solid #E6E6E6;
   font-size: 15px;
   color: #040B1C;
+  text-align:left;
 }
 .flex_box{
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-bottom:16px;
 }
 .evaluation_title{
   font-size: 14px;
   color: #040B1C;
-  margin-right:10px;
+  margin-right:14px;
+  position: relative;
+  top: 3px;
+}
+.evaluation_tag {
+  margin-top: 30px;
+  overflow: hidden;
+}
+.evaluation_tag span {
+  float: left;
+  border: 1px solid rgba(0, 118, 255, 0.4);
+  background: rgba(0, 118, 255, 0.1);
+  color: rgba(4, 11, 28, 0.8);
+  border-radius: 14px;
+  padding: 5px 10px;
+  margin-right: 25px;
+  margin-bottom:10px;
+  min-width: 80px;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 13px;
 }
 </style>

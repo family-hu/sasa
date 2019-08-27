@@ -3,6 +3,8 @@
     <div class="flex-b title">
       <div class="order_num">订单编号：{{orderList.orderId.value}}</div>
       <div class="state" v-if="orderList.orderStatusTxt == '已取消' || orderList.orderStatusTxt == '已完成'">{{orderList.orderStatusTxt}}</div>
+      <div class="state" v-else-if="orderList.orderStatusTxt == '待评价'">已完成</div>
+      <div class="state state1" v-else-if="orderList.orderStatusTxt == '已支付'">待服务</div>
       <div class="state state1" v-else>{{orderList.orderStatusTxt}}</div>
     </div>
     <div class="box" @click="goOrderDetail" >
