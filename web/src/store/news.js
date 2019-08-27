@@ -17,6 +17,13 @@ const mutations = {
 };
 
 const actions = {
+  //分享关联
+  busiPageShareViewLog:({ commit }, request) => {
+    return axios.post("busiPageShareViewLog.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
+
   //获取资讯列表
   newsList:({ commit }, request) => {
     return axios.post("newsList.mo", request, config).then(value => {
