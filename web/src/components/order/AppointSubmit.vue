@@ -148,13 +148,25 @@ export default {
         .dispatch("userConsume", request)
         .then(data => {
           //支付成功
-          let request = data.data;
-          if (request) {
-            request = eval("(" + request + ")");
-            vm.invokeWx(request);
+          if (data.rtnCode == "1") {
+            let request = data.data;
+            if (request) {
+              request = eval("(" + request + ")");
+              vm.invokeWx(request);
+            } else {
+              // 余额支付成功
+              vm.$router.push({
+                path: "chatPayOk",
+                query: {
+                  docId: vm.appointItem.docid.value,
+                  orgId: vm.appointItem.orgId.value,
+                  type: "appoint"
+                }
+              });
+            }
           } else {
             this.$indicator.close();
-            alert("支付成功");
+            this.$toast("网络异常，支付失败");
             vm.$router.go(-1);
           }
         })
@@ -170,12 +182,17 @@ export default {
       let vm = this;
       WeixinJSBridge.invoke("getBrandWCPayRequest", request, function(res) {
         if (res.err_msg == "get_brand_wcpay_request:ok") {
-          // 使用以上方式判断前端返回,微信团队郑重提示：
-          //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
-          alert("支付成功");
-          vm.$router.go(-1);
+          //支付成功
+          vm.$router.push({
+            path: "chatPayOk",
+            query: {
+              docId: vm.appointItem.docid.value,
+              orgId: vm.appointItem.orgId.value,
+              type: "appoint"
+            }
+          });
         } else {
-          alert("支付失败");
+          vm.$toast("支付失败");
         }
       });
     },

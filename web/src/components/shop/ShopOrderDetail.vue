@@ -67,8 +67,8 @@
         <a class="btn btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
       </div>
       <div class="btn_box" v-if="orderInfo.orderStatus == '12'">
-        <a class="btn_border" href="javascript:void(0);" @click="goShopQueryComments">查看评价</a>
-        <a class="btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
+        <a class="btn btn_border" href="javascript:void(0);" @click="goShopQueryComments">查看评价</a>
+        <a class="btn btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
       </div>
       <div class="btn_box" v-if="orderInfo.orderStatus == '1'">
         <a class="btn btn_border" href="javascript:void(0);" @click="goTel">电话预约</a>
@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import imgMap from "../../../static/js/imgmap.js";
 import * as types from "../../constant/ConstantConfig.js";
 import BottomloadMore from "../../customComponents/BottomloadMore.vue";
@@ -113,6 +114,7 @@ export default {
 
 
   computed: {
+    ...mapGetters(["loginData"]),
     //身份证
     cardId(){
       let cardId = this.consumeList.cardId;
@@ -137,6 +139,7 @@ export default {
         appraisal:{
           resourceId: this.orderInfo.prodId.value, //套餐ID
           userId: this.loginData.userObj.userId.value,
+          orderId: this.orderId,
           type:'2'
         }
 
@@ -144,7 +147,7 @@ export default {
       this.$store.dispatch("shoppingCommentList", request).then((data) => {
         if(data.data.appraisalList.length > 0){
           this.commentInfo = data.data.appraisalList[0].description;
-          this.rateScore = data.data.appraisalList[i].score.value ? parseInt(data.data.appraisalList[0].score.value) : 5;
+          this.rateScore = data.data.appraisalList[0].score.value ? parseInt(data.data.appraisalList[0].score.value) : 5;
           this.popupVisible = true
         }else{
           this.$toast('暂无评价');

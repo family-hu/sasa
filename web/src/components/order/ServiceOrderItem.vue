@@ -145,7 +145,7 @@ export default {
       this.$router.push({
         path: "evaluationOrder",
         query: {
-          servId: this.orderItem.servId.value, //业务编号
+          servId: this.orderItem.orderId.value, //订单ID
           busiType: '1000112101',
           orgId: this.orderItem.orgId.value, //机构
           docId: this.orderItem.acceptUserObj.userId.value, //被评价人
