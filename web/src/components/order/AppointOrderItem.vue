@@ -20,7 +20,7 @@
     <div class="flex-b" style="height:56px">
       <div class="total">订单金额：<span>¥{{orderItem.price.value}}</span></div>
       <div class="btn_box">
-        <!-- <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn_border" @click.stop="cancelOrder">取消订单</a> -->
+        <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn_border" @click.stop="cancelOrder">取消订单</a>
         <a href="javascript:void(0);" v-if="statusName == '待付款'" class="btn_background" @click.stop="goPay">去支付</a>
         <a href="javascript:void(0);" v-if="statusName == '已完成'" class="btn_background" @click.stop="documentDetail">诊疗详情</a>
       </div>

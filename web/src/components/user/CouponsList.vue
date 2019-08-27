@@ -3,7 +3,7 @@
       <div class="empty">
         <img :src="consultationEmpty">
         <div>您暂时还没有优惠券哦</div>
-      </div>=
+      </div>
     </div>
 </template>
 

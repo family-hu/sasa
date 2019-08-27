@@ -178,7 +178,8 @@ export default {
       this.$router.push({
         path: "shopAddComments",
         query: {
-          orderId: this.orderId
+          orderId: this.orderId,
+          prodId: this.orderInfo.prodId.value
         }
       });
     },

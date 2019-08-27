@@ -17,7 +17,6 @@ import * as types from "../../constant/ConstantConfig.js";
 export default {
   data() {
     return {
-      totalPrice: this.$route.query.totalPrice,
       docId: this.$route.query.docId,
       orgId: this.$route.query.orgId
     };

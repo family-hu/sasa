@@ -17,6 +17,12 @@ const mutations = {
 };
 
 const actions = {
+  //查询订单画像明显
+  drawDetList:({ commit }, request) => {
+    return axios.post("drawDetList.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   //订单列表
   orderList:({ commit }, request) => {
     return axios.post("orderList.mo", request, config).then(value => {
