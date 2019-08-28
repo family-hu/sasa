@@ -53,7 +53,9 @@
           year-format="{value}年"
           month-format="{value}月"
           date-format="{value}日"
-          @confirm="handleChange">
+          @confirm="handleChange"
+          :startDate="startDate"
+          :endDate="endDate">
           </mt-datetime-picker>
         </div>
       <!-- 选择性别 -->
@@ -66,11 +68,11 @@
 <script>
 import { mapGetters } from "vuex";
 import * as types from "../../constant/ConstantConfig.js";
-import imgmap from '../../../static/js/imgmap.js';
+import imgmap from "../../../static/js/imgmap.js";
 export default {
   data() {
     return {
-      dateVal: "", // 默认是当前日期
+      dateVal: '', // 默认是当前日期
       selectedValue: "",
       docId: this.$route.query.docId,
       sexs: [],
@@ -80,7 +82,9 @@ export default {
       mobile: "",
       userName: "",
       showSex: false,
-      fileImg: null
+      fileImg: null,
+      startDate: new Date(Date.parse("1900-01-01")),
+      endDate: new Date()
     };
   },
   mounted() {
@@ -95,6 +99,7 @@ export default {
       }
     ];
   },
+
   methods: {
     beforeUpload(file) {
       this.fileImg = file;
@@ -110,13 +115,13 @@ export default {
     },
     // 上传图片
     fileUpload() {
-      let reg =  /^data:image\/(jpeg|png|gif);base64,/;
-      if(reg.test(this.photoUrl)){
-        this.photoUrl = this.photoUrl.replace(reg,'');
+      let reg = /^data:image\/(jpeg|png|gif);base64,/;
+      if (reg.test(this.photoUrl)) {
+        this.photoUrl = this.photoUrl.replace(reg, "");
       }
       let request = {
         fileName: this.fileImg.name, //文件名
-        fileExt: 'jpg', //文件后缀
+        fileExt: "jpg", //文件后缀
         recType: 1004100100, //文件类型-头像
         fileType: 1, //附件类型
         busiId: this.loginData.userObj.userId.value,
@@ -126,16 +131,16 @@ export default {
       this.$store
         .dispatch("fileUpload", request)
         .then(data => {
-          if(data.rtnCode == '1'){
-            this.photoUrl = data.fileUrl
+          if (data.rtnCode == "1") {
+            this.photoUrl = data.fileUrl;
             this.$toast("上传成功");
-          }else{
+          } else {
             this.$toast(data.rtnMsg);
           }
         })
         .catch(e => {
           this.$toast(e.message);
-        })
+        });
     },
     choseMale() {
       this.userSex = "男";
@@ -170,12 +175,13 @@ export default {
       if (!this.checkPhone(this.mobile) && this.mobile) {
         this.$toast("请输入正确的手机号");
         return false;
-      }else{
+      } else {
         this.$indicator.open();
         let request = {
           userid: this.loginData.userObj.userId.value,
           docid: this.docId,
-          gender: this.userSex == "男" ? "1" : this.userSex == "女" ? "0" : "-1",
+          gender:
+            this.userSex == "男" ? "1" : this.userSex == "女" ? "0" : "-1",
           userName: this.userName,
           birth: this.userBirth,
           mobile: this.mobile
@@ -194,23 +200,21 @@ export default {
             this.$indicator.close();
           });
       }
-
     },
     //更新用户信息
     getUserInfo() {
       const userId = this.loginData.userObj.userId.value;
-      this.$store.dispatch("userInfoGet", {userId: userId }).then(data => {
+      this.$store.dispatch("userInfoGet", { userId: userId }).then(data => {
         this.userName = data.userName ? data.userName : data.nickName;
-        this.userSex = data.gender.value == "1" ? '男' : '女';
+        this.userSex = data.gender.value == "1" ? "男" : "女";
         this.userBirth = data.birth;
-        this.mobile = data.mobile ? data.mobile : '';
+        this.mobile = data.mobile ? data.mobile : "";
         this.photoUrl = data.photoUrl ? data.photoUrl : imgmap.mine_headImg;
       });
     }
   },
   computed: {
-    ...mapGetters(["loginData"]),
-
+    ...mapGetters(["loginData"])
   },
   created() {
     const userObj = this.loginData.userObj;
@@ -227,6 +231,9 @@ export default {
   overflow: hidden;
   padding-bottom: 40px;
   background: #fff; /*解决ios自带按钮底部遮挡*/
+}
+.mint-actionsheet-listitem{
+  border-bottom: 1px solid rgba(216, 216, 216, .6)
 }
 </style>
 <style scoped>
@@ -256,6 +263,7 @@ export default {
   font-size: 15px;
   color: #040b1c;
   position: relative;
+  line-height: 54px;
 }
 .file_box {
   position: absolute;
@@ -285,13 +293,13 @@ export default {
   font-size: 16px;
   font-weight: 600;
 }
-.flex_box{
+.flex_box {
   display: flex;
   align-items: center;
 }
-.more{
+.more {
   width: 11px;
   height: 11px;
-  margin-left: 5px
+  margin-left: 5px;
 }
 </style>

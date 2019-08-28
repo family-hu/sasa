@@ -2,22 +2,35 @@
   <div class="main">
     <div class="flex-b title">
       <div class="order_num">订单编号：{{orderList.orderId.value}}</div>
-      <div class="state" v-if="orderList.orderStatusTxt">{{orderList.orderStatusTxt}}</div>
+      <div class="state" v-if="orderList.orderStatusTxt == '已取消' || orderList.orderStatusTxt == '已完成'">{{orderList.orderStatusTxt}}</div>
+      <div class="state" v-else-if="orderList.orderStatusTxt == '待评价'">已完成</div>
+      <div class="state state1" v-else-if="orderList.orderStatusTxt == '已支付'">待服务</div>
+      <div class="state state1" v-else>{{orderList.orderStatusTxt}}</div>
     </div>
     <div class="box" @click="goOrderDetail" >
       <img :src="orderList.picUrl" alt="">
       <div class="text">
-        <p style="margin-bottom:5px">{{orderList.prodName}}</p>
-        <p>¥{{orderList.moneyPay.value}}</p>
+        <p class="order_name">{{orderList.prodName}}</p>
+        <p class="order_num">¥{{orderList.moneyPay.value}}</p>
       </div>
     </div>
-    <div class="flex-b" style="padding:5px 0">
-      <div class="total">总计：<span>¥{{orderList.moneyPay.value}}</span></div>
-      <div class="btn_box">
-        <a class="btn_border" href="javascript:void(0);" @click="goTel" v-if="orderList.orderStatus == '1'">电话预约</a>
-        <a class="btn_background" href="javascript:void(0);" @click="goServiceVoucher" v-if="orderList.orderStatus == '1'">查看券</a>
-        <a class="btn_border" href="javascript:void(0);" @click="goShopAddComments" v-if="orderList.orderStatus == '11'">评价</a>
-        <a class="btn_background" href="javascript:void(0);" @click="goShopReport" v-if="orderList.orderStatus == '11'">查看报告</a>
+    <div class="flex-b" style="height:56px">
+      <div class="total">订单金额：<span>¥{{orderList.moneyPay.value}}</span></div>
+      <div class="btn_box" v-if="orderList.orderStatus == '0'">
+        <a href="javascript:void(0);" class="btn_border" @click="cancelOrder">取消订单</a>
+        <a href="javascript:void(0);" class="btn_background" @click="goPay">去支付</a>
+      </div>
+      <div class="btn_box" v-if="orderList.orderStatus == '1'">
+        <a class="btn_border" href="javascript:void(0);" @click="goTel">电话预约</a>
+        <a class="btn_background" href="javascript:void(0);" @click="goServiceVoucher">查看券</a>
+      </div>
+      <div class="btn_box" v-if="orderList.orderStatus == '11'">
+        <a class="btn_border" href="javascript:void(0);" @click="goShopAddComments">去评价</a>
+        <a class="btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
+      </div>
+      <div class="btn_box" v-if="orderList.orderStatus == '12'">
+        <a class="btn_border" href="javascript:void(0);" @click="goShopQueryComments">查看评价</a>
+        <a class="btn_background" href="javascript:void(0);" @click="goShopReport">查看报告</a>
       </div>
     </div>
   </div>
@@ -40,6 +53,45 @@ export default {
   mounted() {},
 
   methods: {
+    //查看评价
+    goShopQueryComments() {
+      this.$emit("child",this.orderList.prodId.value,this.orderList.orderId.value);
+    },
+    //去支付
+    goPay() {
+      this.$router.push({
+        path: "shopPayList",
+        query: {
+          totalPrice: this.orderList.moneyPay.value, //合计支付金额
+          packageName: this.orderList.prodName,
+          orderId: this.orderList.orderId.value
+        }
+      });
+    },
+    //取消订单
+    cancelOrder() {
+      let request = {
+        finOrderId : this.orderList.orderId.value,
+      };
+      this.$store
+        .dispatch("shopCancelOrder", request)
+        .then(data => {
+          if(data.rtnCode == '1'){//订单取消成功
+            this.$toast('订单取消成功');
+            this.$router.push({
+              path: "shopOrderList",
+              query: {
+                orgId: this.orderList.orgId.value
+              }
+            })
+          }else{
+            this.$toast(data.rtnMsg);
+          }
+        })
+        .catch(e => {
+          this.$toast(e.message);
+        });
+    },
     goTel() {
       this.$toast("电话预约，敬请期待～");
     },
@@ -93,22 +145,25 @@ export default {
   margin-top: 10px;
 }
 .title {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(238, 238, 238, 0.6);
+  padding-top:10px;
 }
 .order_num {
-  color: #7a8093;
-  font-size: 15px;
+  color:rgba(4,11,28,.5);
+  font-size: 13px;
 }
 .state {
-  color: #ff4343;
   font-size: 13px;
+  font-weight: 500;
+  color:rgba(4,11,28,.5);
+}
+.state1{
+  color: #FF0A0A;
 }
 .box {
   display: flex;
   align-items: center;
   padding: 11px 0;
-  border-bottom: 1px solid rgba(238, 238, 238, 0.6);
+  border-bottom: 1px solid rgba(4,11,28,.1);
 }
 .box img {
   width: 81px;
@@ -117,17 +172,15 @@ export default {
 .text {
   margin-left: 10px;
 }
-.text p {
-  font-size: 14px;
-  color: #333;
+.order_name {
+  font-size: 16px;
+  color: #040B1C;
   font-weight: 500;
+  margin-bottom: 5px;
 }
 .total {
   font-size: 13px;
-  color: #000;
-}
-.total span {
-  font-weight: 500;
+  color: #040B1C;
 }
 .btn_box {
   background: #fff;
@@ -138,20 +191,20 @@ export default {
 .btn_box a {
   display: block;
   margin-right: 16px;
-  width: 71px;
-  height: 29px;
-  line-height: 29px;
+  width: 72px;
+  height: 26px;
+  line-height: 26px;
   text-align: center;
-  border-radius: 2px;
   font-size: 13px;
+  border-radius: 13px;
 }
 .btn_border {
-  border: 1px solid #0093ff;
-  color: #0093ff;
+  border: 1px solid #0076FF;
+  color: #0076FF;
   background: #fff;
 }
 .btn_background {
-  background: #0093ff;
+  background: #0076FF;
   color: #fff;
   border: 1px solid transparent;
 }

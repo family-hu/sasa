@@ -66,24 +66,24 @@ export default {
         path: "healthServiceDetail",
         query: {
           packDetailsId: this.prodId,
-          serviceCompanyId: this.orderInfo.compayInfo.serviceCompanyId,
+          serviceCompanyId: this.orderInfo.compayInfo.serviceCompanyId.value,
           orgId: this.orderInfo.orgId.value,
-          orgNames: this.orderInfo.compayInfo.name
+          // orgNames: this.orderInfo.compayInfo.name
         }
       });
     },
     //提价评论
     submitComment() {
-      console.log(this.rateScore,this.msg);
+      this.$indicator.open();
       let request = {
         appraisal : {
           resourceId : this.prodId, //套餐ID
           userId : this.loginData.userObj.userId.value,
           type : "2",
           score : this.rateScore,
-          description : this.msg
+          description : this.msg,
+          orderId: this.orderId,
         },
-        orderId: this.orderId,
         imageIdList : []
 
       };
@@ -99,10 +99,14 @@ export default {
         })
         .catch(e => {
           this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
-    //确认信息-订单详情
+    //订单详情
     getShopOrderDetail() {
+      this.$indicator.open();
       let request = {
         orderId: this.orderId
       };
@@ -116,6 +120,9 @@ export default {
         })
         .catch(e => {
           this.$toast(e.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //上传图片

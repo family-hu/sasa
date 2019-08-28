@@ -86,6 +86,12 @@ const actions = {
       return value.data;
     }).catch(err);
   },
+  //查询评价
+  evaInfoGet: ({ commit }, request) => {
+    return axios.post("evaInfoGet.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   // 服务列表
   serviceList: ({ commit }, request) => {
     return axios.post("serviceList.mo", request, config).then(value => {

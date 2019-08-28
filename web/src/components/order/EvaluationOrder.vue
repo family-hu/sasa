@@ -58,6 +58,7 @@ export default {
       orgId: this.$route.query.orgId,
       servId: this.$route.query.servId,
       docId: this.$route.query.docId,
+      busiType: this.$route.query.busiType,
       evaluationServerScore: 5, //服务态度
       evaluationMajorScore: 5, //医生专业
       evaluationTimeScore: 5, //回复时效
@@ -80,7 +81,7 @@ export default {
       this.$router.push({
         path: "doctorDetail",
         query: {
-          docId: this.docId,
+          userId: this.docId,
         }
       });
     },
@@ -152,7 +153,7 @@ export default {
     submitEvaInfo() {
       let request = {
         busiId: this.servId, //业务编号
-        busiType: 2000104, //业务类型
+        busiType: this.busiType, //业务类型 1000112101-服务包  2000104-在线问诊
         orgId: this.orgId, //机构
         userFrom: this.loginData.userObj.userId.value, //评价人
         userTo: this.docId, //被评价人

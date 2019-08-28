@@ -17,6 +17,12 @@ const mutations = {
 };
 
 const actions = {
+  //查询订单画像明显
+  drawDetList:({ commit }, request) => {
+    return axios.post("drawDetList.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   //订单列表
   orderList:({ commit }, request) => {
     return axios.post("orderList.mo", request, config).then(value => {
@@ -49,6 +55,13 @@ const actions = {
   servOrderList: ({ commit }, request) => {
     return axios.post("servOrderList.mo", request, config).then(value => {
       return {orderList:value.data.dataList, total: value.data.total.value};
+    }).catch(err);
+  },
+
+  //服务包订单详情
+  servOrderInfoGet:({ commit }, request) => {
+    return axios.post("servOrderInfoGet.mo", request, config).then(value => {
+      return value.data;
     }).catch(err);
   },
 

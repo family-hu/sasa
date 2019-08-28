@@ -225,7 +225,6 @@ export default {
           path: "serviceSubmitPay",
           query: {
             servId: this.servId,
-            price: this.serviceDetail.price,
             acceptUser: this.serviceDetail.acceptId.value,
             orgId: this.serviceDetail.orgObj.orgId.value
           }

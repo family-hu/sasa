@@ -17,9 +17,9 @@ import * as types from "../../constant/ConstantConfig.js";
 export default {
   data() {
     return {
-      totalPrice: this.$route.query.totalPrice,
       docId: this.$route.query.docId,
-      orgId: this.$route.query.orgId
+      orgId: this.$route.query.orgId,
+      type: this.$route.query.type
     };
   },
 
@@ -45,12 +45,29 @@ export default {
       });
     },
     goOrderDetail() {
-      this.$router.push({
-        path: "orderList",
-        query: {
-          orgId: this.orgId
-        }
-      });
+      if(this.type == 'service'){//服务包订单
+        this.$router.push({
+          path: "serviceOrderList",
+          query: {
+            orgId: this.orgId
+          }
+        });
+      }else if(this.type == 'chat'){ //问诊订单
+        this.$router.push({
+          path: "orderList",
+          query: {
+            orgId: this.orgId
+          }
+        });
+      }else if(this.type == 'appoint'){ //预约订单
+        this.$router.push({
+          path: "appointOrderList",
+          query: {
+            orgId: this.orgId
+          }
+        });
+      }
+
     }
 
   },

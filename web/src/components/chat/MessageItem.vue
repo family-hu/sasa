@@ -556,8 +556,12 @@ export default {
     },
     //资讯详情
     articleDetail() {
-      window.location.href =
-        types.NEWS_DETAIL + this.message.chatBody.articleObj.newsId;
+      this.$router.push({
+        path: "newsDetail",
+        query: {
+          newsId: this.message.chatBody.articleObj.newsId
+        }
+      });
     },
     //随访计划详情
     visitDetail() {

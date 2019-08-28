@@ -160,9 +160,9 @@ export default {
               vm.$router.push({
                 path: "chatPayOk",
                 query: {
-                  totalPrice: vm.price,
                   docId: this.drId,
-                  orgId: this.orgId
+                  orgId: this.orgId,
+                  type: 'chat'
                 }
               });
             }
@@ -187,9 +187,9 @@ export default {
           vm.$router.push({
             path: "chatPayOk",
             query: {
-              totalPrice: vm.price,
               docId: this.drId,
-              orgId: this.orgId
+              orgId: this.orgId,
+              type: 'chat'
             }
           });
         } else {

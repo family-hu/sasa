@@ -25,7 +25,7 @@
         <div class="price_box">
           <div class="price">
             <span class="now">¥{{sellPrice}}</span>
-            <!-- <del class="old" v-if="crossLinePrice != '0' || crossLinePrice != '0.00'">门市价:¥{{crossLinePrice}}</del> -->
+            <del class="old">门市价:¥{{crossLinePrice}}</del>
           </div>
           <!-- <div class="point">{{shopScore}}分</div> -->
           <div v-if="!browse" style="height: 26px;">
@@ -90,7 +90,7 @@
                   <img class="icon" v-else :src="userImg">
                   <div>
                     <span class="namecs">{{item.nickName}}</span>
-                    <el-rate v-model="rateScore" disabled text-color="#ff9900" score-template="{value}" allow-half></el-rate>
+                    <el-rate v-model="rateScore" disabled text-color="#FF7A00" score-template="{value}" allow-half></el-rate>
                   </div>
                 </div>
                 <div class="times">{{item.createTime}}</div>
@@ -585,6 +585,7 @@ export default {
   },
 
   created() {
+    console.log(this.serviceCompanyId,'==serviceCompanyId');
     this.getPackagesDetail();
     this.getServiceCompany();
     this.getPackagesProductList();
@@ -1083,6 +1084,7 @@ p {
   font-size: 14px;
   color: rgba(34, 34, 34, 1);
   margin-top: 18px;
+  word-break: break-all;
 }
 .item_tag {
   margin-top: 15px;

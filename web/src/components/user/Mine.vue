@@ -152,7 +152,7 @@ export default {
         "&orgId=" +
         this.orgId;
     },
-    // 我的家人
+    // 常用联系人
     goFamliy() {
       this.$router.push({ path: "medicalManList", query: { from: "mine" } });
     },

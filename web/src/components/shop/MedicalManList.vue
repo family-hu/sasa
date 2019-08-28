@@ -5,7 +5,7 @@
           <div class="list-item"  v-for="(item,index) in msgList" :key="index" data-type="0">
             <div class="list-box" @touchstart.capture="touchStart" @touchend.capture="touchEnd">
                 <div class="list flex-b">
-                  <div style="width:80%" v-if="from">
+                  <div style="width:80%" v-if="from == 'mine' && from">
                     <p class="name">{{item.userName}}<span v-if="item.gender == '0'">女</span><span v-if="item.gender == '1'">男</span></p>
                     <p class="phone">手机号：{{item.mobile}}</p>
                     <p class="code">身份证：{{item.cardNo}}</p>
@@ -32,8 +32,17 @@ import * as types from "../../constant/ConstantConfig.js";
 export default {
   data() {
     return {
+      //商城
       idList: this.$route.query.idList,
+      packDetailsId: this.$route.query.packDetailsId,
+      serviceCompanyId: this.$route.query.serviceCompanyId,
+      //来源
       from: this.$route.query.from,
+      //服务包
+      orgId: this.$route.query.orgId,
+      acceptUser: this.$route.query.acceptUser,
+      servId: this.$route.query.servId,
+      busiId: this.$route.query.busiId,
       // startX: 0, //触摸位置
       // endX: 0, //结束位置
       // moveX: 0, //滑动时的位置
@@ -134,7 +143,14 @@ export default {
         query: {
           title: "编辑联系人",
           msgList: JSON.stringify(this.msgList[index]),
-          idList: this.idList
+          idList: this.idList,
+          packDetailsId: this.packDetailsId,
+          serviceCompanyId: this.serviceCompanyId,
+          from: this.from,
+          orgId: this.orgId,
+          acceptUser: this.acceptUser,
+          servId: this.servId,
+          busiId: this.busiId,
         }
       });
     },
@@ -144,19 +160,42 @@ export default {
         path: "medicalManItem",
         query: {
           title: "新增联系人" ,
-          idList: this.idList
+          idList: this.idList,
+          packDetailsId: this.packDetailsId,
+          serviceCompanyId: this.serviceCompanyId,
+          from: this.from,
+          orgId: this.orgId,
+          acceptUser: this.acceptUser,
+          servId: this.servId,
+          busiId: this.busiId
         }
       });
     },
     //选中地址
     selectedList(index) {
-      this.$router.push({
-        path: "confirmOrder",
-        query: {
-          msgList: JSON.stringify(this.msgList[index]),
-          idList: this.idList,
-        }
-      });
+      if(this.from == 'service'){//服务包
+        this.$router.push({
+          path: "serviceSubmitPay",
+          query: {
+            msgList: JSON.stringify(this.msgList[index]),
+            orgId: this.orgId,
+            acceptUser: this.acceptUser,
+            servId: this.servId,
+            busiId: this.busiId
+          }
+        });
+      }else{
+        this.$router.push({//商城
+          path: "confirmOrder",
+          query: {
+            msgList: JSON.stringify(this.msgList[index]),
+            idList: this.idList,
+            packDetailsId: this.packDetailsId,
+            serviceCompanyId: this.serviceCompanyId,
+          }
+        });
+      }
+
     },
     //预约信息列表
     getUserMsgList() {
