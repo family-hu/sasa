@@ -16,7 +16,7 @@
           </div>
           <div class="empty" v-if="empty">
             <img :src="consultationEmpty">
-            <div class="text" v-if="status == '-1'">您还没有预约订单呢</div>
+            <div class="text" v-if="status == '-1' && orgId">您还没有预约订单呢</div>
             <a href="javascript:void(0);" @click="goDoctorMore" v-if="status == '-1' && orgId">去预约</a>
             <div class="text" v-else>您还没有相关订单呢</div>
           </div>

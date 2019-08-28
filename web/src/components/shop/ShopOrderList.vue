@@ -16,7 +16,7 @@
             <!-- 全部订单 -->
             <div class="empty" v-if="empty">
               <img :src="consultationEmpty">
-              <div v-if="!status">您还没有医疗服务订单呢</div>
+              <div v-if="!status && orgId && orgId != '0'">您还没有医疗服务订单呢</div>
               <a href="javascript:void(0);" @click="goShopping" v-if="!status && orgId && orgId != '0'">去购买</a>
               <div v-else>您还没有相关订单呢</div>
             </div>

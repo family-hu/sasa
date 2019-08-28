@@ -17,7 +17,7 @@
         </div>
         <div class="empty" v-if="empty">
             <img :src="consultationEmpty">
-            <div v-if="status == '0'">您还没有服务包订单呢</div>
+            <div v-if="status == '0'&& orgId">您还没有服务包订单呢</div>
             <a v-if="status == '0' && orgId" href="javascript:void(0);" @click="goDoctorMore">去购买</a>
             <div v-else>您还没有相关订单呢</div>
         </div>

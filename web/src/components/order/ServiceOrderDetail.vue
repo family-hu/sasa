@@ -4,7 +4,7 @@
         <div class="orderStatusTxt">{{statusName}} <span v-if="statusName == '服务中'">医生将在24小时内联系您，请耐心等待</span></div>
       </div>
       <div class="main">
-        <div class="box flex-b" @click="goDocDetail" v-if="serviceItem">
+        <div class="box flex-b" @click="goServiceDetail" v-if="serviceItem">
           <div class="name_box">
             <img class="img" :src="servImgUrl" alt="">
             <div class="text">
@@ -245,12 +245,12 @@ export default {
           this.$indicator.close();
         });
     },
-    //医生主页
-    goDocDetail() {
+    //服务包详情
+    goServiceDetail() {
       this.$router.push({
-        path: "doctorDetail",
+        path: "serviceDetail",
         query: {
-          userId: this.serviceItem.acceptUserObj.userId.value
+          servId: this.serviceItem.servId.value
         }
       });
     },
