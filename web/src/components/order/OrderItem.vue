@@ -138,6 +138,7 @@ export default {
       return "";
     },
     statusName() {
+      //状态分类 0等待处理 1已受理 2问诊中 3已完成 4已取消 5待付款
       let statusType = this.orderItem.statusType.value;
       if(statusType == '0'){
         return "等待受理";

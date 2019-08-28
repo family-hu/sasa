@@ -128,6 +128,9 @@
     border: 0;
   }
   /* 没有内容默认样式  */
+  .empty_tab{
+    margin-top: 44px;
+  }
   .empty{
     position: fixed;
     top: 0;

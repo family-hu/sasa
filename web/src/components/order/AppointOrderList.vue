@@ -14,7 +14,7 @@
             <!-- 没有更多提示 -->
             <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
           </div>
-          <div class="empty" v-if="empty">
+          <div class="empty empty_tab" v-if="empty">
             <img :src="consultationEmpty">
             <div class="text" v-if="status == '-1' && orgId">您还没有预约订单呢</div>
             <a href="javascript:void(0);" @click="goDoctorMore" v-if="status == '-1' && orgId">去预约</a>
