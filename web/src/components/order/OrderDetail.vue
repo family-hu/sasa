@@ -319,6 +319,7 @@ export default {
     },
     //查看画像
     drawDetList(){
+      this.tagList = [];
       let request = {
         busiId: this.orderDetail.servId.value //订单ID
       };

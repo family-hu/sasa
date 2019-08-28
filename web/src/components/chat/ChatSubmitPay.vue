@@ -161,7 +161,8 @@ export default {
                 path: "chatPayOk",
                 query: {
                   docId: this.drId,
-                  orgId: this.orgId
+                  orgId: this.orgId,
+                  type: 'chat'
                 }
               });
             }
@@ -187,7 +188,8 @@ export default {
             path: "chatPayOk",
             query: {
               docId: this.drId,
-              orgId: this.orgId
+              orgId: this.orgId,
+              type: 'chat'
             }
           });
         } else {

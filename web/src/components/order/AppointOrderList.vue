@@ -16,8 +16,8 @@
           </div>
           <div class="empty" v-if="empty">
             <img :src="consultationEmpty">
-            <div class="text" v-if="status == '-1'">您还没有预约订单呢</div>
-            <a href="javascript:void(0);" @click="goDoctorMore" v-if="status == '-1'">去预约</a>
+            <div class="text" v-if="status == '-1' && orgId">您还没有预约订单呢</div>
+            <a href="javascript:void(0);" @click="goDoctorMore" v-if="status == '-1' && orgId">去预约</a>
             <div class="text" v-else>您还没有相关订单呢</div>
           </div>
         </div>
@@ -137,9 +137,14 @@ export default {
       this.$indicator.open();
       this.$store
         .dispatch("docorderstepop", request)
-        .then(() => {
-          this.$toast("取消成功");
-          vm.updateOrderItem(request);
+        .then(data => {
+          if(data.rtnCode == '1'){
+            this.$toast("取消成功");
+            vm.updateOrderItem(request);
+          }else{
+            this.$toast("取消失败");
+          }
+
         })
         .catch(e => {
           this.$toast(e.message);
@@ -161,6 +166,7 @@ export default {
 
     requestOrderList(status) {
       this.$indicator.open();
+      this.status = status;
       this.loading = true;
       let userId = this.loginData.userObj.userId.value;
       let request = {

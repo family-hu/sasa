@@ -17,8 +17,8 @@
         </div>
         <div class="empty" v-if="empty">
             <img :src="consultationEmpty">
-            <div v-if="status == '-1'">您还没有问诊订单呢</div>
-            <a href="javascript:void(0);" v-if="status == '-1'" @click="goDoctorMore">去问诊</a>
+            <div v-if="status == '-1' && orgId">您还没有问诊订单呢</div>
+            <a href="javascript:void(0);" v-if="status == '-1' && orgId" @click="goDoctorMore">去问诊</a>
             <div v-else>您还没有相关订单</div>
         </div>
       </div>
@@ -96,6 +96,7 @@ export default {
     },
     //查看画像
     drawDetList(busiId){
+      this.tagList = [];
       let request = {
         busiId: busiId //订单ID
       };

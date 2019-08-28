@@ -52,10 +52,10 @@ export default {
       busiId: this.$route.query.busiId,
       msgList: this.$route.query.msgList,
       serviceDetail: {},
-      servUserDesp: '',
-      servUserName: '',
-      servUserMobile: '',
-      servUserCardNo: ''
+      servUserDesp: "",
+      servUserName: "",
+      servUserMobile: "",
+      servUserCardNo: ""
     };
   },
 
@@ -68,26 +68,26 @@ export default {
     },
     //服务包描述
     servDesp() {
-      let servName = '';
+      let servName = "";
       let serv = this.serviceDetail;
       if (serv) {
         servName = serv.desp;
         let nowLength = this.serviceDetail.length;
         if (nowLength > 30) {
-          servName = servName.substr(0, 30) + '...';
+          servName = servName.substr(0, 30) + "...";
         }
       }
       return servName;
     },
     //服务包名称
     servName() {
-      let servName = '';
+      let servName = "";
       let serv = this.serviceDetail;
       if (serv) {
         servName = serv.servName;
         let nowLength = this.serviceDetail.length;
         if (nowLength > 10) {
-          servName = servName.substr(0, 10) + '...';
+          servName = servName.substr(0, 10) + "...";
         }
       }
       return servName;
@@ -108,8 +108,8 @@ export default {
   methods: {
     //优惠券
     coupons() {
-      if(this.servUserDesp){
-        sessionStorage.setItem('servUserDesp',this.servUserDesp);
+      if (this.servUserDesp) {
+        sessionStorage.setItem("servUserDesp", this.servUserDesp);
       }
       this.$router.push({
         path: "couponsList"
@@ -117,13 +117,13 @@ export default {
     },
     // 常用联系人
     goFamliy() {
-      if(this.servUserDesp){
-        sessionStorage.setItem('servUserDesp',this.servUserDesp);
+      if (this.servUserDesp) {
+        sessionStorage.setItem("servUserDesp", this.servUserDesp);
       }
       this.$router.push({
         path: "medicalManList",
         query: {
-          from: "service" ,
+          from: "service",
           orgId: this.orgId,
           acceptUser: this.acceptUser,
           servId: this.servId,
@@ -156,8 +156,8 @@ export default {
     },
     //确认支付
     submitOrder() {
-      if(!this.servUserName){
-        this.$toast('请选择预约人');
+      if (!this.servUserName) {
+        this.$toast("请选择预约人");
         return false;
       }
       let vm = this;
@@ -210,13 +210,14 @@ export default {
               request = eval("(" + request + ")");
               vm.invokeWx(request);
             } else {
-              sessionStorage.removeItem('servUserDesp');
+              sessionStorage.removeItem("servUserDesp");
               //支付成功
               vm.$router.push({
                 path: "chatPayOk",
                 query: {
                   docId: this.serviceDetail.acceptId.value,
-                  orgId: this.orgId
+                  orgId: this.orgId,
+                  type: 'service'
                 }
               });
             }
@@ -225,7 +226,6 @@ export default {
             this.$toast("网络异常，支付失败");
             vm.$router.go(-1);
           }
-
         })
         .catch(e => {
           this.$toast(e.message);
@@ -238,20 +238,18 @@ export default {
       let vm = this;
       WeixinJSBridge.invoke("getBrandWCPayRequest", request, function(res) {
         if (res.err_msg == "get_brand_wcpay_request:ok") {
-          // 使用以上方式判断前端返回,微信团队郑重提示：
-          //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
-          // alert("支付成功");
-          sessionStorage.removeItem('servUserDesp');
           //支付成功
           vm.$router.push({
             path: "chatPayOk",
             query: {
-              docId: this.serviceDetail.acceptId.value,
-              orgId: this.orgId
+              docId: vm.serviceDetail.acceptId.value,
+              orgId: vm.orgId,
+              type: 'service'
             }
           });
+          sessionStorage.removeItem("servUserDesp");
         } else {
-          this.$toast("支付失败");
+          vm.$toast("支付失败");
         }
       });
     },
@@ -283,20 +281,19 @@ export default {
   created() {
     this.servInfoGet();
     //缓存病情表述
-    let servUserDesp = sessionStorage.getItem('servUserDesp');
-    if(servUserDesp){
+    let servUserDesp = sessionStorage.getItem("servUserDesp");
+    if (servUserDesp) {
       this.servUserDesp = servUserDesp;
     }
-    let msgList = this.msgList ? JSON.parse(this.msgList) : '';
-    if(!msgList){
-      return false
-    }else{
+    let msgList = this.msgList ? JSON.parse(this.msgList) : "";
+    if (!msgList) {
+      return false;
+    } else {
       this.servUserName = msgList.userName;
-      this.servUserMobile = msgList.mobile,
-      this.servUserCardNo = msgList.cardNo
+      (this.servUserMobile = msgList.mobile),
+        (this.servUserCardNo = msgList.cardNo);
     }
   }
-
 };
 </script>
 
@@ -307,12 +304,12 @@ export default {
   height: 60px;
   padding: 0 16px;
   font-size: 16px;
-  color: #040B1C;
+  color: #040b1c;
 }
-.user_info .choose{
-  color:rgba(4,11,28,.5);
+.user_info .choose {
+  color: rgba(4, 11, 28, 0.5);
 }
-.choose img{
+.choose img {
   width: 6px;
   height: 11px;
   margin-left: 5px;
@@ -329,7 +326,7 @@ export default {
   border-radius: 4px;
   display: flex;
 }
-.servImg{
+.servImg {
   width: 72px;
   height: 72px;
   margin-right: 15px;
@@ -361,41 +358,41 @@ export default {
   margin-bottom: 10px;
   margin-right: 5px;
 }
-.desp_box{
+.desp_box {
   padding: 16px;
-  background: #fff
+  background: #fff;
 }
-.desp_box textarea{
-  color:#040B1C;
+.desp_box textarea {
+  color: #040b1c;
   font-size: 14px;
   width: 100%;
   margin-top: 10px;
   min-height: 80px;
-  border:none;
+  border: none;
   resize: none;
   margin-bottom: 10px;
-  background: #fff
+  background: #fff;
 }
-.title_desp{
-  color:#040B1C;
+.title_desp {
+  color: #040b1c;
   font-size: 16px;
 }
-.cell_box{
+.cell_box {
   padding: 0 16px;
-  background: #ffff
+  background: #ffff;
 }
 .cell {
   height: 46px;
-  border-top:1px solid rgba(4,11,28,.1);
+  border-top: 1px solid rgba(4, 11, 28, 0.1);
   font-size: 16px;
-  color: #040B1C;
+  color: #040b1c;
 }
-.cell .choose{
-  color:rgba(4,11,28,.5);
+.cell .choose {
+  color: rgba(4, 11, 28, 0.5);
   font-size: 14px;
 }
-.cell .price{
-  color: #FF0000
+.cell .price {
+  color: #ff0000;
 }
 .btn_box {
   position: fixed;
@@ -404,7 +401,7 @@ export default {
   padding: 10px 16px;
   box-sizing: border-box;
   background: #fff;
-  box-shadow:0px 0px 14px 2px rgba(0,0,0,0.08);
+  box-shadow: 0px 0px 14px 2px rgba(0, 0, 0, 0.08);
 }
 .btn_box .btn {
   display: block;
@@ -418,9 +415,6 @@ export default {
   font-size: 16px;
   font-weight: 600;
 }
-
-
-
 
 .titlecs {
   font-size: 14px;

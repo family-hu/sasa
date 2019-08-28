@@ -81,9 +81,9 @@ export default {
           userId : this.loginData.userObj.userId.value,
           type : "2",
           score : this.rateScore,
-          description : this.msg
+          description : this.msg,
+          orderId: this.orderId,
         },
-        orderId: this.orderId,
         imageIdList : []
 
       };
