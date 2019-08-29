@@ -20,6 +20,12 @@ const mutations = {
 };
 
 const actions = {
+  //关注公众号
+  jvWxpayOrgQcode: ({ commit }, request) => {
+    return axios.post("sk/jvWxpayOrgQcode.mo", request, shoppingConfigPay).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   //机构模块消息列表
   sysOrgModeList: ({ commit }, request) => {
     return axios.post("sysOrgModeList.mo", request, config).then(value => {

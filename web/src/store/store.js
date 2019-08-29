@@ -24,8 +24,8 @@ export default new Vuex.Store({
     cacheName: ['Main', 'ConsultationMain'],
     appCode: '1', //1正式，3测试
     loginUrl: 'http://vip.sinoylb.com/wxreload.aspx?appCode=',
-    appId: ' wx923325685a35b7d4',
-    //  wx3bbbb5ec55d100c4
+    appId: 'wx3bbbb5ec55d100c4',
+    // wx923325685a35b7d4
     getQueryString(name) {
       let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
       let r = window.location.search.substr(1).match(reg);

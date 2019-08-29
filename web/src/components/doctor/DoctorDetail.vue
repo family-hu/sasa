@@ -1337,7 +1337,7 @@ export default {
 }
 .dialog-fade-in {
   display: block;
-  animation: dialog-fade-in 0.5s;
+  animation: dialog-fade-in 0.3s;
   animation-fill-mode: forwards;
   /* height: 361px;
   transition: all 0.5s liner !important;
