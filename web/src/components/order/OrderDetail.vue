@@ -371,9 +371,9 @@ export default {
       };
       this.$store
         .dispatch("orderList", request)
-        .then(orderList => {
-          if (orderList) {
-            this.orderDetail = orderList[0];
+        .then(data => {
+          if (data.orderList) {
+            this.orderDetail = data.orderList[0];
           }
         })
         .catch(error => {

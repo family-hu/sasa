@@ -14,7 +14,7 @@
         <mt-tab-container v-model="selected" style="padding-top:44px">
           <div id="1" style="width:100%">
             <!-- 全部订单 -->
-            <div class="empty" v-if="empty">
+            <div class="empty empty_tab" v-if="empty">
               <img :src="consultationEmpty">
               <div v-if="!status && orgId && orgId != '0'">您还没有医疗服务订单呢</div>
               <a href="javascript:void(0);" @click="goShopping" v-if="!status && orgId && orgId != '0'">去购买</a>
@@ -185,9 +185,6 @@ export default {
   }
 </style>
 <style scoped>
-.empty{
-  top:44px;
-}
 /deep/.mint-navbar .mint-tab-item{
   margin: 0 14px;
   padding: 14px 0;

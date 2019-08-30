@@ -26,7 +26,7 @@ const actions = {
   //订单列表
   orderList:({ commit }, request) => {
     return axios.post("orderList.mo", request, config).then(value => {
-      return value.data.orderList;
+      return {orderList: value.data.orderList, total: value.data.total.value};
     }).catch(err);
   },
 

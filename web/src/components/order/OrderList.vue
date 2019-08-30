@@ -15,7 +15,7 @@
           <!-- 没有更多提示 -->
           <bottomloadMore v-if="loaded && orderList.length > 3"></bottomloadMore>
         </div>
-        <div class="empty" v-if="empty">
+        <div class="empty empty_tab" v-if="empty">
             <img :src="consultationEmpty">
             <div v-if="status == '-1' && orgId">您还没有问诊订单呢</div>
             <a href="javascript:void(0);" v-if="status == '-1' && orgId" @click="goDoctorMore">去问诊</a>
@@ -165,6 +165,7 @@ export default {
 
     loadMore() {
       if (!this.loaded) {
+        this.page++;
         this.requestOrderList(this.status);
       }
     },
@@ -185,17 +186,21 @@ export default {
       let vm = this;
       this.$store
         .dispatch("orderList", request)
-        .then(orderList => {
-          vm.page++;
-          if (orderList.length > 0) {
-            for (let i = 0; i < orderList.length; i++) {
-              vm.orderList.push(orderList[i]);
+        .then(data => {
+          if (data.orderList.length > 0) {
+            for (let i = 0; i < data.orderList.length; i++) {
+              vm.orderList.push(data.orderList[i]);
             }
-            vm.loaded = orderList.length != 10;
-          } else {
+            vm.loaded = true;
+            vm.loading = false;
+            if(status == '-1'){
+              //total状态分类 0等待处理 1已受理 2问诊中 3已完成 4已取消 5待付款
+              vm.loaded = vm.orderList.length == data.total;
+            }
+          }else{
             vm.empty = true;
+            vm.loaded = true;
           }
-          vm.loading = false;
         })
         .catch(error => {
           vm.loading = false;

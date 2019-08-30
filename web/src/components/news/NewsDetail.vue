@@ -1,5 +1,16 @@
 <template>
     <div v-if="newsDetail != ''">
+      <div class="head_bar flex-b">
+        <div class="flex_box" @click="backHome">
+          <img src="/static/img/bar_back_home@2x.png" alt="">
+          <span>{{newsDetail.orgName}}</span>
+        </div>
+        <div>
+          <img @click="focusDoc" src="/static/img/bar_ewm@2x.png" alt="">
+          <img @click="backMine" src="/static/img/bar_back_mine@2x.png" alt="">
+        </div>
+      </div>
+      <div class="placeholder_div"></div>
       <div class="main">
         <div class="title">{{newsDetail.title}}</div>
         <div class="title_box">
@@ -14,27 +25,70 @@
         </div>
       </div>
       <div class="news_share" @click="share"></div>
+      <div class="work_btn" @click="working">
+        <img src="/static/img/work_icon.png" alt="">
+      </div>
       <!-- 没有更多提示 -->
-      <bottomloadMore v-if="show"></bottomloadMore>
+      <bottomloadMore v-if="showTip"></bottomloadMore>
+      <!-- 关注二维码 -->
+      <div class="doctorCode" v-if="codeShade">
+        <img :src="docCode" alt="">
+        <p>长按识别，关注公众号</p>
+      </div>
+      <!-- 底部工作台 -->
+      <div class="shade" v-if="work || codeShade" @click="closeWork"></div>
+      <div class="dialog_box" :class=" work ? 'dialog-fade-in' : 'dialog-fade-out'">
+        <div class="center_box">
+          <dl @click="backHome">
+            <dt><img src="/static/img/work_home.png" alt=""></dt>
+            <dd>首页</dd>
+          </dl>
+          <dl @click="focusDoc">
+            <dt><img src="/static/img/work_public.png" alt=""></dt>
+            <dd>进入公众号</dd>
+          </dl>
+          <dl @click="backMine">
+            <dt><img src="/static/img/work_mine.png" alt=""></dt>
+            <dd>我的</dd>
+          </dl>
+          <dl @click="backMsg">
+            <dt>
+              <div class="msg_box">
+                <img src="/static/img/work_msg.png" alt="">
+                <span v-if="unreadNum > 0" class="hot_dot">{{unreadNum}}</span>
+              </div>
+            </dt>
+            <dd>消息</dd>
+          </dl>
+        </div>
+        <a class="close_btn" href="javascript:void(0);" @click="closeWork">关闭</a>
+      </div>
     </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import BottomloadMore from "../../customComponents/BottomloadMore.vue";
 import * as types from "../../constant/ConstantConfig.js";
-import imgMap from '../../../static/js/imgmap.js';
+import imgMap from "../../../static/js/imgmap.js";
 export default {
   data() {
     return {
       newsDetail: {},
       newsId: this.$route.query.newsId,
-      show: false
+      showTip: false,
+      proUserId: this.$route.query.proUserId ? this.$route.query.proUserId : null, //分享者userid
+      docCode: "",
+      codeShade: false,
+      work: false,
+      unreadNum: ''
     };
   },
   components: {
     bottomloadMore: BottomloadMore
   },
   computed: {
+    ...mapGetters(["loginData", "appId"]),
     orgImg() {
       if (this.newsDetail.orgUrl) return this.newsDetail.orgUrl;
       return imgMap.orgImg;
@@ -47,24 +101,125 @@ export default {
     }, 1000);
   },
   //加载前获取当前URL，解决iOS重定向路由
-  beforeRouteEnter (to, from , next) {
-    console.log('beforeRouteEnter');
-    next( vm => {
-      if (!window.localStorage.getItem( 'isReload' )) {
-        window.localStorage.setItem( 'isReload' , window.location.href)
+  beforeRouteEnter(to, from, next) {
+    console.log("beforeRouteEnter");
+    next(vm => {
+      if (!window.localStorage.getItem("isReload")) {
+        window.localStorage.setItem("isReload", window.location.href);
         // 微信分享需要重新设置URL
-        window.location.href = window.location.href
+        window.location.href = window.location.href;
       }
-    })
+    });
   },
   methods: {
+    //开启工作台弹窗
+    working() {
+      this.work = true;
+    },
+    //关闭工作台弹窗
+    closeWork() {
+      this.work = false;
+      this.codeShade = false;
+    },
+    //返回消息
+    backMsg() {
+      sessionStorage.setItem('selected','msg');
+      this.$router.push({
+        path: "home",
+        query: {
+          orgId: this.newsDetail.orgId,
+          orgNames: this.newsDetail.orgName
+        }
+      });
+    },
+    //返回首页
+    backHome() {
+      sessionStorage.setItem('selected','home');
+      this.$router.push({
+        path: "home",
+        query: {
+          orgId: this.newsDetail.orgId,
+          orgNames: this.newsDetail.orgName
+        }
+      });
+    },
+    //返回我的
+    backMine() {
+      this.$router.push({
+        path: "mine",
+        query: {
+          orgId: this.newsDetail.orgId,
+          orgNames: this.newsDetail.orgName
+        }
+      });
+    },
+    //关注公众号
+    focusDoc() {
+      let request = {
+        orgId: this.newsDetail.orgId
+      };
+      let vm = this;
+      this.$store
+        .dispatch("jvWxpayOrgQcode", request)
+        .then(data => {
+          if (data.data) {
+            this.codeShade = true;
+            vm.docCode = data.data.base64;
+          }
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        });
+    },
+    //未读消息数量
+    requestMsg() {
+      const request = {
+        orgId: this.newsDetail.orgId,
+        userId: this.loginData.userObj.userId.value
+      };
+      this.$store
+        .dispatch("sysOrgModeList", request)
+        .then(data => {
+          if(data){
+            this.unreadNum = data.unreadNum.value;
+          }
+
+        })
+        .catch(error => {
+          this.$toast(error.message);
+        })
+    },
+    //分享关联
+    busiPageShareViewLog() {
+      let userId = this.loginData.userObj.userId.value; //当前用户
+      let request = {
+        proUserId: this.proUserId ? this.proUserId : userId, //分享者ID
+        busiType: "资讯",
+        userId: userId,
+        orgId: this.newsDetail.orgId
+      };
+      this.$store
+        .dispatch("busiPageShareViewLog", request)
+        .then(data => {
+          if (data.rtnCode == "1") {
+            console.log('关联成功');
+          }else{
+            console.log(data.rtnMsg);
+          }
+        })
+        .catch(e => {
+          this.$toast(e.message);
+        });
+    },
     //分享
     wxShareCallback(data) {
       let shareUrl = window.location.href.split("#")[0];
+      let shareUrlUserId = window.location.href.split("#")[0] + "&proUserId=" + this.loginData.userObj.userId.value;
+      console.log(shareUrlUserId, "==shareUrlUserId");
       let dataForWeixin = {
         title: data.title, // 分享标题
         desc: data.contentWords, // 分享描述
-        link: shareUrl, // 分享链接
+        link: shareUrlUserId, // 分享链接
         imgUrl: data.photoUrl
           ? data.photoUrl
           : "http://yun.sinoylb.com/static/img/share@2x.png" // 分享图标
@@ -90,6 +245,16 @@ export default {
         .dispatch("newsDetail", request)
         .then(data => {
           this.newsDetail = data.data;
+          this.requestMsg();//未读消息数量
+          //绑定关系
+          if (!this.loginData.tid) {
+            this.myUtils.wxLogin();
+          }else{
+            if(!this.proUserId){ //没有分享者ID不关联
+              return false;
+            }
+            this.busiPageShareViewLog();
+          }
         })
         .catch(e => {
           this.$toast(e.message);
@@ -100,15 +265,68 @@ export default {
     }
   },
   created() {
-    this.getNewsDetail();
+    this.getNewsDetail(); //获取资讯详情
     setTimeout(() => {
-      this.show = true;
+      this.showTip = true;
     }, 2000);
+
   }
 };
 </script>
 
 <style scoped>
+.head_bar {
+  width: 100%;
+  height: 43px;
+  border-bottom: 1px solid #eee;
+  padding: 0 11px 0 16px;
+  background: #fff;
+  position: fixed;
+  top: 0;
+  z-index: 600;
+}
+.head_bar img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+.head_bar span {
+  max-width: 150px;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+.flex_box {
+  display: flex;
+  align-items: center;
+}
+.placeholder_div {
+  width: 100%;
+  height: 44px;
+}
+.doctorCode {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-left: -85px;
+  margin-top: -85px;
+  width: 170px;
+  height: 170px;
+  z-index: 1000;
+  text-align: center;
+}
+.doctorCode img {
+  width: 170px;
+  height: 170px;
+}
+.doctorCode p {
+  font-size: 15px;
+  color: #fff;
+  margin-top: 10px;
+}
 .main {
   padding: 16px;
   background: #fff;
@@ -168,5 +386,111 @@ export default {
   height: 56px;
   background: url("../../../static/img/news_share.png") no-repeat;
   background-size: 100% 100%;
+}
+.work_btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.work_btn img {
+  width: 24px;
+  height: 24px;
+}
+@keyframes dialog-fade-in {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 208px;
+  }
+}
+
+@keyframes dialog-fade-out {
+  0% {
+    height: 208px;
+  }
+  100% {
+    height: 0;
+  }
+}
+.shade {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 700;
+}
+.dialog_box {
+  width: 100%;
+  height: 0px;
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+  z-index: 800;
+  display: none;
+}
+.dialog-fade-in {
+  display: block;
+  animation: dialog-fade-in 0.3s;
+  animation-fill-mode: forwards;
+}
+.dialog-fade-out {
+  display: none;
+  animation: dialog-fade-out 0.5s;
+  animation-fill-mode: forwards;
+}
+.close_btn {
+  display: block;
+  width: 100%;
+  height: 55px;
+  line-height: 55px;
+  text-align: center;
+  border-top: 1px solid #e6e6e6;
+  font-size: 15px;
+  color: #040b1c;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.center_box {
+  padding: 4px 10px 10px 0;
+}
+.center_box dl {
+  text-align: center;
+  width: 33%;
+  float: left;
+  margin-top: 20px;
+}
+.center_box dl img {
+  width: 24px;
+  height: 24px;
+}
+.msg_box {
+  position: relative;
+  width: 40px;
+  margin: 0 auto;
+}
+.hot_dot {
+  position: absolute;
+  right: 0;
+  top: -5px;
+  background: #ff0000;
+  color: #fff;
+  font-size: 11px;
+  padding: 0 3px;
+  border-radius: 50%;
+  height: 18px;
+  width: 18px;
+  line-height: 18px;
 }
 </style>
