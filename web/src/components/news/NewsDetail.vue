@@ -156,7 +156,8 @@ export default {
     //关注公众号
     focusDoc() {
       let request = {
-        orgId: this.newsDetail.orgId
+        orgId: this.newsDetail.orgId,
+        showBase64: '1'
       };
       let vm = this;
       this.$store
@@ -196,7 +197,8 @@ export default {
         proUserId: this.proUserId ? this.proUserId : userId, //分享者ID
         busiType: "资讯",
         userId: userId,
-        orgId: this.newsDetail.orgId
+        orgId: this.newsDetail.orgId,
+        title: this.newsDetail.title
       };
       this.$store
         .dispatch("busiPageShareViewLog", request)

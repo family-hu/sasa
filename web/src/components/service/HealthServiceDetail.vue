@@ -188,6 +188,7 @@ export default {
       orgNames: this.$route.query.orgNames,
       packDetailsId: this.$route.query.packDetailsId,
       serviceCompanyId: this.$route.query.serviceCompanyId,
+      shopName: this.$route.query.shopName,
       shopList: [],
       crossLinePrice: "",
       sellPrice: "",
@@ -323,7 +324,8 @@ export default {
     //关注公众号
     focusDoc() {
       let request = {
-        orgId: this.orgId
+        orgId: this.orgId,
+        showBase64: '1'
       };
       let vm = this;
       this.$store
@@ -689,7 +691,8 @@ export default {
         proUserId: this.proUserId ? this.proUserId : userId, //分享者ID
         busiType: "商城套餐",
         userId: userId,
-        orgId: this.orgId
+        orgId: this.orgId,
+        title: this.shopName ? this.shopName : this.shopList.name
       };
       this.$store
         .dispatch("busiPageShareViewLog", request)
@@ -730,7 +733,9 @@ export default {
         if(!this.proUserId){ //没有分享者ID不关联
           return false;
         }
+
         this.busiPageShareViewLog();//分享关联
+
       }
     }
   },
