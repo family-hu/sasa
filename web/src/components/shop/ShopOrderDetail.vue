@@ -209,6 +209,7 @@ export default {
           packDetailsId: this.orderInfo.prodId.value,
           serviceCompanyId: this.compayInfo.serviceCompanyId.value,
           orgId: this.orderInfo.orgId.value,
+          shopName: this.orderInfo.prodName
           // orgNames: this.compayInfo.name
         }
       });

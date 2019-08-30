@@ -34,7 +34,8 @@ export default {
           packDetailsId: healthServiceItem.packDetailsId.value,
           serviceCompanyId: healthServiceItem.serviceCompanyId.value,
           orgId: this.orgId,
-          orgNames: this.orgNames
+          orgNames: this.orgNames,
+          shopName: this.healthServiceItem.name
         }
       });
     }
