@@ -50,7 +50,7 @@
       <div class="server_box">
         <div class="headerText">服务内容</div>
         <ul>
-          <li @click="showDetail" v-if="isChatTalk">
+          <li @click="showDetail" v-if="isChatTalk && drType">
             <img src="/static/img/pic@2x.png" alt="">
             <div class="item_right">
               <div class="flex-b">
@@ -229,6 +229,7 @@ export default {
       talkList: [],
       isTalk: false, //是否咨询中
       isChatTalk: false, //图文问诊
+      drType: false, //是否是医生
       isSubscribe: false,
       isVoice: false,
       isVideo: false,
@@ -717,6 +718,7 @@ export default {
     },
     //获取医生详情
     expertDetail() {
+      this.$indicator.open();
       let request = { userIds: [this.drId] };
       let vm = this;
       this.$store
@@ -724,6 +726,7 @@ export default {
         .then(doctorList => {
           if (doctorList && doctorList.length > 0) {
             vm.doctorDetail = doctorList[0];
+            vm.drType = doctorList[0].drType.value == '1033101' ? true : false;
             //title
             document.title = doctorList[0].userName + doctorList[0].titlesName;
             let serviceStatus = doctorList[0].servList;
@@ -760,6 +763,9 @@ export default {
         })
         .catch(error => {
           this.$toast(error.message);
+        })
+        .finally(() => {
+          this.$indicator.close();
         });
     },
     //获取医生小组
@@ -1337,7 +1343,7 @@ export default {
 }
 .dialog-fade-in {
   display: block;
-  animation: dialog-fade-in 0.5s;
+  animation: dialog-fade-in 0.3s;
   animation-fill-mode: forwards;
   /* height: 361px;
   transition: all 0.5s liner !important;
