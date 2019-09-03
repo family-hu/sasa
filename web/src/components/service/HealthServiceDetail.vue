@@ -1266,7 +1266,7 @@ p {
   width: 100%;
   height: auto;
 }
-@keyframes dialog-fade-in {
+@keyframes dialog-top-in {
   0% {
     height: 0;
   }
@@ -1275,7 +1275,7 @@ p {
   }
 }
 
-@keyframes dialog-fade-out {
+@keyframes dialog-top-out {
   0% {
     height: 208px;
   }
@@ -1304,12 +1304,12 @@ p {
 }
 .dialog-top-in {
   display: block;
-  animation: dialog-fade-in 0.3s;
+  animation: dialog-top-in 0.3s;
   animation-fill-mode: forwards;
 }
 .dialog-top-out {
   display: none;
-  animation: dialog-fade-out 0.5s;
+  animation: dialog-top-out 0.5s;
   animation-fill-mode: forwards;
 }
 .work_btn {
@@ -1333,7 +1333,7 @@ p {
   top: 50%;
   left: 50%;
   margin-left: -85px;
-  margin-top: -85px;
+  margin-top: -185px;
   width: 170px;
   height: 170px;
   z-index: 1000;

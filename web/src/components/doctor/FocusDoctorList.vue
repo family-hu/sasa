@@ -5,7 +5,7 @@
         <!-- 没有更多提示 -->
         <bottomloadMore v-if="doctorList.length > 3"></bottomloadMore>
       </div>
-      <div class="empty" v-if="empty">
+      <div class="empty empty_tab_top" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无关注医生，请扫码医生二维码进行关注</div>
       </div>

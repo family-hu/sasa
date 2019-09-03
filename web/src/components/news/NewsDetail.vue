@@ -314,7 +314,7 @@ export default {
   top: 50%;
   left: 50%;
   margin-left: -85px;
-  margin-top: -85px;
+  margin-top: -185px;
   width: 170px;
   height: 170px;
   z-index: 1000;

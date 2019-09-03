@@ -6,7 +6,7 @@
         <!-- 没有更多提示 -->
         <bottomloadMore v-if="loaded && groupList.length > 3"></bottomloadMore>
       </div>
-      <div class="empty" v-if="empty">
+      <div class="empty empty_tab" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无小组</div>
       </div>
@@ -97,9 +97,6 @@
 </script>
 
 <style scoped>
-  .empty{
-    top:44px
-  }
   .seach_box{
     width: 100%;
     background: #fff;

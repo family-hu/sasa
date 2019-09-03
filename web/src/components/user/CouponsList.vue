@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="empty">
+      <div class="empty empty_tab_top">
         <img :src="consultationEmpty">
         <div>您暂时还没有优惠券哦</div>
       </div>
