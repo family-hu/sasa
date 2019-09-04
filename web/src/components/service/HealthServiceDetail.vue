@@ -137,7 +137,7 @@
       </div>
       <!-- 关注二维码 -->
       <div class="doctorCode" v-if="codeShade">
-        <img :src="docCode" alt="">
+        <img :src="'data:image/jpeg;base64,'+docCode" alt="">
         <p>长按识别，关注公众号</p>
       </div>
       <!-- 底部工作台 -->
@@ -324,16 +324,16 @@ export default {
     //关注公众号
     focusDoc() {
       let request = {
-        orgId: this.orgId,
-        showBase64: '1'
+        busiId: this.orgId,
+        qrType: '1004100114'
       };
       let vm = this;
       this.$store
-        .dispatch("jvWxpayOrgQcode", request)
+        .dispatch("generateqrcode", request)
         .then(data => {
-          if (data.data) {
+          if (data.rtnCode == '1') {
             this.codeShade = true;
-            vm.docCode = data.data.base64;
+            vm.docCode = data.img;
           }
         })
         .catch(error => {
@@ -1266,7 +1266,7 @@ p {
   width: 100%;
   height: auto;
 }
-@keyframes dialog-fade-in {
+@keyframes dialog-top-in {
   0% {
     height: 0;
   }
@@ -1275,7 +1275,7 @@ p {
   }
 }
 
-@keyframes dialog-fade-out {
+@keyframes dialog-top-out {
   0% {
     height: 208px;
   }
@@ -1304,12 +1304,12 @@ p {
 }
 .dialog-top-in {
   display: block;
-  animation: dialog-fade-in 0.3s;
+  animation: dialog-top-in 0.3s;
   animation-fill-mode: forwards;
 }
 .dialog-top-out {
   display: none;
-  animation: dialog-fade-out 0.5s;
+  animation: dialog-top-out 0.5s;
   animation-fill-mode: forwards;
 }
 .work_btn {
@@ -1333,7 +1333,7 @@ p {
   top: 50%;
   left: 50%;
   margin-left: -85px;
-  margin-top: -85px;
+  margin-top: -185px;
   width: 170px;
   height: 170px;
   z-index: 1000;

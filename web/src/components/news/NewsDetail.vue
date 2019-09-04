@@ -32,7 +32,7 @@
       <bottomloadMore v-if="showTip"></bottomloadMore>
       <!-- 关注二维码 -->
       <div class="doctorCode" v-if="codeShade">
-        <img :src="docCode" alt="">
+        <img :src="'data:image/jpeg;base64,'+docCode" alt="">
         <p>长按识别，关注公众号</p>
       </div>
       <!-- 底部工作台 -->
@@ -156,16 +156,16 @@ export default {
     //关注公众号
     focusDoc() {
       let request = {
-        orgId: this.newsDetail.orgId,
-        showBase64: '1'
+        busiId: this.newsDetail.orgId,
+        qrType: '1004100114'
       };
       let vm = this;
       this.$store
-        .dispatch("jvWxpayOrgQcode", request)
+        .dispatch("generateqrcode", request)
         .then(data => {
-          if (data.data) {
+          if (data.rtnCode == '1') {
             this.codeShade = true;
-            vm.docCode = data.data.base64;
+            vm.docCode = data.img;
           }
         })
         .catch(error => {
@@ -314,7 +314,7 @@ export default {
   top: 50%;
   left: 50%;
   margin-left: -85px;
-  margin-top: -85px;
+  margin-top: -185px;
   width: 170px;
   height: 170px;
   z-index: 1000;

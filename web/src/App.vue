@@ -128,14 +128,22 @@
     border: 0;
   }
   /* 没有内容默认样式  */
-  .empty_tab{
-    margin-top: 44px;
-  }
-  .empty{
+  .empty_tab_top{
     position: fixed;
     top: 0;
     bottom: 0;
+    z-index: 400;
+  }
+  .empty_tab{
+    margin-top: 44px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 400;
+  }
+  .empty{
     width: 100%;
+    height: 100%;
     background: #fff;
     padding: 50px 40px;
     text-align: center;
