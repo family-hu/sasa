@@ -57,9 +57,21 @@ export default {
         .dispatch("sysOrgModeList", request)
         .then(data => {
           if (data.mesList.length > 0) {
+            let msgList = [];
             for (let i = 0; i < data.mesList.length; i++) {
-              vm.orgMsgList.push(data.mesList[i]);
+              let timerDate = data.mesList[i].time;
+                  timerDate = timerDate.substring(0,19);
+                  timerDate = timerDate.replace(/-/g,'/');
+              data.mesList[i].timerDate = parseInt(new Date(timerDate).getTime()/1000); //消息时间
+              msgList.push(data.mesList[i]);
+
             }
+            function up(x,y){
+              return x.timerDate - y.timerDate
+            }
+            msgList.sort(up);//按时间排序
+            vm.orgMsgList = msgList.reverse();
+
           }else{
             this.empty = true;
           }
