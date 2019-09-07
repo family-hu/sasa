@@ -398,7 +398,7 @@ export default {
     //立即预约
     appointment() {
       //分销登录/注册
-      if (this.ifRegist == "0" && this.fromUserId) {
+      if (this.ifRegist == "0") { //未绑定手机号
         //显示注册
         this.show = true;
         return false;
@@ -668,10 +668,10 @@ export default {
     isRegister() {
       const request = {
         userId: this.loginData.userObj.userId.value,
-        salesId: this.fromUserId,
-        orgId: this.orgId
+        // salesId: this.fromUserId,
+        // orgId: this.orgId
       };
-      let method = "jvUserLogin";
+      let method = "jvCheckUserHasMobile";
       this.$store
         .dispatch(method, request)
         .then(data => {
@@ -723,11 +723,11 @@ export default {
       } else {
         this.getJvFinProdSalesInfo();//分销详情
         this.requestMsg(); //获取未读消息
+        //判断是否注册
+        this.isRegister();
         //分销关联ID
         if (this.fromUserId) {
           localStorage.setItem("fromUserId", this.fromUserId);
-          //判断是否注册
-          this.isRegister();
         }
 
         if(!this.proUserId){ //没有分享者ID不关联
