@@ -172,7 +172,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex'
 import { MessageBox } from "mint-ui";
 import imgMap from "../../../static/js/imgmap.js";
 import ShopItemDetail from "../shop/ShopItemDetail.vue";
@@ -230,7 +230,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["loginData", "otherSysUserId"]),
+    ...mapGetters(["loginData", "otherSysUserId","appId"]),
     bannerImg() {
       if (this.shopList.imagePath) {
         return this.shopList.imagePath;
@@ -448,6 +448,8 @@ export default {
             this.crossLinePrice = data.data.packages.crossLinePrice.value;
             this.sellPrice = data.data.packages.sellPrice.value;
             this.shopScore = data.data.packages.score.value;
+            this.orgId = data.data.packages.orgId;
+            // console.log(this.orgId,'==this.orgId');
             // this.isAddItem = data.data.packages.isAddItem == "1" ? true : false; //判断是否跳转加项
           }
         })
@@ -668,8 +670,7 @@ export default {
     isRegister() {
       const request = {
         userId: this.loginData.userObj.userId.value,
-        // salesId: this.fromUserId,
-        // orgId: this.orgId
+        otherAppId: this.appId
       };
       let method = "jvCheckUserHasMobile";
       this.$store
