@@ -265,6 +265,18 @@ export default {
       setTimeout(() => {
         this.wxShareCallback(this.shopList);
       }, 1000);
+
+      if (!this.proUserId) { //没有分享者ID不关联
+        return false;
+      }else{
+        setTimeout(() => {
+          if(!this.loginData.tid){
+            this.myUtils.wxLogin();
+          }else{
+            this.busiPageShareViewLog();//分享关联
+          }
+        }, 1000);
+      }
     }
   },
   //加载前获取当前URL，解决iOS重定向路由
@@ -451,6 +463,7 @@ export default {
             this.orgId = data.data.packages.orgId;
             // console.log(this.orgId,'==this.orgId');
             // this.isAddItem = data.data.packages.isAddItem == "1" ? true : false; //判断是否跳转加项
+
           }
         })
         .catch(error => {
@@ -692,7 +705,7 @@ export default {
         proUserId: this.proUserId ? this.proUserId : userId, //分享者ID
         busiType: "商城套餐",
         userId: userId,
-        orgId: this.orgId,
+        orgId: this.orgId ? this.orgId : this.shopList.orgId,
         title: this.shopName ? this.shopName : this.shopList.name
       };
       this.$store
@@ -730,12 +743,6 @@ export default {
         if (this.fromUserId) {
           localStorage.setItem("fromUserId", this.fromUserId);
         }
-
-        if(!this.proUserId){ //没有分享者ID不关联
-          return false;
-        }
-
-        this.busiPageShareViewLog();//分享关联
 
       }
     }
