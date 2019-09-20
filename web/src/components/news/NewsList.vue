@@ -49,7 +49,8 @@
           this.$router.push({
             path: "newsDetail",
             query: {
-              newsId: newsDetail.newsId.value
+              newsId: newsDetail.newsId.value,
+              videoNews: newsDetail.newsStyle.value
             }
           });
         },
