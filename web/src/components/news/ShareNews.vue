@@ -203,7 +203,7 @@ export default {
       let shareUrl = window.location.href.split("#")[0];
       let dataForWeixin = {
         title: data.title, // 分享标题
-        desc: data.contentWords ? data.contentWords : "给您推荐一篇好文", // 分享描述
+        desc: data.contentWords, // 分享描述
         link: 'http://yun.sinoylb.com/newsDetail?newsId=' + this.newsId + "&proUserId=" + this.loginData.userObj.userId.value, // 分享链接
         imgUrl: this.newsImg // 分享图标 医生头像
       };
