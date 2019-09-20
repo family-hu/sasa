@@ -50,7 +50,6 @@
             path: "newsDetail",
             query: {
               newsId: newsDetail.newsId.value,
-              videoNews: newsDetail.newsStyle.value
             }
           });
         },
