@@ -172,7 +172,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex'
 import { MessageBox } from "mint-ui";
 import imgMap from "../../../static/js/imgmap.js";
 import ShopItemDetail from "../shop/ShopItemDetail.vue";
@@ -230,7 +230,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["loginData", "otherSysUserId"]),
+    ...mapGetters(["loginData", "otherSysUserId","appId"]),
     bannerImg() {
       if (this.shopList.imagePath) {
         return this.shopList.imagePath;
@@ -265,6 +265,18 @@ export default {
       setTimeout(() => {
         this.wxShareCallback(this.shopList);
       }, 1000);
+
+      if (!this.proUserId) { //没有分享者ID不关联
+        return false;
+      }else{
+        setTimeout(() => {
+          if(!this.loginData.tid){
+            this.myUtils.wxLogin();
+          }else{
+            this.busiPageShareViewLog();//分享关联
+          }
+        }, 1000);
+      }
     }
   },
   //加载前获取当前URL，解决iOS重定向路由
@@ -398,7 +410,7 @@ export default {
     //立即预约
     appointment() {
       //分销登录/注册
-      if (this.ifRegist == "0" && this.fromUserId) {
+      if (this.ifRegist == "0") { //未绑定手机号
         //显示注册
         this.show = true;
         return false;
@@ -448,7 +460,10 @@ export default {
             this.crossLinePrice = data.data.packages.crossLinePrice.value;
             this.sellPrice = data.data.packages.sellPrice.value;
             this.shopScore = data.data.packages.score.value;
+            this.orgId = data.data.packages.orgId;
+            // console.log(this.orgId,'==this.orgId');
             // this.isAddItem = data.data.packages.isAddItem == "1" ? true : false; //判断是否跳转加项
+
           }
         })
         .catch(error => {
@@ -668,10 +683,9 @@ export default {
     isRegister() {
       const request = {
         userId: this.loginData.userObj.userId.value,
-        salesId: this.fromUserId,
-        orgId: this.orgId
+        otherAppId: this.appId
       };
-      let method = "jvUserLogin";
+      let method = "jvCheckUserHasMobile";
       this.$store
         .dispatch(method, request)
         .then(data => {
@@ -691,7 +705,7 @@ export default {
         proUserId: this.proUserId ? this.proUserId : userId, //分享者ID
         busiType: "商城套餐",
         userId: userId,
-        orgId: this.orgId,
+        orgId: this.orgId ? this.orgId : this.shopList.orgId,
         title: this.shopName ? this.shopName : this.shopList.name
       };
       this.$store
@@ -723,18 +737,12 @@ export default {
       } else {
         this.getJvFinProdSalesInfo();//分销详情
         this.requestMsg(); //获取未读消息
+        //判断是否注册
+        this.isRegister();
         //分销关联ID
         if (this.fromUserId) {
           localStorage.setItem("fromUserId", this.fromUserId);
-          //判断是否注册
-          this.isRegister();
         }
-
-        if(!this.proUserId){ //没有分享者ID不关联
-          return false;
-        }
-
-        this.busiPageShareViewLog();//分享关联
 
       }
     }

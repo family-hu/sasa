@@ -125,7 +125,7 @@ export default {
           pageNum: this.page
         },
         packages: {
-          orgId:  this.orgId, //"933916890231775232"
+          orgId:  this.orgId, // "1087171373522001920"
           packCateId: arr ? arr.packCateId : null //分类
         },
         sortType: this.sortType, //排序类型

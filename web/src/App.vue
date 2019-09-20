@@ -22,7 +22,7 @@
     watch: {
       $route(to, from) {
         //调用分享
-        if(this.$route.path === '/chat' || this.$route.path === '/doctorDetail' || this.$route.path === '/main' || this.$route.path === '/healthServiceDetail' || this.$route.path === '/healthServiceDetail' || this.$route.path === '/topicDetail' || this.$route.path === '/home' || this.$route.path === '/featuresDepartment' || this.$route.path === '/serviceDetail' || this.$route.path === '/groupDetail') {
+        if(this.$route.path == '/newsDetail' || this.$route.path == '/chat' || this.$route.path == '/doctorDetail' || this.$route.path == '/main' || this.$route.path == '/healthServiceDetail' || this.$route.path == '/healthServiceDetail' || this.$route.path == '/topicDetail' || this.$route.path == '/home' || this.$route.path == '/featuresDepartment' || this.$route.path == '/serviceDetail' || this.$route.path == '/groupDetail') {
           return false
         }else{
           console.log('默认');

@@ -267,10 +267,15 @@ export default {
     }
   },
   created() {
-    this.getNewsDetail(); //获取资讯详情
-    setTimeout(() => {
-      this.showTip = true;
-    }, 2000);
+    if (!this.loginData.tid) {
+      this.myUtils.wxLogin();
+    } else {
+      this.getNewsDetail(); //获取资讯详情
+      setTimeout(() => {
+        this.showTip = true;
+      }, 2000);
+    }
+
 
   }
 };
