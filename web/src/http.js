@@ -25,10 +25,10 @@ export var financeConfig = {
     }
     return data;
   },
-  // abUrl: "/finance/"  //财务线上地址
+  abUrl: "/finance/"  //财务线上地址
   // abUrl: "http://aiyizfb8899.aiyi01.com/sk/"   //本地测试环境测试地址
   // abUrl: "http://ylb1688.sinoylb.com/sk/"       //本地正式环境测试地址
-  abUrl: "http://16health.com/finance/" //本地正式环境测试地址
+  // abUrl: "http://16health.com/finance/" //本地正式环境测试地址
 };
 
 export var config = {
@@ -40,10 +40,11 @@ export var config = {
     }
     return data;
   },
-  //  abUrl: "/apis/"     //线上环境
+   abUrl: "/apis/"     //线上环境
   // abUrl: "http://admintest.16health.com:9000/sk/" //本地测试环境
   //  abUrl: "http://16health.com/apis/" //测试环境页面    正式环境数据接口
-  abUrl: "http://16health.com/apisTest/"  //测试地址
+  // abUrl: "http://16health.com/apisTest/"  //测试地址
+  // abUrl: "http://apitest.16health.com/"     //代理测试环境
 };
 
 export var consultationConfig = {
@@ -55,10 +56,11 @@ export var consultationConfig = {
     }
     return data;
   },
-  // abUrl: "/sk/"
+  abUrl: "/sk/"
   // abUrl: "http://smanager.sinoylb.com:9901/sk/"  //心理咨询本地正式环境测试地址
   //  abUrl: "http://16health.com/apis/" //测试环境页面    正式环境数据接口
-  abUrl: "http://16health.com/apisTest/"  //测试地址
+  // abUrl: "http://16health.com/apisTest/"  //测试地址
+  // abUrl: "http://apitest.16health.com/" //代理测试环境
 };
 
 export var shoppingConfig = {
@@ -81,8 +83,8 @@ export var orgConfig = {
     } catch (e) {}
     return data;
   },
-  // abUrl: "http://47.92.159.136:8011/"  //机构正式环境
-  abUrl: "http://47.92.25.25:8011/" //机构测试环境
+  abUrl: "http://47.92.159.136:8011/"  //机构正式环境
+  // abUrl: "http://47.92.25.25:8011/" //机构测试环境
 };
 
 export var shoppingConfigPay = {
@@ -93,8 +95,8 @@ export var shoppingConfigPay = {
     } catch (e) {}
     return data;
   },
-  // abUrl: "http://47.92.159.136:8088/"  //商城财务正式环境
-  abUrl: "http://47.92.25.25:8088/" //商城财务本地测试环境测试地址
+  abUrl: "http://47.92.159.136:8088/"  //商城财务正式环境
+  // abUrl: "http://47.92.25.25:8088/" //商城财务本地测试环境测试地址
 };
 
 function getVer() {

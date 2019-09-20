@@ -5,7 +5,7 @@
         <!-- 没有更多提示 -->
         <bottomloadMore v-if="loaded && topicList.length > 3"></bottomloadMore>
       </div>
-      <div class="empty" v-if="empty">
+      <div class="empty empty_tab" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无关注小组</div>
         <!-- <p class="empty">{{groupTotal}}个小组等你来玩，<br/> 立即选择加入吧！</p> -->
@@ -144,9 +144,6 @@
 </script>
 
 <style scoped>
-  .empty{
-    top:44px
-  }
   .hot_group{
     background: #fff;
     width: 100%;

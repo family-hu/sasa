@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="empty" v-if="empty">
+      <div class="empty empty_tab_top" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无关注医院，请扫码医生二维码进行关注</div>
       </div>

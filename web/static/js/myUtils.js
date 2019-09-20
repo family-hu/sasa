@@ -45,7 +45,7 @@ export default {
            window.location.href
         );
         console.log(local);
-        const appId = 'wx3bbbb5ec55d100c4';
+        const appId = 'wx923325685a35b7d4';
         window.location.href =
           "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" +
           appId +
@@ -81,7 +81,7 @@ export default {
   formatNumber(n) {
     n = n.toString()
     return n[1] ? n : '0' + n
-  },
+  }
 
 
 }

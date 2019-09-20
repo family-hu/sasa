@@ -136,7 +136,7 @@ export default {
 .flex_title {
   width: 100%;
   z-index: 200;
-  height: 40px;
+  height: 43px;
   border-bottom: 1px solid rgba(4, 11, 28, 0.1);
   background: #fff;
   text-align: center;

@@ -20,6 +20,12 @@ const mutations = {
 };
 
 const actions = {
+  //关注机构
+  generateqrcode: ({ commit }, request) => {
+    return axios.post("generateqrcode.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   //关注公众号
   jvWxpayOrgQcode: ({ commit }, request) => {
     return axios.post("sk/jvWxpayOrgQcode.mo", request, shoppingConfigPay).then(value => {
@@ -35,6 +41,12 @@ const actions = {
   //消息列表
   sysMesList: ({ commit }, request) => {
     return axios.post("sysMesList.mo", request, config).then(value => {
+      return value.data;
+    }).catch(err);
+  },
+  //商城校验是否绑定手机号
+  jvCheckUserHasMobile: ({ commit }, request) => {
+    return axios.post("sk/jvCheckUserHasMobile.mo", request, shoppingConfigPay).then(value => {
       return value.data;
     }).catch(err);
   },

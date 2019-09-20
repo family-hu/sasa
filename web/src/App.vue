@@ -22,7 +22,7 @@
     watch: {
       $route(to, from) {
         //调用分享
-        if(this.$route.path === '/chat' || this.$route.path === '/doctorDetail' || this.$route.path === '/main' || this.$route.path === '/healthServiceDetail' || this.$route.path === '/healthServiceDetail' || this.$route.path === '/topicDetail' || this.$route.path === '/home' || this.$route.path === '/featuresDepartment' || this.$route.path === '/serviceDetail' || this.$route.path === '/groupDetail') {
+        if(this.$route.path == '/newsDetail' || this.$route.path == '/chat' || this.$route.path == '/doctorDetail' || this.$route.path == '/main' || this.$route.path == '/healthServiceDetail' || this.$route.path == '/healthServiceDetail' || this.$route.path == '/topicDetail' || this.$route.path == '/home' || this.$route.path == '/featuresDepartment' || this.$route.path == '/serviceDetail' || this.$route.path == '/groupDetail') {
           return false
         }else{
           console.log('默认');
@@ -128,14 +128,22 @@
     border: 0;
   }
   /* 没有内容默认样式  */
-  .empty_tab{
-    margin-top: 44px;
-  }
-  .empty{
+  .empty_tab_top{
     position: fixed;
     top: 0;
     bottom: 0;
+    z-index: 400;
+  }
+  .empty_tab{
+    margin-top: 44px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 400;
+  }
+  .empty{
     width: 100%;
+    height: 100%;
     background: #fff;
     padding: 50px 40px;
     text-align: center;

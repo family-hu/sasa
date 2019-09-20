@@ -137,7 +137,7 @@
       </div>
       <!-- 关注二维码 -->
       <div class="doctorCode" v-if="codeShade">
-        <img :src="docCode" alt="">
+        <img :src="'data:image/jpeg;base64,'+docCode" alt="">
         <p>长按识别，关注公众号</p>
       </div>
       <!-- 底部工作台 -->
@@ -172,7 +172,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex'
 import { MessageBox } from "mint-ui";
 import imgMap from "../../../static/js/imgmap.js";
 import ShopItemDetail from "../shop/ShopItemDetail.vue";
@@ -188,6 +188,7 @@ export default {
       orgNames: this.$route.query.orgNames,
       packDetailsId: this.$route.query.packDetailsId,
       serviceCompanyId: this.$route.query.serviceCompanyId,
+      shopName: this.$route.query.shopName,
       shopList: [],
       crossLinePrice: "",
       sellPrice: "",
@@ -229,7 +230,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["loginData", "otherSysUserId"]),
+    ...mapGetters(["loginData", "otherSysUserId","appId"]),
     bannerImg() {
       if (this.shopList.imagePath) {
         return this.shopList.imagePath;
@@ -264,6 +265,18 @@ export default {
       setTimeout(() => {
         this.wxShareCallback(this.shopList);
       }, 1000);
+
+      if (!this.proUserId) { //没有分享者ID不关联
+        return false;
+      }else{
+        setTimeout(() => {
+          if(!this.loginData.tid){
+            this.myUtils.wxLogin();
+          }else{
+            this.busiPageShareViewLog();//分享关联
+          }
+        }, 1000);
+      }
     }
   },
   //加载前获取当前URL，解决iOS重定向路由
@@ -323,15 +336,16 @@ export default {
     //关注公众号
     focusDoc() {
       let request = {
-        orgId: this.orgId
+        busiId: this.orgId,
+        qrType: '1004100114'
       };
       let vm = this;
       this.$store
-        .dispatch("jvWxpayOrgQcode", request)
+        .dispatch("generateqrcode", request)
         .then(data => {
-          if (data.data) {
+          if (data.rtnCode == '1') {
             this.codeShade = true;
-            vm.docCode = data.data.base64;
+            vm.docCode = data.img;
           }
         })
         .catch(error => {
@@ -396,7 +410,7 @@ export default {
     //立即预约
     appointment() {
       //分销登录/注册
-      if (this.ifRegist == "0" && this.fromUserId) {
+      if (this.ifRegist == "0") { //未绑定手机号
         //显示注册
         this.show = true;
         return false;
@@ -446,7 +460,10 @@ export default {
             this.crossLinePrice = data.data.packages.crossLinePrice.value;
             this.sellPrice = data.data.packages.sellPrice.value;
             this.shopScore = data.data.packages.score.value;
+            this.orgId = data.data.packages.orgId;
+            // console.log(this.orgId,'==this.orgId');
             // this.isAddItem = data.data.packages.isAddItem == "1" ? true : false; //判断是否跳转加项
+
           }
         })
         .catch(error => {
@@ -666,10 +683,9 @@ export default {
     isRegister() {
       const request = {
         userId: this.loginData.userObj.userId.value,
-        salesId: this.fromUserId,
-        orgId: this.orgId
+        otherAppId: this.appId
       };
-      let method = "jvUserLogin";
+      let method = "jvCheckUserHasMobile";
       this.$store
         .dispatch(method, request)
         .then(data => {
@@ -689,7 +705,8 @@ export default {
         proUserId: this.proUserId ? this.proUserId : userId, //分享者ID
         busiType: "商城套餐",
         userId: userId,
-        orgId: this.orgId
+        orgId: this.orgId ? this.orgId : this.shopList.orgId,
+        title: this.shopName ? this.shopName : this.shopList.name
       };
       this.$store
         .dispatch("busiPageShareViewLog", request)
@@ -720,17 +737,13 @@ export default {
       } else {
         this.getJvFinProdSalesInfo();//分销详情
         this.requestMsg(); //获取未读消息
+        //判断是否注册
+        this.isRegister();
         //分销关联ID
         if (this.fromUserId) {
           localStorage.setItem("fromUserId", this.fromUserId);
-          //判断是否注册
-          this.isRegister();
         }
 
-        if(!this.proUserId){ //没有分享者ID不关联
-          return false;
-        }
-        this.busiPageShareViewLog();//分享关联
       }
     }
   },
@@ -1261,7 +1274,7 @@ p {
   width: 100%;
   height: auto;
 }
-@keyframes dialog-fade-in {
+@keyframes dialog-top-in {
   0% {
     height: 0;
   }
@@ -1270,7 +1283,7 @@ p {
   }
 }
 
-@keyframes dialog-fade-out {
+@keyframes dialog-top-out {
   0% {
     height: 208px;
   }
@@ -1299,12 +1312,12 @@ p {
 }
 .dialog-top-in {
   display: block;
-  animation: dialog-fade-in 0.3s;
+  animation: dialog-top-in 0.3s;
   animation-fill-mode: forwards;
 }
 .dialog-top-out {
   display: none;
-  animation: dialog-fade-out 0.5s;
+  animation: dialog-top-out 0.5s;
   animation-fill-mode: forwards;
 }
 .work_btn {
@@ -1328,7 +1341,7 @@ p {
   top: 50%;
   left: 50%;
   margin-left: -85px;
-  margin-top: -85px;
+  margin-top: -185px;
   width: 170px;
   height: 170px;
   z-index: 1000;

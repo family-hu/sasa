@@ -226,7 +226,7 @@ export default {
   height: auto;
 }
 .page-wrap {
-  overflow: auto;
+  /* overflow: auto; */
   height: 100%;
   padding-bottom: 55px;
   box-sizing: border-box;

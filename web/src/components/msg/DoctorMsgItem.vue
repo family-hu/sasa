@@ -14,6 +14,7 @@
       <div class="type" v-if="msgType == '6'" @click="goChat(docMsgList)">开始问诊</div>
       <div class="type" v-if="msgType == '7'" @click="goChatRecord(docMsgList)">查看问诊记录</div>
       <div class="type" v-if="msgType == '8'" @click="goChat(docMsgList)">查看详情</div>
+      <div class="type" v-if="msgType == '9'" @click="goPromotionCenter">查看详情</div>
     </div>
   </div>
 </template>
@@ -87,6 +88,8 @@ export default {
         return "5";
       }else if (this.docMsgList.busiType == "单聊消息"){
         return "8";
+      }else if (this.docMsgList.busiType == "分享消息"){
+        return "9";
       }
     }
   },
@@ -136,6 +139,14 @@ export default {
           gender: this.gender,
         }
       });
+    },
+    //跳转推广中心
+    goPromotionCenter() {
+      window.location.href =
+        "http://gzh.1010psy.com/promotionCenter?initUserId=" +
+        this.loginData.userObj.userId.value +
+        "&orgId=" +
+        this.orgId;
     },
     goOrgHome() {
       sessionStorage.setItem('selected','home');
