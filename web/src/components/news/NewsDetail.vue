@@ -96,7 +96,7 @@ export default {
     return {
       newsDetail: {},
       newsId: this.$route.query.newsId,
-      videoNews: this.$route.query.videoNews == "1012106" ? true : false,
+      videoNews: false,
       showTip: false,
       proUserId: this.$route.query.proUserId
         ? this.$route.query.proUserId
@@ -289,6 +289,9 @@ export default {
         .dispatch("newsDetail", request)
         .then(data => {
           this.newsDetail = data.data;
+          if(this.newsDetail.newsStyle == '1012106'){
+            this.videoNews = true
+          }
           if (this.newsDetail.contentResUrls) {
             this.videoUrls = this.newsDetail.contentResUrls[0];
           }
