@@ -20,11 +20,11 @@ const getters = {
   },
   loginData: state => {
     // let obj = {};
-    // obj.tid = '877788291275988992'
+    // obj.tid = '1098738383691227136' //877788291275988992
     // obj.userObj = {};
     // obj.userObj.userId = {};
-    // obj.userObj.userId.value = "877788291275988992";
-    // //1098738383691227136
+    // obj.userObj.userId.value = "1098738383691227136";
+    //1098738383691227136
     // return obj;
     return state.loginData;
   },

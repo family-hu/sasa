@@ -194,9 +194,9 @@ export default {
     float: left;
   }
   .msg_dot{
-    width: 16px;
-    height: 16px;
-    line-height: 16px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
     background: #FF0000;
     color: #fff;
     font-size: 12px;

@@ -11,6 +11,17 @@
         </div>
       </div>
       <div class="placeholder_div"></div>
+      <!-- 有视频时显示 -->
+      <div class="video_box" v-if="videoNews">
+        <video id="video" controls="controls" @click="video" x5-playsinline="" playsinline="" webkit-playsinline="" :src="videoUrls" :poster="newsDetail.photoUrl">
+          <source :src="videoUrls" type="video/mp4">
+          <!-- <source src="myvideo.ogv" type="video/ogg"></source>
+          <source src="myvideo.webm" type="video/webm"></source> -->
+        </video>
+        <div v-if="shadeVideo" class="shade_video" @click="video">
+          <img src="/static/img/play@2x.png" alt="">
+        </div>
+      </div>
       <div class="main">
         <div class="title">{{newsDetail.title}}</div>
         <div class="title_box">
@@ -20,7 +31,16 @@
             <div class="title_time">{{newsDetail.timePublish}}</div>
           </div>
         </div>
-        <div class="center" v-html="newsDetail.content">
+      </div>
+      <!-- 有视频时显示 -->
+      <div class="head_box" v-if="videoNews">
+      </div>
+      <div class="main">
+        <h4 v-if="videoNews">详情</h4><!-- 有视频时显示 -->
+        <div class="center" v-if="videoNews">
+          {{newsDetail.videoDesp}}
+        </div>
+        <div class="center" style="margin-top: -12px;" v-else v-html="newsDetail.content">
           {{newsDetail.content}}
         </div>
       </div>
@@ -76,12 +96,17 @@ export default {
     return {
       newsDetail: {},
       newsId: this.$route.query.newsId,
+      videoNews: false,
       showTip: false,
-      proUserId: this.$route.query.proUserId ? this.$route.query.proUserId : null, //分享者userid
+      proUserId: this.$route.query.proUserId
+        ? this.$route.query.proUserId
+        : null, //分享者userid
       docCode: "",
       codeShade: false,
       work: false,
-      unreadNum: ''
+      unreadNum: "",
+      videoUrls: "",
+      shadeVideo: true
     };
   },
   components: {
@@ -112,6 +137,21 @@ export default {
     });
   },
   methods: {
+    //点击视频
+    video() {
+      let video = document.getElementById("video");
+      if (video.paused) {
+        video.play();
+        this.shadeVideo = false
+      } else {
+        video.pause();
+        this.shadeVideo = true
+      }
+      let that = this;
+      video.addEventListener('pause',function(){
+        that.shadeVideo = true
+      })
+    },
     //开启工作台弹窗
     working() {
       this.work = true;
@@ -123,7 +163,7 @@ export default {
     },
     //返回消息
     backMsg() {
-      sessionStorage.setItem('selected','msg');
+      sessionStorage.setItem("selected", "msg");
       this.$router.push({
         path: "home",
         query: {
@@ -134,7 +174,7 @@ export default {
     },
     //返回首页
     backHome() {
-      sessionStorage.setItem('selected','home');
+      sessionStorage.setItem("selected", "home");
       this.$router.push({
         path: "home",
         query: {
@@ -157,13 +197,13 @@ export default {
     focusDoc() {
       let request = {
         busiId: this.newsDetail.orgId,
-        qrType: '1004100114'
+        qrType: "1004100114"
       };
       let vm = this;
       this.$store
         .dispatch("generateqrcode", request)
         .then(data => {
-          if (data.rtnCode == '1') {
+          if (data.rtnCode == "1") {
             this.codeShade = true;
             vm.docCode = data.img;
           }
@@ -181,14 +221,13 @@ export default {
       this.$store
         .dispatch("sysOrgModeList", request)
         .then(data => {
-          if(data){
+          if (data) {
             this.unreadNum = data.unreadNum.value;
           }
-
         })
         .catch(error => {
           this.$toast(error.message);
-        })
+        });
     },
     //分享关联
     busiPageShareViewLog() {
@@ -204,8 +243,8 @@ export default {
         .dispatch("busiPageShareViewLog", request)
         .then(data => {
           if (data.rtnCode == "1") {
-            console.log('关联成功');
-          }else{
+            console.log("关联成功");
+          } else {
             console.log(data.rtnMsg);
           }
         })
@@ -216,7 +255,10 @@ export default {
     //分享
     wxShareCallback(data) {
       let shareUrl = window.location.href.split("#")[0];
-      let shareUrlUserId = window.location.href.split("#")[0] + "&proUserId=" + this.loginData.userObj.userId.value;
+      let shareUrlUserId =
+        window.location.href.split("#")[0] +
+        "&proUserId=" +
+        this.loginData.userObj.userId.value;
       console.log(shareUrlUserId, "==shareUrlUserId");
       let dataForWeixin = {
         title: data.title, // 分享标题
@@ -247,6 +289,12 @@ export default {
         .dispatch("newsDetail", request)
         .then(data => {
           this.newsDetail = data.data;
+          if(this.newsDetail.newsStyle == '1012106'){
+            this.videoNews = true
+          }
+          if (this.newsDetail.contentResUrls) {
+            this.videoUrls = this.newsDetail.contentResUrls[0];
+          }
           this.requestMsg();//未读消息数量
           //绑定关系
           if (!this.loginData.tid) {
@@ -267,16 +315,44 @@ export default {
     }
   },
   created() {
-    this.getNewsDetail(); //获取资讯详情
-    setTimeout(() => {
-      this.showTip = true;
-    }, 2000);
-
+    if (!this.loginData.tid) {
+      this.myUtils.wxLogin();
+    } else {
+      this.getNewsDetail(); //获取资讯详情
+      setTimeout(() => {
+        this.showTip = true;
+      }, 2000);
+    }
   }
 };
 </script>
 
 <style scoped>
+.video_box {
+  width: 100%;
+  height: 211px;
+  position: relative;
+}
+video {
+  width: 100%;
+  height: 100%;
+}
+.shade_video {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.shade_video img {
+  width: 39px;
+  height: 39px;
+}
 .head_bar {
   width: 100%;
   height: 43px;
@@ -333,6 +409,11 @@ export default {
   padding: 16px;
   background: #fff;
 }
+.head_box {
+  width: 100%;
+  height: 10px;
+  background: #f8f8f8;
+}
 .title {
   font-weight: 500;
   color: rgba(4, 11, 28, 1);
@@ -364,8 +445,13 @@ export default {
   font-size: 10px;
   margin-left: 5px;
 }
+h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1);
+  margin-bottom: 20px;
+}
 .center {
-  margin-top: 20px;
   width: 100%;
 }
 .center p {
@@ -400,6 +486,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
 }
 .work_btn img {
   width: 24px;

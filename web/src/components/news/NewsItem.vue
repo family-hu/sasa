@@ -6,17 +6,17 @@
           <div class="name" style="width:100%"> {{ newsItem.title }}</div>
           <div>
             <span class="text">{{ getSrcName }}</span>
-            <span class="time">{{ newsItem.pubTime | dataFormat }}</span>
+            <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>
           </div>
         </div>
       </div>
       <!-- 小图+文本 -->
       <div v-if="txtSmallImg" class="list_box">
         <div>
-          <div class="name" style="wudth:225px"> {{ newsItem.title }}</div>
-          <div>
-            <span class="text">{{ getSrcName }}</span>
-            <span class="time">{{ newsItem.pubTime | dataFormat }}</span>
+          <div class="name name3" style="width:225px"> {{ newsItem.title }}</div>
+          <div class="small_box">
+            <span class="text text_hidden">{{ getSrcName }}</span>
+            <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>
           </div>
         </div>
         <img class="imgnews" :src="imgSrc">
@@ -28,7 +28,7 @@
           <img class="big_img" :src="imgSrc">
           <div>
             <span class="text">{{ getSrcName }}</span>
-            <span class="time">{{ newsItem.pubTime | dataFormat }}</span>
+            <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@
         </div>
         <div>
           <span class="text">{{ getSrcName }}</span>
-          <span class="time">{{ newsItem.pubTime | dataFormat }}</span>
+          <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>
         </div>
       </div>
       <!-- 纯图 -->
@@ -51,17 +51,22 @@
         <img class="big_img" :src="imgSrc">
         <div class="flex-b">
           <span class="text">{{ getSrcName }}</span>
-          <span class="time">{{ newsItem.pubTime | dataFormat }}</span>
+          <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>
         </div>
       </div>
       <!-- 视频+文本 -->
       <div v-if="onlyVedio" class="list_box2">
         <div>
           <div class="name" style="wudth:225px;height:auto;margin-bottom:10px"> {{ newsItem.title }}</div>
-          <img class="big_img" :src="imgSrc">
+          <div class="big_img">
+            <img class="big_img" :src="imgSrc">
+            <div class="shade">
+              <img src="/static/img/play@2x.png" alt="">
+            </div>
+          </div>
           <div>
             <span class="text">{{ getSrcName }}</span>
-            <span class="time">{{ newsItem.pubTime | dataFormat }}</span>
+            <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>
           </div>
         </div>
       </div>
@@ -202,6 +207,22 @@ export default {
   background: #fff;
   margin-bottom: 10px;
 }
+.shade{
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, .3);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+.shade img{
+  width: 39px;
+  height: 39px;
+}
 
 .imgnews {
   color: white;
@@ -213,18 +234,37 @@ export default {
   width: 100%;
   height: 200px;
   margin-bottom: 10px;
+  position: relative;
 }
 .name {
   font-weight: 400;
   font-size: 16px;
   color: #222222;
   height: 66px;
+  margin-bottom: 4px;
+}
+.name3{
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  /* width: 225px; */
+  text-overflow: ellipsis;
+}
+.small_box{
+  display: flex;
+  justify-content: space-between;
 }
 .text {
   color: #B3B3B3;
   font-size: 12px;
+}
+.text_hidden{
+  width: 130px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .time {
   color: #B3B3B3;

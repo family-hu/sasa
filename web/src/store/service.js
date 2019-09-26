@@ -44,6 +44,12 @@ const actions = {
       return value.data;
     }).catch(err);
   },
+  //商城校验是否绑定手机号
+  jvCheckUserHasMobile: ({ commit }, request) => {
+    return axios.post("sk/jvCheckUserHasMobile.mo", request, shoppingConfigPay).then(value => {
+      return value.data;
+    }).catch(err);
+  },
   //商城分销登录
   jvUserLogin: ({ commit }, request) => {
     return axios.post("sk/jvUserLoginSalesUid.mo", request, shoppingConfigPay).then(value => {
