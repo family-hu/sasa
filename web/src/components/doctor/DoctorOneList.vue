@@ -48,7 +48,7 @@
         <!-- 没有更多提示 -->
         <bottomloadMore v-if="loaded && doctorList.length > 3"></bottomloadMore>
       </div>
-      <div class="empty" style="padding: 180px 40px;" v-if="empty">
+      <div class="empty" style="padding: 80px 40px;" v-if="empty">
         <img :src="consultationEmpty">
         <div>暂无相关结果</div>
       </div>

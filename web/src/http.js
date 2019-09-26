@@ -41,10 +41,10 @@ export var config = {
     return data;
   },
   //  abUrl: "/apis/"     //线上环境
-  // abUrl: "http://admintest.16health.com:9000/sk/" //本地测试环境
+  abUrl: "http://admintest.16health.com:9000/sk/" //本地测试环境
   //  abUrl: "http://16health.com/apis/" //测试环境页面    正式环境数据接口
   // abUrl: "http://16health.com/apisTest/"  //测试地址
-  abUrl: "http://apitest.16health.com/" //代理测试环境
+  // abUrl: "http://apitest.16health.com/" //代理测试环境
 };
 
 export var consultationConfig = {
@@ -57,10 +57,10 @@ export var consultationConfig = {
     return data;
   },
   // abUrl: "/sk/"
-  // abUrl: "http://smanager.sinoylb.com:9901/sk/"  //心理咨询本地正式环境测试地址
+  abUrl: "http://smanager.sinoylb.com:9901/sk/"  //心理咨询本地正式环境测试地址
   //  abUrl: "http://16health.com/apis/" //测试环境页面    正式环境数据接口
   // abUrl: "http://16health.com/apisTest/"  //测试地址
-  abUrl: "http://apitest.16health.com/" //代理测试环境
+  // abUrl: "http://apitest.16health.com/" //代理测试环境
 };
 
 export var shoppingConfig = {

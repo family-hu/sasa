@@ -4,7 +4,7 @@
       <div class="head_bar flex-b">
         <div class="flex_box" @click="backHome">
           <img src="/static/img/bar_back_home@2x.png" alt="">
-          <span>{{doctorDetail.orgNames}}</span>
+          <span>{{homeNames}}</span>
         </div>
         <div>
           <!-- <img @click="focusDoc" src="/static/img/bar_ewm@2x.png" alt=""> -->
@@ -204,6 +204,9 @@ import EvaItem from "./EvaItem.vue";
 export default {
   data() {
     return {
+      timestampCustomServe: this.$route.query.timestampCustomServe, //微页面标识
+      orgNames: this.$route.query.orgNames, //微页面页面名称
+      pageUrl: this.$route.query.pageUrl, //微页面返回URL
       doctorDetail: {},
       serviceList: [],
       serviceItemList: [],
@@ -244,6 +247,15 @@ export default {
   },
   computed: {
     ...mapGetters(["loginData"]),
+    //导航机构名称
+    homeNames() {
+      if(this.timestampCustomServe){ //微页面
+        return this.orgNames
+      }else{
+        return this.doctorDetail.orgNames
+      }
+    },
+    //咨询价格
     talkPrice() {
       if(this.talkList.price){
         return this.talkList.price.value
@@ -251,11 +263,13 @@ export default {
         return '0'
       }
     },
+    //医生名称
     doctorName() {
       if (this.doctorDetail.userName) return this.doctorDetail.userName;
       if (this.doctorDetail.nickName) return this.doctorDetail.nickName;
       return "";
     },
+    //职称
     deptName() {
       if (!this.doctorDetail.userId) return "";
       if (this.doctorDetail.department.value == type.COUNTRY_ALL_DEPART) {
@@ -318,6 +332,7 @@ export default {
       }
       return imgUrl;
     },
+    //组头像
     groupImg() {
       if (this.groupList.img) return this.groupList.img;
       // return imgMap.unfocusLookImg;
@@ -365,13 +380,17 @@ export default {
     },
     //返回首页
     backHome() {
-      this.$router.push({
-        path: "home",
-        query: {
-          orgId: this.doctorDetail.orgId.value,
-          orgNames: this.doctorDetail.orgNames
-        }
-      });
+      if(this.timestampCustomServe){ //返回微页面
+        window.location.href = this.pageUrl
+      }else{
+        this.$router.push({
+          path: "home",
+          query: {
+            orgId: this.doctorDetail.orgId.value,
+            orgNames: this.doctorDetail.orgNames
+          }
+        });
+      }
     },
     //返回我的
     backMine() {
