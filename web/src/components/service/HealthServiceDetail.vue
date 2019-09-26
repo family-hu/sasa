@@ -152,11 +152,11 @@
             <dt><img src="/static/img/work_public.png" alt=""></dt>
             <dd>进入公众号</dd>
           </dl>
-          <dl @click="backMine">
+          <dl @click="backMine" v-if="!timestampCustomServe">
             <dt><img src="/static/img/work_mine.png" alt=""></dt>
             <dd>我的</dd>
           </dl>
-          <dl @click="backMsg">
+          <dl @click="backMsg" v-if="!timestampCustomServe">
             <dt>
               <div class="msg_box">
                 <img src="/static/img/work_msg.png" alt="">
@@ -182,9 +182,11 @@ import { faces } from "../../../static/js/face.js";
 export default {
   data() {
     return {
+      timestampCustomServe: this.$route.query.timestampCustomServe, //微页面标识
+      pageUrl: this.$route.query.pageUrl, //微页面返回URL
       proUserId: this.$route.query.proUserId ? this.$route.query.proUserId : null, //分享者userid
       fromUserId: this.$route.query.fromUserId, //分销推广者ID
-      orgId: this.$route.query.orgId,
+      orgId: this.$route.query.orgId, //同微页面页面名称
       orgNames: this.$route.query.orgNames,
       packDetailsId: this.$route.query.packDetailsId,
       serviceCompanyId: this.$route.query.serviceCompanyId,
@@ -214,7 +216,6 @@ export default {
       disable: true,
       codeDisable: false,
       intervalId: -1,
-      isCode: this.$route.query.code,
       jvUserId: null,
       ifRegist: null,
       browse: this.$route.query.browse, //预览
@@ -314,14 +315,19 @@ export default {
     },
     //返回首页
     backHome() {
-      sessionStorage.setItem('selected','home');
-      this.$router.push({
-        path: "home",
-        query: {
-          orgId: this.orgId,
-          orgNames: this.orgNames
-        }
-      });
+      if(this.timestampCustomServe){ //返回微页面
+        window.location.href = this.pageUrl
+      }else{
+        sessionStorage.setItem('selected','home');
+        this.$router.push({
+          path: "home",
+          query: {
+            orgId: this.orgId,
+            orgNames: this.orgNames
+          }
+        });
+      }
+
     },
     //返回我的
     backMine() {
@@ -1331,6 +1337,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
 }
 .work_btn img {
   width: 24px;
