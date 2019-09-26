@@ -824,6 +824,10 @@ export default {
   },
 
   created() {
+    if (!this.loginData.tid) {
+      this.myUtils.wxLogin();
+      return false
+    }
     this.requestImStatus();
     this.getEvaList();
     this.expertDetail();
