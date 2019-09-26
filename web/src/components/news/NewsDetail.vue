@@ -98,6 +98,7 @@ export default {
       timestampCustomServe: this.$route.query.timestampCustomServe, //微页面标识
       orgNames: this.$route.query.orgNames, //微页面页面名称
       pageUrl: this.$route.query.pageUrl, //微页面返回URL
+      customOrgId: this.$route.query.customOrgId,//微页面机构ID
       newsId: this.$route.query.newsId,
       browse: this.$route.query.browse, //预览
       videoNews: false,
