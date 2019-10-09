@@ -157,6 +157,12 @@ export default {
     color:#040B1C;
     font-weight:500;
     margin-bottom: 2px;
+    width: 210px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tagChat{
     display: inline-block;
