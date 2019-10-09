@@ -24,7 +24,7 @@ const getters = {
     // obj.userObj = {};
     // obj.userObj.userId = {};
     // obj.userObj.userId.value = "1098738383691227136";
-    //1098738383691227136
+    // //1098738383691227136
     // return obj;
     return state.loginData;
   },

@@ -13,7 +13,7 @@
       <!-- 小图+文本 -->
       <div v-if="txtSmallImg" class="list_box">
         <div>
-          <div class="name name3" style="wudth:225px"> {{ newsItem.title }}</div>
+          <div class="name name3" style="width:225px"> {{ newsItem.title }}</div>
           <div class="small_box">
             <span class="text text_hidden">{{ getSrcName }}</span>
             <span class="time" v-if="newsItem.pubTime">{{ newsItem.pubTime | dataFormat }}</span>

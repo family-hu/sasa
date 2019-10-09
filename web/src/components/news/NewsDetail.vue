@@ -3,10 +3,10 @@
       <div class="head_bar flex-b">
         <div class="flex_box" @click="backHome">
           <img src="/static/img/bar_back_home@2x.png" alt="">
-          <span>{{newsDetail.orgName}}</span>
+          <span>{{homeNames}}</span>
         </div>
         <div>
-          <img @click="focusDoc" src="/static/img/bar_ewm@2x.png" alt="">
+          <img v-if="!browse" @click="focusDoc" src="/static/img/bar_ewm@2x.png" alt="">
           <img @click="backMine" src="/static/img/bar_back_mine@2x.png" alt="">
         </div>
       </div>
@@ -44,8 +44,8 @@
           {{newsDetail.content}}
         </div>
       </div>
-      <div class="news_share" @click="share"></div>
-      <div class="work_btn" @click="working">
+      <div v-if="!browse" class="news_share" @click="share"></div>
+      <div v-if="!browse" class="work_btn" @click="working">
         <img src="/static/img/work_icon.png" alt="">
       </div>
       <!-- 没有更多提示 -->
@@ -67,11 +67,11 @@
             <dt><img src="/static/img/work_public.png" alt=""></dt>
             <dd>进入公众号</dd>
           </dl>
-          <dl @click="backMine">
+          <dl @click="backMine" v-if="!timestampCustomServe">
             <dt><img src="/static/img/work_mine.png" alt=""></dt>
             <dd>我的</dd>
           </dl>
-          <dl @click="backMsg">
+          <dl @click="backMsg" v-if="!timestampCustomServe">
             <dt>
               <div class="msg_box">
                 <img src="/static/img/work_msg.png" alt="">
@@ -95,7 +95,12 @@ export default {
   data() {
     return {
       newsDetail: {},
+      timestampCustomServe: this.$route.query.timestampCustomServe, //微页面标识
+      orgNames: this.$route.query.orgNames, //微页面页面名称
+      pageUrl: this.$route.query.pageUrl, //微页面返回URL
+      customOrgId: this.$route.query.customOrgId,//微页面机构ID
       newsId: this.$route.query.newsId,
+      browse: this.$route.query.browse, //预览
       videoNews: false,
       showTip: false,
       proUserId: this.$route.query.proUserId
@@ -117,6 +122,15 @@ export default {
     orgImg() {
       if (this.newsDetail.orgUrl) return this.newsDetail.orgUrl;
       return imgMap.orgImg;
+    },
+    //导航机构名称
+    homeNames() {
+      if (this.timestampCustomServe) {
+        //微页面
+        return this.orgNames;
+      } else {
+        return this.newsDetail.orgName;
+      }
     }
   },
   mounted() {
@@ -142,15 +156,15 @@ export default {
       let video = document.getElementById("video");
       if (video.paused) {
         video.play();
-        this.shadeVideo = false
+        this.shadeVideo = false;
       } else {
         video.pause();
-        this.shadeVideo = true
+        this.shadeVideo = true;
       }
       let that = this;
-      video.addEventListener('pause',function(){
-        that.shadeVideo = true
-      })
+      video.addEventListener("pause", function() {
+        that.shadeVideo = true;
+      });
     },
     //开启工作台弹窗
     working() {
@@ -174,14 +188,19 @@ export default {
     },
     //返回首页
     backHome() {
-      sessionStorage.setItem("selected", "home");
-      this.$router.push({
-        path: "home",
-        query: {
-          orgId: this.newsDetail.orgId,
-          orgNames: this.newsDetail.orgName
-        }
-      });
+      if (this.timestampCustomServe) {
+        //返回微页面
+        window.location.href = this.pageUrl;
+      } else {
+        sessionStorage.setItem("selected", "home");
+        this.$router.push({
+          path: "home",
+          query: {
+            orgId: this.newsDetail.orgId,
+            orgNames: this.newsDetail.orgName
+          }
+        });
+      }
     },
     //返回我的
     backMine() {
@@ -289,21 +308,11 @@ export default {
         .dispatch("newsDetail", request)
         .then(data => {
           this.newsDetail = data.data;
-          if(this.newsDetail.newsStyle == '1012106'){
-            this.videoNews = true
+          if (this.newsDetail.newsStyle == "1012106") {
+            this.videoNews = true;
           }
           if (this.newsDetail.contentResUrls) {
             this.videoUrls = this.newsDetail.contentResUrls[0];
-          }
-          this.requestMsg();//未读消息数量
-          //绑定关系
-          if (!this.loginData.tid) {
-            this.myUtils.wxLogin();
-          }else{
-            if(!this.proUserId){ //没有分享者ID不关联
-              return false;
-            }
-            this.busiPageShareViewLog();
           }
         })
         .catch(e => {
@@ -315,13 +324,25 @@ export default {
     }
   },
   created() {
-    if (!this.loginData.tid) {
-      this.myUtils.wxLogin();
+    this.getNewsDetail(); //获取资讯详情
+    setTimeout(() => {
+      //没有更多提示
+      this.showTip = true;
+    }, 2000);
+    if (this.browse == "true") {
+      //预览
+      return false;
     } else {
-      this.getNewsDetail(); //获取资讯详情
-      setTimeout(() => {
-        this.showTip = true;
-      }, 2000);
+      if (!this.loginData.tid) {
+        this.myUtils.wxLogin();
+      } else {
+        this.requestMsg(); //未读消息数量
+        if (!this.proUserId) {
+          //没有分享者ID不关联
+          return false;
+        }
+        this.busiPageShareViewLog();
+      }
     }
   }
 };
