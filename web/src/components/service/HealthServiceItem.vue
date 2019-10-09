@@ -7,7 +7,7 @@
     </div>
     <div class="flex-b">
       <div class="money">￥{{healthServiceItem.sellPrice.value}}</div>
-      <div class="moneyold">￥{{healthServiceItem.crossLinePrice.value}}</div>
+      <div class="moneyold" v-if="healthServiceItem.isShowPrice == 1">￥{{healthServiceItem.crossLinePrice.value}}</div>
     </div>
   </div>
 

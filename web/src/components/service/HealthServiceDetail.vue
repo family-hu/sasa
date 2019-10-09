@@ -25,7 +25,7 @@
         <div class="price_box">
           <div class="price">
             <span class="now">¥{{sellPrice}}</span>
-            <del class="old">门市价:¥{{crossLinePrice}}</del>
+            <del class="old" v-if="shopList.isShowPrice == 1">门市价:¥{{crossLinePrice}}</del>
           </div>
           <!-- <div class="point">{{shopScore}}分</div> -->
           <div v-if="!browse" style="height: 26px;">
